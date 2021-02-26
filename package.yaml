@@ -21,20 +21,12 @@ description:         Please see the README on GitHub at <https://github.com/gith
 
 dependencies:
 - base >= 4.7 && < 5
+- template-haskell
+- primitive
 
 library:
   source-dirs: src
-
-executables:
-  cairo-image-exe:
-    main:                Main.hs
-    source-dirs:         app
-    ghc-options:
-    - -threaded
-    - -rtsopts
-    - -with-rtsopts=-N
-    dependencies:
-    - cairo-image
+  pkg-config-dependencies: cairo
 
 tests:
   cairo-image-test:
