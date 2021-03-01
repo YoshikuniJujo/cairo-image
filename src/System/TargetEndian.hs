@@ -1,7 +1,9 @@
 {-# LANGUAGE BlockArguments, LambdaCase #-}
 {-# OPTIONS_GHC -Wall -fno-warn-tabs #-}
 
-module System.TargetEndian (endian) where
+module System.TargetEndian (
+	-- * CHECK ENDIAN
+	endian ) where
 
 import Language.Haskell.TH
 import Foreign.Ptr

@@ -5,7 +5,7 @@ refactoring
 -----------
 
 * [ ] refactor document
-	+ [ ] System.TargetEndian
+	+ [x] System.TargetEndian
 	+ [ ] Data.CairoImage.Internal
 	+ [ ] Data.CairoImage
 * [ ] refactor System.TargetEndian
