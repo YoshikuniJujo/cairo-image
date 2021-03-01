@@ -24,9 +24,8 @@ module Data.CairoImage.Internal (
 	PixelA8(..),
 	pattern CairoImageA8, A8,
 	pattern CairoImageMutA8, A8Mut,
-	-- * Temporary
-	Bit(..), toBit,
-	PixelA1(..),
+	-- ** A 1
+	PixelA1(..), Bit(..), bit,
 	pattern CairoImageA1, A1,
 	pattern CairoImageMutA1, A1Mut
 	) where
@@ -39,7 +38,7 @@ import Foreign.Storable
 import Control.Monad.Primitive
 import Control.Monad.ST
 import Data.Foldable
-import Data.Bits
+import Data.Bits (Bits, (.|.), testBit, clearBit, setBit, shift, shiftL, shiftR)
 import Data.Word
 import Data.Int
 import System.IO.Unsafe
@@ -440,6 +439,10 @@ data A8Mut s = A8Mut {
 	deriving Show
 
 data Bit = O | I deriving (Show, Enum)
+
+bit :: a -> a -> Bit -> a
+bit x _ O = x
+bit _ y I = y
 
 {-
 fromBit :: Bit -> Bool

@@ -2,7 +2,7 @@
 {-# OPTIONS_GHC -Wall -fno-warn-tabs #-}
 
 module System.TargetEndian (
-	-- * CHECK ENDIAN
+	-- * Check Endian
 	endian ) where
 
 import Language.Haskell.TH
