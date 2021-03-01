@@ -24,3 +24,9 @@ test
 ----
 
 * [x] test `endian`
+
+enhancement
+-----------
+
+* [ ] add RGB 16 565
+* [ ] add RGB 30
