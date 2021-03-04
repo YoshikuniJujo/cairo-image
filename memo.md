@@ -6,10 +6,10 @@ repair
 
 * [ ] repair `pattern PixelArgb32`
 	+ [x] function `unit`
-	+ [ ] make `pattern PixelArgb32Straight`
-		- [ ] function `pixelArgb32FromArgbStrait`
-		- [ ] function `pixelArgb32ToArgbStrait`
-		- [ ] `pattern PixelArgb32Straight`
+	+ [x] make `pattern PixelArgb32Straight`
+		- [x] function `pixelArgb32FromArgbStrait`
+		- [x] function `pixelArgb32ToArgbStrait`
+		- [x] `pattern PixelArgb32Straight`
 	+ [ ] make `pattern PixelArgb32Premultiplied`
 	+ [ ] make function `pixelArgb32Premultiplied`
 		- `Word8 -> Word8 -> Word8 -> Word8 -> Maybe PixelArgb32`

@@ -13,7 +13,7 @@ module Data.CairoImage.Internal (
 	CairoImage(..), CairoImageMut(..), cairoImageFreeze, cairoImageThaw,
 	-- * Image Format
 	-- ** ARGB 32
-	PixelArgb32(..), pattern PixelArgb32,
+	PixelArgb32(..), pattern PixelArgb32, pattern PixelArgb32Straight,
 	pattern CairoImageArgb32, Argb32,
 	pattern CairoImageMutArgb32, Argb32Mut,
 	-- ** RGB 24
@@ -236,6 +236,18 @@ pixelArgb32ToArgb :: PixelArgb32 -> (Word8, Word8, Word8, Word8)
 pixelArgb32ToArgb (PixelArgb32Word32 w) = (
 	fromIntegral $ w `shiftR` 24, fromIntegral $ w `shiftR` 16,
 	fromIntegral $ w `shiftR` 8, fromIntegral w )
+
+pattern PixelArgb32Straight :: Word8 -> Word8 -> Word8 -> Word8 -> PixelArgb32
+pattern PixelArgb32Straight a r g b <- (pixelArgb32ToArgbStraight -> (a, r, g, b))
+	where PixelArgb32Straight = pixelArgb32FromArgbStraight
+
+pixelArgb32FromArgbStraight :: Word8 -> Word8 -> Word8 -> Word8 -> PixelArgb32
+pixelArgb32FromArgbStraight a r g b = pixelArgb32FromArgb
+	a (r `unit` (a, 0xff)) (g `unit` (a, 0xff)) (b `unit` (a, 0xff))
+
+pixelArgb32ToArgbStraight :: PixelArgb32 -> (Word8, Word8, Word8, Word8)
+pixelArgb32ToArgbStraight p = (a, r `unit` (0xff, a), g `unit` (0xff, a), b `unit` (0xff, a))
+	where (a, r, g, b) = pixelArgb32ToArgb p
 
 class Image i where
 	type Pixel i
