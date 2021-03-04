@@ -14,7 +14,8 @@ module Data.CairoImage.Internal (
 	-- * Image Format
 	-- ** ARGB 32
 	PixelArgb32(..), pattern PixelArgb32,
-	pattern PixelArgb32Premultiplied, pattern PixelArgb32Straight,
+	pattern PixelArgb32Premultiplied, pixelArgb32Premultiplied,
+	pattern PixelArgb32Straight,
 	pattern CairoImageArgb32, Argb32,
 	pattern CairoImageMutArgb32, Argb32Mut,
 	-- ** RGB 24
@@ -229,6 +230,11 @@ pattern PixelArgb32 a r g b <- (pixelArgb32ToArgb -> (a, r, g, b))
 
 pattern PixelArgb32Premultiplied :: Word8 -> Word8 -> Word8 -> Word8 -> PixelArgb32
 pattern PixelArgb32Premultiplied a r g b <- (pixelArgb32ToArgb -> (a, r, g, b))
+
+pixelArgb32Premultiplied :: Word8 -> Word8 -> Word8 -> Word8 -> Maybe PixelArgb32
+pixelArgb32Premultiplied a r g b
+	| r <= a, g <= a, b <= a = Just $ pixelArgb32FromArgb a r g b
+	| otherwise = Nothing
 
 pixelArgb32FromArgb :: Word8 -> Word8 -> Word8 -> Word8 -> PixelArgb32
 pixelArgb32FromArgb
