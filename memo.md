@@ -11,9 +11,9 @@ repair
 		- [x] function `pixelArgb32ToArgbStrait`
 		- [x] `pattern PixelArgb32Straight`
 	+ [x] make `pattern PixelArgb32Premultiplied`
-	+ [ ] make function `pixelArgb32Premultiplied`
+	+ [x] make function `pixelArgb32Premultiplied`
 		- `Word8 -> Word8 -> Word8 -> Word8 -> Maybe PixelArgb32`
-	+ [ ] remove `pattern PixelArgb32`
+	+ [x] remove `pattern PixelArgb32`
 	+ [ ] repiar JuicyCairo
 	+ [ ] repair try-cairo
 

@@ -8,7 +8,9 @@ module Data.CairoImage (
 	CairoImage, CairoImageMut, cairoImageFreeze, cairoImageThaw,
 	-- * Image Format
 	-- ** ARGB32
-	PixelArgb32(..), pattern PixelArgb32,
+	PixelArgb32(..),
+	pattern PixelArgb32Premultiplied, pixelArgb32Premultiplied,
+	pattern PixelArgb32Straight,
 	pattern CairoImageArgb32, Argb32,
 	pattern CairoImageMutArgb32, Argb32Mut,
 	-- ** RGB24

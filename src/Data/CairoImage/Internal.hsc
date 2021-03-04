@@ -13,7 +13,7 @@ module Data.CairoImage.Internal (
 	CairoImage(..), CairoImageMut(..), cairoImageFreeze, cairoImageThaw,
 	-- * Image Format
 	-- ** ARGB 32
-	PixelArgb32(..), pattern PixelArgb32,
+	PixelArgb32(..),
 	pattern PixelArgb32Premultiplied, pixelArgb32Premultiplied,
 	pattern PixelArgb32Straight,
 	pattern CairoImageArgb32, Argb32,
@@ -222,11 +222,7 @@ data Argb32Mut s = Argb32Mut {
 
 newtype PixelArgb32 = PixelArgb32Word32 Word32 deriving (Show, Storable)
 
-{-# COMPLETE PixelArgb32 #-}
-
-pattern PixelArgb32 :: Word8 -> Word8 -> Word8 -> Word8 -> PixelArgb32
-pattern PixelArgb32 a r g b <- (pixelArgb32ToArgb -> (a, r, g, b))
-	where PixelArgb32 = pixelArgb32FromArgb
+{-# COMPLETE PixelArgb32Premultiplied, PixelArgb32Straight #-}
 
 pattern PixelArgb32Premultiplied :: Word8 -> Word8 -> Word8 -> Word8 -> PixelArgb32
 pattern PixelArgb32Premultiplied a r g b <- (pixelArgb32ToArgb -> (a, r, g, b))
