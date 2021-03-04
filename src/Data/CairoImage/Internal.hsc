@@ -222,7 +222,7 @@ data Argb32Mut s = Argb32Mut {
 
 newtype PixelArgb32 = PixelArgb32Word32 Word32 deriving (Show, Storable)
 
-{-# COMPLETE PixelArgb32Premultiplied, PixelArgb32Straight #-}
+{-# COMPLETE PixelArgb32Premultiplied #-}
 
 pattern PixelArgb32Premultiplied :: Word8 -> Word8 -> Word8 -> Word8 -> PixelArgb32
 pattern PixelArgb32Premultiplied a r g b <- (pixelArgb32ToArgb -> (a, r, g, b))
@@ -242,6 +242,8 @@ pixelArgb32ToArgb :: PixelArgb32 -> (Word8, Word8, Word8, Word8)
 pixelArgb32ToArgb (PixelArgb32Word32 w) = (
 	fromIntegral $ w `shiftR` 24, fromIntegral $ w `shiftR` 16,
 	fromIntegral $ w `shiftR` 8, fromIntegral w )
+
+{-# COMPLETE PixelArgb32Straight #-}
 
 pattern PixelArgb32Straight :: Word8 -> Word8 -> Word8 -> Word8 -> PixelArgb32
 pattern PixelArgb32Straight a r g b <- (pixelArgb32ToArgbStraight -> (a, r, g, b))
