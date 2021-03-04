@@ -1,6 +1,21 @@
 memo
 ====
 
+repair
+------
+
+* [ ] repair `pattern PixelArgb32`
+	+ [x] function `unit`
+	+ [ ] make `pattern PixelArgb32Straight`
+		- [ ] function `pixelArgb32FromArgbStrait`
+		- [ ] function `pixelArgb32ToArgbStrait`
+		- [ ] `pattern PixelArgb32Straight`
+	+ [ ] make `pattern PixelArgb32Premultiplied`
+	+ [ ] make function `pixelArgb32Premultiplied`
+		- `Word8 -> Word8 -> Word8 -> Word8 -> Maybe PixelArgb32`
+	+ [ ] repiar JuicyCairo
+	+ [ ] repair try-cairo
+
 refactoring
 -----------
 

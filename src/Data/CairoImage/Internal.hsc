@@ -496,3 +496,13 @@ newA1Mut w h = unsafeIOToPrim do
 	d <- mallocBytes . fromIntegral $ s * h
 	fd <- newForeignPtr d $ free d
 	pure $ A1Mut w h s fd
+
+unit :: Word8 -> (Word8, Word8) -> Word8
+n `unit` (m, d) = fromIntegral
+	(fromIntegral n * fromIntegral m `div'` fromIntegral d :: Word16)
+
+infixl 7 `div'`
+
+div' :: Integral n => n -> n -> n
+_ `div'` 0 = 0
+n `div'` m = n `div` m
