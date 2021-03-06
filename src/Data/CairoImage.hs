@@ -15,8 +15,8 @@ module Data.CairoImage (
 	pattern CairoImageMutArgb32, Argb32Mut,
 	-- ** RGB24
 	PixelRgb24(..), pattern PixelRgb24,
-	Rgb24,
-	Rgb24Mut
+	pattern CairoImageRgb24, Rgb24,
+	pattern CairoImageMutRgb24, Rgb24Mut
 	) where
 
 import Data.CairoImage.Internal
