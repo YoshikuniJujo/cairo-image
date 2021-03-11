@@ -66,6 +66,7 @@ enhancement
 		- [x] function `pixelRgb30ToRgb`
 		- [x] `pattern PixelRgb30`
 		- [x] COMPLETE pragma
+	+ [x] test `pattern PixelRgb30`
 	+ [ ] `data Rgb30`
 	+ [ ] `data Rgb30Mut`
 	+ [ ] `pattern CairoImageRgb30`
