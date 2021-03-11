@@ -499,6 +499,8 @@ pokeA1 p i (PixelA1 b) = do
 
 newtype PixelRgb24 = PixelRgb24Word32 Word32 deriving (Show, Storable)
 
+{-# COMPLETE PixelRgb24 #-}
+
 pattern PixelRgb24 :: Word8 -> Word8 -> Word8 -> PixelRgb24
 pattern PixelRgb24 r g b <- (pixelRgb24ToRgb -> (r, g, b))
 	where PixelRgb24 = pixelRgb24FromRgb
@@ -524,6 +526,8 @@ data Rgb24Mut s = Rgb24Mut {
 	deriving Show
 
 newtype PixelRgb16_565 = PixelRgb16_565Word16 Word16 deriving (Show, Storable)
+
+{-# COMPLETE PixelRgb16_565 #-}
 
 pattern PixelRgb16_565 :: Word8 -> Word8 -> Word8 -> PixelRgb16_565
 pattern PixelRgb16_565 r g b <- (pixelRgb16_565ToRgb -> (r, g, b))

@@ -44,11 +44,12 @@ test
 enhancement
 -----------
 
-* [ ] add RGB 16 565
+* [x] add RGB 16 565
 	+ [x] `data PixelRgb16_565`
 	+ [x] `pattern PixelRgb16_565`
 		- [x] function `pixelRgb16_565FromRgb`
 		- [x] function `pixelRgb16_565ToRgb`
+		- [x] COMPLETE pragma
 	+ [x] repair function `pixelRgb16_565ToRgb`
 	+ [x] `data Rgb16_565`
 		- [x] define data type
