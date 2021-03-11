@@ -462,15 +462,15 @@ pixelRgb16_565FromRgb
 	where
 	r' = (r .&. 0xf8) `shiftL` (11 - 3)
 	g' = (g .&. 0xfc) `shiftL` (5 - 2)
-	b' = b .&. 0xf8 `shiftR` 3
+	b' = (b .&. 0xf8) `shiftR` 3
 
 pixelRgb16_565ToRgb :: PixelRgb16_565 -> (Word8, Word8, Word8)
 pixelRgb16_565ToRgb (PixelRgb16_565Word16 rgb) =
-	(fromIntegral r, fromIntegral g, fromIntegral b)
+	(r .|. r `shiftR` 5, g .|. g `shiftR` 6, b .|. b `shiftR` 5)
 	where
-	r = rgb `shiftR` 11 `shiftL` 3
-	g = rgb `shiftR` 5 `shiftL` 2
-	b = rgb `shiftL` 3
+	r = fromIntegral $ rgb `shiftR` 11 `shiftL` 3
+	g = fromIntegral $ rgb `shiftR` 5 `shiftL` 2
+	b = fromIntegral $ rgb `shiftL` 3
 
 newtype PixelA8 = PixelA8 Word8 deriving (Show, Storable)
 
