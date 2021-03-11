@@ -56,7 +56,6 @@ enhancement
 	+ [x] `data Rgb16_565Mut`
 		- [x] define data type
 		- [x] instance Image
-	+ [ ] `pattern CairoImageRgb16_565`
-	+ [ ] `pattern CairoImageMutRgb16_565`
-	+ [ ] others
+	+ [x] `pattern CairoImageRgb16_565`
+	+ [x] `pattern CairoImageMutRgb16_565`
 * [ ] add RGB 30

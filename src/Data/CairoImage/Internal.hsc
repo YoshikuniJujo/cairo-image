@@ -24,6 +24,8 @@ module Data.CairoImage.Internal (
 	pattern CairoImageMutRgb24, Rgb24Mut,
 	-- ** RGB 16 565
 	PixelRgb16_565(..), pattern PixelRgb16_565,
+	pattern CairoImageRgb16_565, Rgb16_565,
+	pattern CairoImageMutRgb16_565, Rgb16_565Mut,
 	-- ** A 8
 	PixelA8(..),
 	pattern CairoImageA8, A8,
@@ -144,6 +146,20 @@ cairoImageToRgb24 = \case
 		Just . Rgb24 w h s $ castForeignPtr d
 	_ -> Nothing
 
+pattern CairoImageRgb16_565 :: Rgb16_565 -> CairoImage
+pattern CairoImageRgb16_565 r <- (cairoImageToRgb16_565 -> Just r)
+	where CairoImageRgb16_565 (Rgb16_565 w h s d) =
+		CairoImage
+			#{const CAIRO_FORMAT_RGB16_565}
+			(fromIntegral w) (fromIntegral h) (fromIntegral s) $ castForeignPtr d
+
+cairoImageToRgb16_565 :: CairoImage -> Maybe Rgb16_565
+cairoImageToRgb16_565 = \case
+	CairoImage #{const CAIRO_FORMAT_RGB16_565} w h s d ->
+		Just . Rgb16_565
+			(fromIntegral w) (fromIntegral h) (fromIntegral s) $ castForeignPtr d
+	_ -> Nothing
+
 pattern CairoImageA8 :: A8 -> CairoImage
 pattern CairoImageA8 a <- (cairoImageToA8 -> Just a)
 	where CairoImageA8 (A8 w h s d) =
@@ -175,6 +191,20 @@ cairoImageMutToRgb24 :: CairoImageMut s -> Maybe (Rgb24Mut s)
 cairoImageMutToRgb24 = \case
 	CairoImageMut #{const CAIRO_FORMAT_RGB24} w h s d ->
 		Just . Rgb24Mut w h s $ castForeignPtr d
+	_ -> Nothing
+
+pattern CairoImageMutRgb16_565 :: Rgb16_565Mut s -> CairoImageMut s
+pattern CairoImageMutRgb16_565 r <- (cairoImageMutToRgb16_565 -> Just r)
+	where CairoImageMutRgb16_565 (Rgb16_565Mut w h s d) =
+		CairoImageMut
+			#{const CAIRO_FORMAT_RGB16_565}
+			(fromIntegral w) (fromIntegral h) (fromIntegral s) $ castForeignPtr d
+
+cairoImageMutToRgb16_565 :: CairoImageMut s -> Maybe (Rgb16_565Mut s)
+cairoImageMutToRgb16_565 = \case
+	CairoImageMut #{const CAIRO_FORMAT_RGB16_565} w h s d ->
+		Just . Rgb16_565Mut
+			(fromIntegral w) (fromIntegral h) (fromIntegral s) $ castForeignPtr d
 	_ -> Nothing
 
 pattern CairoImageMutA8 :: A8Mut s -> CairoImageMut s
