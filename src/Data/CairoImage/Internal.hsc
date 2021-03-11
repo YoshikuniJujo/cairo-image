@@ -39,6 +39,7 @@ import Foreign.ForeignPtr hiding (newForeignPtr)
 import Foreign.Concurrent
 import Foreign.Marshal
 import Foreign.Storable
+import Foreign.C.Types
 import Control.Monad.Primitive
 import Control.Monad.ST
 import Data.Foldable
@@ -471,6 +472,11 @@ pixelRgb16_565ToRgb (PixelRgb16_565Word16 rgb) =
 	r = fromIntegral $ rgb `shiftR` 11 `shiftL` 3
 	g = fromIntegral $ rgb `shiftR` 5 `shiftL` 2
 	b = fromIntegral $ rgb `shiftL` 3
+
+data Rgb16_565 = Rgb16_565 {
+	rgb16_565Width :: CInt, rgb16_565Height :: CInt,
+	rgb16_565Stride :: CInt, rgb16_565Data :: ForeignPtr PixelRgb16_565 }
+	deriving Show
 
 newtype PixelA8 = PixelA8 Word8 deriving (Show, Storable)
 

@@ -51,7 +51,7 @@ enhancement
 		- [x] function `pixelRgb16_565ToRgb`
 	+ [x] repair function `pixelRgb16_565ToRgb`
 	+ [ ] `data Rgb16_565`
-		- [ ] define data type
+		- [x] define data type
 		- [ ] instance Image
 	+ [ ] `data Rgb16_565Mut`
 		- [ ] define data type
