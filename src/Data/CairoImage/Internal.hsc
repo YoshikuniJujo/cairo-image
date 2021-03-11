@@ -40,7 +40,8 @@ import Foreign.Storable
 import Control.Monad.Primitive
 import Control.Monad.ST
 import Data.Foldable
-import Data.Bits (Bits, (.|.), testBit, clearBit, setBit, shift, shiftL, shiftR)
+import Data.Bits (
+	Bits, (.&.), (.|.), testBit, clearBit, setBit, shift, shiftL, shiftR)
 import Data.Word
 import Data.Int
 import System.IO.Unsafe
@@ -446,7 +447,16 @@ data Rgb24Mut s = Rgb24Mut {
 	rgb24MutStride :: #{type int}, rgb24MutData :: ForeignPtr PixelRgb24 }
 	deriving Show
 
-newtype PixelRgb16_565 = PixelRgb16_565 Word16 deriving (Show, Storable)
+newtype PixelRgb16_565 = PixelRgb16_565Word16 Word16 deriving (Show, Storable)
+
+pixelRgb16_565FromRgb :: Word8 -> Word8 -> Word8 -> PixelRgb16_565
+pixelRgb16_565FromRgb
+	(fromIntegral -> r) (fromIntegral -> g) (fromIntegral -> b) =
+	PixelRgb16_565Word16 $ r' .|. g' .|. b'
+	where
+	r' = (r .&. 0xf8) `shiftL` (11 - 3)
+	g' = (g .&. 0xfc) `shiftL` (5 - 2)
+	b' = b .&. 0xf8 `shiftR` 3
 
 newtype PixelA8 = PixelA8 Word8 deriving (Show, Storable)
 
