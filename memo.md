@@ -60,3 +60,9 @@ enhancement
 	+ [x] `pattern CairoImageRgb16_565`
 	+ [x] `pattern CairoImageMutRgb16_565`
 * [ ] add RGB 30
+	+ [x] `data PixelRgb30`
+	+ [ ] `pattern PixelRgb30`
+	+ [ ] `data Rgb30`
+	+ [ ] `data Rgb30Mut`
+	+ [ ] `pattern CairoImageRgb30`
+	+ [ ] `pattern CairoImageMutRgb30`

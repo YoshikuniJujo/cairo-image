@@ -560,6 +560,8 @@ data Rgb16_565Mut s = Rgb16_565Mut {
 	rgb16_565MutStride :: CInt, rgb16_565MutData :: ForeignPtr PixelRgb16_565 }
 	deriving Show
 
+newtype PixelRgb30 = PixelRgb30 Word32 deriving (Show, Storable)
+
 newtype PixelA8 = PixelA8 Word8 deriving (Show, Storable)
 
 data A8 = A8 {
