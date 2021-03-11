@@ -294,6 +294,15 @@ instance Image Rgb24 where
 	pixelAt (Rgb24 w h s d) x y = unsafePerformIO do
 		withForeignPtr d \p -> maybe (pure Nothing) ((Just <$>) . peek) $ ptrRgb24 w h s p x y
 
+instance Image Rgb16_565 where
+	type Pixel Rgb16_565 = PixelRgb16_565
+	imageSize (Rgb16_565 w h _ _) = (fromIntegral w, fromIntegral h)
+	generateImagePrimM w h f = generateRgb16_565PrimM
+		(fromIntegral w) (fromIntegral h)
+		\x y -> f (fromIntegral x) (fromIntegral y)
+	pixelAt (Rgb16_565 w h s d) (fromIntegral -> x) (fromIntegral -> y) = unsafePerformIO do
+		withForeignPtr d \p -> maybe (pure Nothing) ((Just <$>) . peek) $ ptrRgb16_565 w h s p x y
+
 instance Image A8 where
 	type Pixel A8 = PixelA8
 	imageSize (A8 w h _ _) = (w, h)
@@ -320,6 +329,16 @@ generateRgb24PrimM w h f = unsafeIOToPrim do
 		maybe (pure ()) (`poke` p) $ ptrRgb24 w h s d x y
 	fd <- newForeignPtr d $ free d
 	pure $ Rgb24 w h s fd
+
+generateRgb16_565PrimM :: PrimBase m => CInt -> CInt -> (CInt -> CInt -> m PixelRgb16_565) -> m Rgb16_565
+generateRgb16_565PrimM w h f = unsafeIOToPrim do
+	s <- c_cairo_format_stride_for_width #{const CAIRO_FORMAT_RGB16_565} $ fromIntegral w
+	d <- mallocBytes . fromIntegral $ fromIntegral s * h
+	for_ [0 .. h - 1] \y -> for_ [0 .. w - 1] \x -> do
+		p <- unsafePrimToIO $ f x y
+		maybe (pure ()) (`poke` p) $ ptrRgb16_565 w h (fromIntegral s) d x y
+	fd <- newForeignPtr d $ free d
+	pure $ Rgb16_565 w h (fromIntegral s) fd
 
 generateA8PrimM :: PrimBase m => #{type int} -> #{type int} -> (#{type int} -> #{type int} -> m PixelA8) -> m A8
 generateA8PrimM w h f = unsafeIOToPrim do
@@ -360,6 +379,17 @@ instance ImageMut Rgb24Mut where
 	putPixel (Rgb24Mut w h s d) x y px = unsafeIOToPrim do
 		withForeignPtr d \p -> maybe (pure ()) (`poke` px) $ ptrRgb24 w h s p x y
 
+instance ImageMut Rgb16_565Mut where
+	type PixelMut Rgb16_565Mut = PixelRgb16_565
+	imageMutSize (Rgb16_565Mut w h _ _) = (fromIntegral w, fromIntegral h)
+	newImageMut w h = newRgb16_565Mut (fromIntegral w) (fromIntegral h)
+	getPixel (Rgb16_565Mut w h s d) x y = unsafeIOToPrim do
+		withForeignPtr d \p -> maybe (pure Nothing) ((Just <$>) . peek)
+			$ ptrRgb16_565 w h s p (fromIntegral x) (fromIntegral y)
+	putPixel (Rgb16_565Mut w h s d) x y px = unsafeIOToPrim do
+		withForeignPtr d \p -> maybe (pure ()) (`poke` px)
+			$ ptrRgb16_565 w h s p (fromIntegral x) (fromIntegral y)
+
 newArgb32Mut :: PrimMonad m => #{type int} -> #{type int} -> m (Argb32Mut (PrimState m))
 newArgb32Mut w h = unsafeIOToPrim do
 	s <- c_cairo_format_stride_for_width #{const CAIRO_FORMAT_ARGB32} w
@@ -373,6 +403,13 @@ newRgb24Mut w h = unsafeIOToPrim do
 	d <- mallocBytes . fromIntegral $ s * h
 	fd <- newForeignPtr d $ free d
 	pure $ Rgb24Mut w h s fd
+
+newRgb16_565Mut :: PrimMonad m => CInt -> CInt -> m (Rgb16_565Mut (PrimState m))
+newRgb16_565Mut w h = unsafeIOToPrim do
+	s <- c_cairo_format_stride_for_width #{const CAIRO_FORMAT_RGB16_565} $ fromIntegral w
+	d <- mallocBytes . fromIntegral $ fromIntegral s * h
+	fd <- newForeignPtr d $ free d
+	pure $ Rgb16_565Mut w h (fromIntegral s) fd
 
 instance ImageMut A8Mut where
 	type PixelMut A8Mut = PixelA8
@@ -400,6 +437,12 @@ ptrRgb24 :: #{type int} -> #{type int} -> #{type int} ->
 	Ptr PixelRgb24 -> #{type int} -> #{type int} -> Maybe (Ptr PixelRgb24)
 ptrRgb24 w h s p x y
 	| 0 <= x && x < w && 0 <= y && y < h = Just $ p `plusPtr` fromIntegral (y * s + x * 4)
+	| otherwise = Nothing
+
+ptrRgb16_565 :: CInt -> CInt -> CInt ->
+	Ptr PixelRgb16_565 -> CInt -> CInt -> Maybe (Ptr PixelRgb16_565)
+ptrRgb16_565 w h s p x y
+	| 0 <= x && x < w && 0 <= y && y < h = Just $ p `plusPtr` fromIntegral (y * s + x * 2)
 	| otherwise = Nothing
 
 ptrA8 :: #{type int} -> #{type int} -> #{type int} ->
@@ -476,6 +519,11 @@ pixelRgb16_565ToRgb (PixelRgb16_565Word16 rgb) =
 data Rgb16_565 = Rgb16_565 {
 	rgb16_565Width :: CInt, rgb16_565Height :: CInt,
 	rgb16_565Stride :: CInt, rgb16_565Data :: ForeignPtr PixelRgb16_565 }
+	deriving Show
+
+data Rgb16_565Mut s = Rgb16_565Mut {
+	rgb16_565MutWidth :: CInt, rgb16_565MutHeight :: CInt,
+	rgb16_565MutStride :: CInt, rgb16_565MutData :: ForeignPtr PixelRgb16_565 }
 	deriving Show
 
 newtype PixelA8 = PixelA8 Word8 deriving (Show, Storable)

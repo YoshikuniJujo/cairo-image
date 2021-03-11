@@ -50,12 +50,12 @@ enhancement
 		- [x] function `pixelRgb16_565FromRgb`
 		- [x] function `pixelRgb16_565ToRgb`
 	+ [x] repair function `pixelRgb16_565ToRgb`
-	+ [ ] `data Rgb16_565`
+	+ [x] `data Rgb16_565`
 		- [x] define data type
-		- [ ] instance Image
-	+ [ ] `data Rgb16_565Mut`
-		- [ ] define data type
-		- [ ] instance Image
+		- [x] instance Image
+	+ [x] `data Rgb16_565Mut`
+		- [x] define data type
+		- [x] instance Image
 	+ [ ] `pattern CairoImageRgb16_565`
 	+ [ ] `pattern CairoImageMutRgb16_565`
 	+ [ ] others
