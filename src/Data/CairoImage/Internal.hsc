@@ -446,6 +446,8 @@ data Rgb24Mut s = Rgb24Mut {
 	rgb24MutStride :: #{type int}, rgb24MutData :: ForeignPtr PixelRgb24 }
 	deriving Show
 
+newtype PixelRgb16_565 = PixelRgb16_565 Word16 deriving (Show, Storable)
+
 newtype PixelA8 = PixelA8 Word8 deriving (Show, Storable)
 
 data A8 = A8 {
@@ -464,23 +466,12 @@ bit :: a -> a -> Bit -> a
 bit x _ O = x
 bit _ y I = y
 
-{-
-fromBit :: Bit -> Bool
-fromBit = \case O -> False; I -> True
--}
-
 toBit :: Bool -> Bit
 toBit = \case False -> O; True -> I
 
 put :: Bits a => a -> Int -> Bit -> a
 put n i O = n `clearBit` i
 put n i I = n `setBit` i
-
-{-
-instance Storable Bit where
-	sizeOf _ = sizeOf False; alignment _ = alignment False
-	peek = (toBit <$>) . peek . castPtr; poke p = poke (castPtr p) . fromBit
--}
 
 newtype PixelA1 = PixelA1 Bit deriving Show -- (Show, Storable)
 

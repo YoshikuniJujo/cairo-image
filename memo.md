@@ -45,4 +45,15 @@ enhancement
 -----------
 
 * [ ] add RGB 16 565
+	+ [x] `data PixelRgb16_565`
+	+ [ ] `pattern PixelRgb16_565`
+	+ [ ] `data Rgb16_565`
+		- [ ] define data type
+		- [ ] instance Image
+	+ [ ] `data Rgb16_565Mut`
+		- [ ] define data type
+		- [ ] instance Image
+	+ [ ] `pattern CairoImageRgb16_565`
+	+ [ ] `pattern CairoImageMutRgb16_565`
+	+ [ ] others
 * [ ] add RGB 30
