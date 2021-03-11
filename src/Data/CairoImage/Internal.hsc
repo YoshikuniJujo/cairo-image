@@ -26,6 +26,8 @@ module Data.CairoImage.Internal (
 	PixelRgb16_565(..), pattern PixelRgb16_565,
 	pattern CairoImageRgb16_565, Rgb16_565,
 	pattern CairoImageMutRgb16_565, Rgb16_565Mut,
+	-- ** RGB 30
+	PixelRgb30(..), pattern PixelRgb30,
 	-- ** A 8
 	PixelA8(..),
 	pattern CairoImageA8, A8,
@@ -560,7 +562,30 @@ data Rgb16_565Mut s = Rgb16_565Mut {
 	rgb16_565MutStride :: CInt, rgb16_565MutData :: ForeignPtr PixelRgb16_565 }
 	deriving Show
 
-newtype PixelRgb30 = PixelRgb30 Word32 deriving (Show, Storable)
+newtype PixelRgb30 = PixelRgb30Word32 Word32 deriving (Show, Storable)
+
+{-# COMPLETE PixelRgb30 #-}
+
+pattern PixelRgb30 :: Word16 -> Word16 -> Word16 -> PixelRgb30
+pattern PixelRgb30 r g b <- (pixelRgb30ToRgb -> (r, g, b))
+	where PixelRgb30 = pixelRgb30FromRgb
+
+pixelRgb30FromRgb :: Word16 -> Word16 -> Word16 -> PixelRgb30
+pixelRgb30FromRgb
+	(fromIntegral -> r) (fromIntegral -> g) (fromIntegral -> b) =
+	PixelRgb30Word32 $ r' .|. g' .|. b'
+	where
+	r' = (r .&. 0xffc0) `shiftL` (20 - 6)
+	g' = (g .&. 0xffc0) `shiftL` (10 - 6)
+	b' = (b .&. 0xffc0) `shiftR` 6
+
+pixelRgb30ToRgb :: PixelRgb30 -> (Word16, Word16, Word16)
+pixelRgb30ToRgb (PixelRgb30Word32 rgb) =
+	(r .|. r `shiftR` 10, g .|. g `shiftR` 10, b .|. b `shiftR` 10)
+	where
+	r = fromIntegral $ rgb `shiftR` 20 `shiftL` 6
+	g = fromIntegral $ rgb `shiftR` 10 `shiftL` 6
+	b = fromIntegral $ rgb `shiftL` 6
 
 newtype PixelA8 = PixelA8 Word8 deriving (Show, Storable)
 
