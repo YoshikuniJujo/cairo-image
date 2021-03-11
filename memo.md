@@ -46,9 +46,10 @@ enhancement
 
 * [ ] add RGB 16 565
 	+ [x] `data PixelRgb16_565`
-	+ [ ] `pattern PixelRgb16_565`
+	+ [x] `pattern PixelRgb16_565`
 		- [x] function `pixelRgb16_565FromRgb`
-		- [ ] function `pixelRgb16_565ToRgb`
+		- [x] function `pixelRgb16_565ToRgb`
+	+ [ ] repair function `pixelRgb16_565ToRgb`
 	+ [ ] `data Rgb16_565`
 		- [ ] define data type
 		- [ ] instance Image

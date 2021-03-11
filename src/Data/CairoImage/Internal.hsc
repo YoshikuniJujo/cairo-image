@@ -22,6 +22,8 @@ module Data.CairoImage.Internal (
 	PixelRgb24(..), pattern PixelRgb24,
 	pattern CairoImageRgb24, Rgb24,
 	pattern CairoImageMutRgb24, Rgb24Mut,
+	-- ** RGB 16 565
+	PixelRgb16_565(..), pattern PixelRgb16_565,
 	-- ** A 8
 	PixelA8(..),
 	pattern CairoImageA8, A8,
@@ -449,6 +451,10 @@ data Rgb24Mut s = Rgb24Mut {
 
 newtype PixelRgb16_565 = PixelRgb16_565Word16 Word16 deriving (Show, Storable)
 
+pattern PixelRgb16_565 :: Word8 -> Word8 -> Word8 -> PixelRgb16_565
+pattern PixelRgb16_565 r g b <- (pixelRgb16_565ToRgb -> (r, g, b))
+	where PixelRgb16_565 = pixelRgb16_565FromRgb
+
 pixelRgb16_565FromRgb :: Word8 -> Word8 -> Word8 -> PixelRgb16_565
 pixelRgb16_565FromRgb
 	(fromIntegral -> r) (fromIntegral -> g) (fromIntegral -> b) =
@@ -457,6 +463,14 @@ pixelRgb16_565FromRgb
 	r' = (r .&. 0xf8) `shiftL` (11 - 3)
 	g' = (g .&. 0xfc) `shiftL` (5 - 2)
 	b' = b .&. 0xf8 `shiftR` 3
+
+pixelRgb16_565ToRgb :: PixelRgb16_565 -> (Word8, Word8, Word8)
+pixelRgb16_565ToRgb (PixelRgb16_565Word16 rgb) =
+	(fromIntegral r, fromIntegral g, fromIntegral b)
+	where
+	r = rgb `shiftR` 11 `shiftL` 3
+	g = rgb `shiftR` 5 `shiftL` 2
+	b = rgb `shiftL` 3
 
 newtype PixelA8 = PixelA8 Word8 deriving (Show, Storable)
 
