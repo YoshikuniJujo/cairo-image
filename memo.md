@@ -17,7 +17,7 @@ repair
 	+ [ ] format
 		- [x] ARGB 32
 		- [x] RGB 24
-		- [ ] A 8
+		- [x] A 8
 		- [ ] A 1
 		- [ ] RGB 16 565
 		- [ ] RGB 30

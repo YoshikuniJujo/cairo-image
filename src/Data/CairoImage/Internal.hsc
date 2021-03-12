@@ -421,7 +421,7 @@ generateRgb30PrimM w h f = unsafeIOToPrim do
 	fd <- newForeignPtr d $ free d
 	pure $ Rgb30 w h (fromIntegral s) fd
 
-generateA8PrimM :: PrimBase m => #{type int} -> #{type int} -> (#{type int} -> #{type int} -> m PixelA8) -> m A8
+generateA8PrimM :: PrimBase m => CInt -> CInt -> (CInt -> CInt -> m PixelA8) -> m A8
 generateA8PrimM w h f = unsafeIOToPrim do
 	s <- c_cairo_format_stride_for_width #{const CAIRO_FORMAT_A8} (fromIntegral w)
 	d <- mallocBytes . fromIntegral $ (fromIntegral s) * h
@@ -525,7 +525,7 @@ instance ImageMut A8Mut where
 		withForeignPtr d \p -> maybe (pure ()) (`poke` px) $ ptrA8 w h s p
 			(fromIntegral x) (fromIntegral y)
 
-newA8Mut :: PrimMonad m => #{type int} -> #{type int} -> m (A8Mut (PrimState m))
+newA8Mut :: PrimMonad m => CInt -> CInt -> m (A8Mut (PrimState m))
 newA8Mut w h = unsafeIOToPrim do
 	s <- c_cairo_format_stride_for_width #{const CAIRO_FORMAT_A8} (fromIntegral w)
 	d <- mallocBytes . fromIntegral $ (fromIntegral s) * h
@@ -554,8 +554,7 @@ ptrRgb30 w h s p x y
 	| 0 <= x && x < w && 0 <= y && y < h = Just $ p `plusPtr` fromIntegral (y * s + x * 4)
 	| otherwise = Nothing
 
-ptrA8 :: #{type int} -> #{type int} -> #{type int} ->
-	Ptr PixelA8 -> #{type int} -> #{type int} -> Maybe (Ptr PixelA8)
+ptrA8 :: CInt -> CInt -> CInt -> Ptr PixelA8 -> CInt -> CInt -> Maybe (Ptr PixelA8)
 ptrA8 w h s p x y
 	| 0 <= x && x < w && 0 <= y && y < h = Just $ p `plusPtr` fromIntegral (y * s + x)
 	| otherwise = Nothing
@@ -677,13 +676,13 @@ data Rgb30Mut s = Rgb30Mut {
 newtype PixelA8 = PixelA8 Word8 deriving (Show, Storable)
 
 data A8 = A8 {
-	a8Width :: #{type int}, a8Height :: #{type int},
-	a8Stride :: #{type int}, a8Data :: ForeignPtr PixelA8 }
+	a8Width :: CInt, a8Height :: CInt,
+	a8Stride :: CInt, a8Data :: ForeignPtr PixelA8 }
 	deriving Show
 
 data A8Mut s = A8Mut {
-	a8MutWidth :: #{type int}, a8MutHeight :: #{type int},
-	a8MutStride :: #{type int}, a8MutData :: ForeignPtr PixelA8 }
+	a8MutWidth :: CInt, a8MutHeight :: CInt,
+	a8MutStride :: CInt, a8MutData :: ForeignPtr PixelA8 }
 	deriving Show
 
 data Bit = O | I deriving (Show, Enum)
