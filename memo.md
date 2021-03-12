@@ -4,6 +4,7 @@ memo
 repair
 ------
 
+* [ ] use CInt instead of #{type int}
 * [ ] repair `pattern PixelArgb32`
 	+ [x] function `unit`
 	+ [x] make `pattern PixelArgb32Straight`
@@ -23,14 +24,18 @@ refactoring
 * [ ] refactor document
 	+ [x] System.TargetEndian
 	+ [ ] Data.CairoImage.Internal
-		- [ ] structure
+		- [x] structure
 		- [ ] Class Image and ImageMut
+			* [ ] class Image
+			* [ ] class ImageMut
 		- [ ] Type CairoImage and CairoImageMut
 		- [ ] Image Format
 			* [ ] ARGB 32
 			* [ ] RGB 24
 			* [ ] A 8
 			* [ ] A 1
+			* [ ] RGB 16 565
+			* [ ] RGB 30
 	+ [ ] Data.CairoImage
 * [ ] refactor System.TargetEndian
 * [ ] refactor Data.CairoImage.Internal

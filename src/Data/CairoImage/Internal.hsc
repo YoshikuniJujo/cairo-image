@@ -22,14 +22,6 @@ module Data.CairoImage.Internal (
 	PixelRgb24(..), pattern PixelRgb24,
 	pattern CairoImageRgb24, Rgb24,
 	pattern CairoImageMutRgb24, Rgb24Mut,
-	-- ** RGB 16 565
-	PixelRgb16_565(..), pattern PixelRgb16_565,
-	pattern CairoImageRgb16_565, Rgb16_565,
-	pattern CairoImageMutRgb16_565, Rgb16_565Mut,
-	-- ** RGB 30
-	PixelRgb30(..), pattern PixelRgb30,
-	pattern CairoImageRgb30, Rgb30,
-	pattern CairoImageMutRgb30, Rgb30Mut,
 	-- ** A 8
 	PixelA8(..),
 	pattern CairoImageA8, A8,
@@ -37,7 +29,15 @@ module Data.CairoImage.Internal (
 	-- ** A 1
 	PixelA1(..), Bit(..), bit,
 	pattern CairoImageA1, A1,
-	pattern CairoImageMutA1, A1Mut
+	pattern CairoImageMutA1, A1Mut,
+	-- ** RGB 16 565
+	PixelRgb16_565(..), pattern PixelRgb16_565,
+	pattern CairoImageRgb16_565, Rgb16_565,
+	pattern CairoImageMutRgb16_565, Rgb16_565Mut,
+	-- ** RGB 30
+	PixelRgb30(..), pattern PixelRgb30,
+	pattern CairoImageRgb30, Rgb30,
+	pattern CairoImageMutRgb30, Rgb30Mut
 	) where
 
 import Foreign.Ptr
