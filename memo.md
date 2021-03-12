@@ -22,7 +22,7 @@ repair
 		- [x] RGB 16 565
 		- [x] RGB 30
 	+ [x] remove fromIntegral
-* [ ] repair `pattern PixelArgb32`
+* [x] repair `pattern PixelArgb32`
 	+ [x] function `unit`
 	+ [x] make `pattern PixelArgb32Straight`
 		- [x] function `pixelArgb32FromArgbStrait`
@@ -32,8 +32,8 @@ repair
 	+ [x] make function `pixelArgb32Premultiplied`
 		- `Word8 -> Word8 -> Word8 -> Word8 -> Maybe PixelArgb32`
 	+ [x] remove `pattern PixelArgb32`
-	+ [ ] repiar JuicyCairo
-	+ [ ] repair try-cairo
+	+ [x] repair JuicyCairo
+	+ [x] repair try-cairo
 
 refactoring
 -----------
@@ -61,6 +61,10 @@ refactoring
 		- [x] structure
 		- [x] others
 * [ ] refactor System.TargetEndian
+	+ [x] export list
+	+ [x] import list
+	+ [ ] structure
+	+ [ ] body
 * [ ] refactor Data.CairoImage.Internal
 * [ ] refactor Data.CairoImage
 

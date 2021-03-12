@@ -2,15 +2,17 @@
 {-# OPTIONS_GHC -Wall -fno-warn-tabs #-}
 
 module System.TargetEndian (
-	-- * Check Endian
+	-- * To Select According To Endian
 	endian ) where
 
-import Language.Haskell.TH
-import Foreign.Ptr
-import Foreign.Marshal
-import Foreign.Storable
-import Data.Word
-import System.Environment
+import Language.Haskell.TH (ExpQ, runIO)
+import Foreign.Ptr (castPtr)
+import Foreign.Marshal (alloca, peekArray)
+import Foreign.Storable (poke)
+import Data.Word (Word8, Word32)
+import System.Environment (lookupEnv)
+
+---------------------------------------------------------------------------
 
 data Endian = LittleEndian | BigEndian | UnknownEndian deriving Show
 
