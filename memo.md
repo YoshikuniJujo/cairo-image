@@ -38,22 +38,28 @@ repair
 refactoring
 -----------
 
-* [ ] refactor document
+* [x] refactor document
 	+ [x] System.TargetEndian
-	+ [ ] Data.CairoImage.Internal
+	+ [x] Data.CairoImage.Internal
 		- [x] structure
-		- [ ] Class Image and ImageMut
-			* [ ] class Image
-			* [ ] class ImageMut
-		- [ ] Type CairoImage and CairoImageMut
-		- [ ] Image Format
-			* [ ] ARGB 32
-			* [ ] RGB 24
-			* [ ] A 8
-			* [ ] A 1
-			* [ ] RGB 16 565
-			* [ ] RGB 30
-	+ [ ] Data.CairoImage
+		- [x] Class Image and ImageMut
+			* [x] class Image
+			* [x] class ImageMut
+		- [x] Type CairoImage and CairoImageMut
+			* [x] data CairoImage
+			* [x] data CairoImageMut
+			* [x] function cairoImageFreeze
+			* [x] function cairoImageThaw
+		- [x] Image Format
+			* [x] ARGB 32
+			* [x] RGB 24
+			* [x] A 8
+			* [x] A 1
+			* [x] RGB 16 565
+			* [x] RGB 30
+	+ [x] Data.CairoImage
+		- [x] structure
+		- [x] others
 * [ ] refactor System.TargetEndian
 * [ ] refactor Data.CairoImage.Internal
 * [ ] refactor Data.CairoImage
