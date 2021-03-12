@@ -16,7 +16,7 @@ repair
 	+ [x] c\_cairo\_format\_stride\_for\_width
 	+ [ ] format
 		- [x] ARGB 32
-		- [ ] RGB 24
+		- [x] RGB 24
 		- [ ] A 8
 		- [ ] A 1
 		- [ ] RGB 16 565

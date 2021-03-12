@@ -391,7 +391,7 @@ generateArgb32PrimM w h f = unsafeIOToPrim do
 	fd <- newForeignPtr d $ free d
 	pure $ Argb32 w h (fromIntegral s) fd
 
-generateRgb24PrimM :: PrimBase m => #{type int} -> #{type int} -> (#{type int} -> #{type int} -> m PixelRgb24) -> m Rgb24
+generateRgb24PrimM :: PrimBase m => CInt -> CInt -> (CInt -> CInt -> m PixelRgb24) -> m Rgb24
 generateRgb24PrimM w h f = unsafeIOToPrim do
 	s <- c_cairo_format_stride_for_width #{const CAIRO_FORMAT_RGB24} (fromIntegral w)
 	d <- mallocBytes . fromIntegral $ (fromIntegral s) * h
@@ -493,7 +493,7 @@ newArgb32Mut w h = unsafeIOToPrim do
 	fd <- newForeignPtr d $ free d
 	pure $ Argb32Mut w h (fromIntegral s) fd
 
-newRgb24Mut :: PrimMonad m => #{type int} -> #{type int} -> m (Rgb24Mut (PrimState m))
+newRgb24Mut :: PrimMonad m => CInt -> CInt -> m (Rgb24Mut (PrimState m))
 newRgb24Mut w h = unsafeIOToPrim do
 	s <- c_cairo_format_stride_for_width #{const CAIRO_FORMAT_RGB24} (fromIntegral w)
 	d <- mallocBytes . fromIntegral $ (fromIntegral s) * h
@@ -537,8 +537,7 @@ ptrArgb32 w h s p x y
 	| 0 <= x && x < w && 0 <= y && y < h = Just $ p `plusPtr` fromIntegral (y * s + x * 4)
 	| otherwise = Nothing
 
-ptrRgb24 :: #{type int} -> #{type int} -> #{type int} ->
-	Ptr PixelRgb24 -> #{type int} -> #{type int} -> Maybe (Ptr PixelRgb24)
+ptrRgb24 :: CInt -> CInt -> CInt -> Ptr PixelRgb24 -> CInt -> CInt -> Maybe (Ptr PixelRgb24)
 ptrRgb24 w h s p x y
 	| 0 <= x && x < w && 0 <= y && y < h = Just $ p `plusPtr` fromIntegral (y * s + x * 4)
 	| otherwise = Nothing
@@ -596,13 +595,13 @@ pixelRgb24ToRgb (PixelRgb24Word32 w) = (
 	fromIntegral $ w `shiftR` 8, fromIntegral w )
 
 data Rgb24 = Rgb24 {
-	rgb24Width :: #{type int}, rgb24Height :: #{type int},
-	rgb24Stride :: #{type int}, rgb24Data :: ForeignPtr PixelRgb24 }
+	rgb24Width :: CInt, rgb24Height :: CInt,
+	rgb24Stride :: CInt, rgb24Data :: ForeignPtr PixelRgb24 }
 	deriving Show
 
 data Rgb24Mut s = Rgb24Mut {
-	rgb24MutWidth :: #{type int}, rgb24MutHeight :: #{type int},
-	rgb24MutStride :: #{type int}, rgb24MutData :: ForeignPtr PixelRgb24 }
+	rgb24MutWidth :: CInt, rgb24MutHeight :: CInt,
+	rgb24MutStride :: CInt, rgb24MutData :: ForeignPtr PixelRgb24 }
 	deriving Show
 
 newtype PixelRgb16_565 = PixelRgb16_565Word16 Word16 deriving (Show, Storable)
