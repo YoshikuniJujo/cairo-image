@@ -4,7 +4,7 @@ memo
 repair
 ------
 
-* [ ] use CInt instead of #{type int}
+* [x] use CInt instead of #{type int}
 	+ [x] class Image
 		- [x] imageSize
 		- [x] pixelAt
@@ -14,14 +14,14 @@ repair
 	+ [x] CairoImage
 	+ [x] CairoImageMut
 	+ [x] c\_cairo\_format\_stride\_for\_width
-	+ [ ] format
+	+ [x] format
 		- [x] ARGB 32
 		- [x] RGB 24
 		- [x] A 8
 		- [x] A 1
-		- [ ] RGB 16 565
-		- [ ] RGB 30
-	+ [ ] remove fromIntegral
+		- [x] RGB 16 565
+		- [x] RGB 30
+	+ [x] remove fromIntegral
 * [ ] repair `pattern PixelArgb32`
 	+ [x] function `unit`
 	+ [x] make `pattern PixelArgb32Straight`

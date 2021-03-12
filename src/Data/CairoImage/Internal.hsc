@@ -129,135 +129,126 @@ compareBytes p1 p2 n = compare <$> peek p1b <*> peek p2b >>=
 pattern CairoImageArgb32 :: Argb32 -> CairoImage
 pattern CairoImageArgb32 a <- (cairoImageToArgb32 -> Just a)
 	where CairoImageArgb32 (Argb32 w h s d) =
-		CairoImage #{const CAIRO_FORMAT_ARGB32} (fromIntegral w) (fromIntegral h) (fromIntegral s) $ castForeignPtr d
+		CairoImage #{const CAIRO_FORMAT_ARGB32} w h s $ castForeignPtr d
 
 cairoImageToArgb32 :: CairoImage -> Maybe Argb32
 cairoImageToArgb32 = \case
 	CairoImage #{const CAIRO_FORMAT_ARGB32} w h s d ->
-		Just . Argb32 (fromIntegral w) (fromIntegral h) (fromIntegral s) $ castForeignPtr d
+		Just . Argb32 w h s $ castForeignPtr d
 	_ -> Nothing
 
 pattern CairoImageRgb24 :: Rgb24 -> CairoImage
 pattern CairoImageRgb24 r <- (cairoImageToRgb24 -> Just r)
 	where CairoImageRgb24 (Rgb24 w h s d) =
-		CairoImage #{const CAIRO_FORMAT_RGB24} (fromIntegral w) (fromIntegral h) (fromIntegral s) $ castForeignPtr d
+		CairoImage #{const CAIRO_FORMAT_RGB24} w h s $ castForeignPtr d
 
 cairoImageToRgb24 :: CairoImage -> Maybe Rgb24
 cairoImageToRgb24 = \case
 	CairoImage #{const CAIRO_FORMAT_RGB24} w h s d ->
-		Just . Rgb24 (fromIntegral w) (fromIntegral h) (fromIntegral s) $ castForeignPtr d
+		Just . Rgb24 w h s $ castForeignPtr d
 	_ -> Nothing
 
 pattern CairoImageRgb16_565 :: Rgb16_565 -> CairoImage
 pattern CairoImageRgb16_565 r <- (cairoImageToRgb16_565 -> Just r)
 	where CairoImageRgb16_565 (Rgb16_565 w h s d) =
 		CairoImage
-			#{const CAIRO_FORMAT_RGB16_565}
-			(fromIntegral w) (fromIntegral h) (fromIntegral s) $ castForeignPtr d
+			#{const CAIRO_FORMAT_RGB16_565} w h s $ castForeignPtr d
 
 cairoImageToRgb16_565 :: CairoImage -> Maybe Rgb16_565
 cairoImageToRgb16_565 = \case
 	CairoImage #{const CAIRO_FORMAT_RGB16_565} w h s d ->
-		Just . Rgb16_565
-			(fromIntegral w) (fromIntegral h) (fromIntegral s) $ castForeignPtr d
+		Just . Rgb16_565 w h s $ castForeignPtr d
 	_ -> Nothing
 
 pattern CairoImageRgb30 :: Rgb30 -> CairoImage
 pattern CairoImageRgb30 r <- (cairoImageToRgb30 -> Just r)
 	where CairoImageRgb30 (Rgb30 w h s d) =
 		CairoImage
-			#{const CAIRO_FORMAT_RGB30}
-			(fromIntegral w) (fromIntegral h) (fromIntegral s) $ castForeignPtr d
+			#{const CAIRO_FORMAT_RGB30} w h s $ castForeignPtr d
 
 cairoImageToRgb30 :: CairoImage -> Maybe Rgb30
 cairoImageToRgb30 = \case
 	CairoImage #{const CAIRO_FORMAT_RGB30} w h s d ->
-		Just . Rgb30
-			(fromIntegral w) (fromIntegral h) (fromIntegral s) $ castForeignPtr d
+		Just . Rgb30 w h s $ castForeignPtr d
 	_ -> Nothing
 
 pattern CairoImageA8 :: A8 -> CairoImage
 pattern CairoImageA8 a <- (cairoImageToA8 -> Just a)
 	where CairoImageA8 (A8 w h s d) =
-		CairoImage #{const CAIRO_FORMAT_A8} (fromIntegral w) (fromIntegral h) (fromIntegral s) $ castForeignPtr d
+		CairoImage #{const CAIRO_FORMAT_A8} w h s $ castForeignPtr d
 
 cairoImageToA8 :: CairoImage -> Maybe A8
 cairoImageToA8 = \case
 	CairoImage #{const CAIRO_FORMAT_A8} w h s d ->
-		Just . A8 (fromIntegral w) (fromIntegral h) (fromIntegral s) $ castForeignPtr d
+		Just . A8 w h s $ castForeignPtr d
 	_ -> Nothing
 
 pattern CairoImageA1 :: A1 -> CairoImage
 pattern CairoImageA1 a <- (cairoImageToA1 -> Just a)
 	where CairoImageA1 (A1 w h s d) =
-		CairoImage #{const CAIRO_FORMAT_A1}
-			(fromIntegral w) (fromIntegral h) (fromIntegral s) $ castForeignPtr d
+		CairoImage #{const CAIRO_FORMAT_A1} w h s $ castForeignPtr d
 
 cairoImageToA1 :: CairoImage -> Maybe A1
 cairoImageToA1 = \case
 	CairoImage #{const CAIRO_FORMAT_A1} w h s d ->
-		Just . A1 (fromIntegral w) (fromIntegral h) (fromIntegral s) $ castForeignPtr d
+		Just . A1 w h s $ castForeignPtr d
 	_ -> Nothing
 
 pattern CairoImageMutRgb24 :: Rgb24Mut s -> CairoImageMut s
 pattern CairoImageMutRgb24 r <- (cairoImageMutToRgb24 -> Just r)
 	where CairoImageMutRgb24 (Rgb24Mut w h s d) =
-		CairoImageMut #{const CAIRO_FORMAT_RGB24} (fromIntegral w) (fromIntegral h) (fromIntegral s) $ castForeignPtr d
+		CairoImageMut #{const CAIRO_FORMAT_RGB24} w h s $ castForeignPtr d
 
 cairoImageMutToRgb24 :: CairoImageMut s -> Maybe (Rgb24Mut s)
 cairoImageMutToRgb24 = \case
 	CairoImageMut #{const CAIRO_FORMAT_RGB24} w h s d ->
-		Just . Rgb24Mut (fromIntegral w) (fromIntegral h) (fromIntegral s) $ castForeignPtr d
+		Just . Rgb24Mut w h s $ castForeignPtr d
 	_ -> Nothing
 
 pattern CairoImageMutRgb16_565 :: Rgb16_565Mut s -> CairoImageMut s
 pattern CairoImageMutRgb16_565 r <- (cairoImageMutToRgb16_565 -> Just r)
 	where CairoImageMutRgb16_565 (Rgb16_565Mut w h s d) =
 		CairoImageMut
-			#{const CAIRO_FORMAT_RGB16_565}
-			(fromIntegral w) (fromIntegral h) (fromIntegral s) $ castForeignPtr d
+			#{const CAIRO_FORMAT_RGB16_565} w h s $ castForeignPtr d
 
 cairoImageMutToRgb16_565 :: CairoImageMut s -> Maybe (Rgb16_565Mut s)
 cairoImageMutToRgb16_565 = \case
 	CairoImageMut #{const CAIRO_FORMAT_RGB16_565} w h s d ->
-		Just . Rgb16_565Mut
-			(fromIntegral w) (fromIntegral h) (fromIntegral s) $ castForeignPtr d
+		Just . Rgb16_565Mut w h s $ castForeignPtr d
 	_ -> Nothing
 
 pattern CairoImageMutRgb30 :: Rgb30Mut s -> CairoImageMut s
 pattern CairoImageMutRgb30 r <- (cairoImageMutToRgb30 -> Just r)
 	where CairoImageMutRgb30 (Rgb30Mut w h s d) =
 		CairoImageMut
-			#{const CAIRO_FORMAT_RGB30}
-			(fromIntegral w) (fromIntegral h) (fromIntegral s) $ castForeignPtr d
+			#{const CAIRO_FORMAT_RGB30} w h s $ castForeignPtr d
 
 cairoImageMutToRgb30 :: CairoImageMut s -> Maybe (Rgb30Mut s)
 cairoImageMutToRgb30 = \case
 	CairoImageMut #{const CAIRO_FORMAT_RGB30} w h s d ->
-		Just . Rgb30Mut
-			(fromIntegral w) (fromIntegral h) (fromIntegral s) $ castForeignPtr d
+		Just . Rgb30Mut w h s $ castForeignPtr d
 	_ -> Nothing
 
 pattern CairoImageMutA8 :: A8Mut s -> CairoImageMut s
 pattern CairoImageMutA8 a <- (cairoImageMutToA8 -> Just a)
 	where CairoImageMutA8 (A8Mut w h s d) =
-		CairoImageMut #{const CAIRO_FORMAT_A8} (fromIntegral w) (fromIntegral h) (fromIntegral s) $ castForeignPtr d
+		CairoImageMut #{const CAIRO_FORMAT_A8} w h s $ castForeignPtr d
 
 cairoImageMutToA8 :: CairoImageMut s -> Maybe (A8Mut s)
 cairoImageMutToA8 = \case
 	CairoImageMut #{const CAIRO_FORMAT_A8} w h s d ->
-		Just . A8Mut (fromIntegral w) (fromIntegral h) (fromIntegral s) $ castForeignPtr d
+		Just . A8Mut w h s $ castForeignPtr d
 	_ -> Nothing
 
 pattern CairoImageMutA1 :: A1Mut s -> CairoImageMut s
 pattern CairoImageMutA1 a <- (cairoImageMutToA1 -> Just a)
 	where CairoImageMutA1 (A1Mut w h s d) =
-		CairoImageMut #{const CAIRO_FORMAT_A1} (fromIntegral w) (fromIntegral h) (fromIntegral s) $ castForeignPtr d
+		CairoImageMut #{const CAIRO_FORMAT_A1} w h s $ castForeignPtr d
 
 cairoImageMutToA1 :: CairoImageMut s -> Maybe (A1Mut s)
 cairoImageMutToA1 = \case
 	CairoImageMut #{const CAIRO_FORMAT_A1} w h s d ->
-		Just . A1Mut (fromIntegral w) (fromIntegral h) (fromIntegral s) $ castForeignPtr d
+		Just . A1Mut w h s $ castForeignPtr d
 	_ -> Nothing
 
 data Argb32 = Argb32 {
@@ -268,12 +259,12 @@ data Argb32 = Argb32 {
 pattern CairoImageMutArgb32 :: Argb32Mut s -> CairoImageMut s
 pattern CairoImageMutArgb32 a <- (cairoImageMutToArgb32 -> Just a)
 	where CairoImageMutArgb32 (Argb32Mut w h s d) =
-		CairoImageMut #{const CAIRO_FORMAT_ARGB32} (fromIntegral w) (fromIntegral h) (fromIntegral s) $ castForeignPtr d
+		CairoImageMut #{const CAIRO_FORMAT_ARGB32} w h s $ castForeignPtr d
 
 cairoImageMutToArgb32 :: CairoImageMut s -> Maybe (Argb32Mut s)
 cairoImageMutToArgb32 = \case
 	CairoImageMut #{const CAIRO_FORMAT_ARGB32} w h s d ->
-		Just . Argb32Mut (fromIntegral w) (fromIntegral h) (fromIntegral s) $ castForeignPtr d
+		Just . Argb32Mut w h s $ castForeignPtr d
 	_ -> Nothing
 
 data Argb32Mut s = Argb32Mut {
@@ -338,199 +329,183 @@ class ImageMut im where
 
 instance Image Argb32 where
 	type Pixel Argb32 = PixelArgb32
-	imageSize (Argb32 w h _ _) = (fromIntegral w, fromIntegral h)
-	generateImagePrimM w h f = generateArgb32PrimM
-		(fromIntegral w) (fromIntegral h) \x y -> f (fromIntegral x) (fromIntegral y)
+	imageSize (Argb32 w h _ _) = (w, h)
+	generateImagePrimM = generateArgb32PrimM
 	pixelAt (Argb32 w h s d) x y = unsafePerformIO do
-		withForeignPtr d \p -> maybe (pure Nothing) ((Just <$>) . peek) $ ptrArgb32 w h s p
-			(fromIntegral x) (fromIntegral y)
+		withForeignPtr d \p -> maybe (pure Nothing) ((Just <$>) . peek) $ ptrArgb32 w h s p x y
 
 instance Image Rgb24 where
 	type Pixel Rgb24 = PixelRgb24
-	imageSize (Rgb24 w h _ _) = (fromIntegral w, fromIntegral h)
-	generateImagePrimM w h f = generateRgb24PrimM
-		(fromIntegral w) (fromIntegral h) \x y -> f (fromIntegral x) (fromIntegral y)
+	imageSize (Rgb24 w h _ _) = (w, h)
+	generateImagePrimM = generateRgb24PrimM
 	pixelAt (Rgb24 w h s d) x y = unsafePerformIO do
-		withForeignPtr d \p -> maybe (pure Nothing) ((Just <$>) . peek) $ ptrRgb24 w h s p
-			(fromIntegral x) (fromIntegral y)
+		withForeignPtr d \p -> maybe (pure Nothing) ((Just <$>) . peek) $ ptrRgb24 w h s p x y
 
 instance Image Rgb16_565 where
 	type Pixel Rgb16_565 = PixelRgb16_565
-	imageSize (Rgb16_565 w h _ _) = (fromIntegral w, fromIntegral h)
-	generateImagePrimM w h f = generateRgb16_565PrimM
-		(fromIntegral w) (fromIntegral h)
-		\x y -> f (fromIntegral x) (fromIntegral y)
-	pixelAt (Rgb16_565 w h s d) (fromIntegral -> x) (fromIntegral -> y) = unsafePerformIO do
+	imageSize (Rgb16_565 w h _ _) = (w, h)
+	generateImagePrimM = generateRgb16_565PrimM
+	pixelAt (Rgb16_565 w h s d) x y = unsafePerformIO do
 		withForeignPtr d \p -> maybe (pure Nothing) ((Just <$>) . peek) $ ptrRgb16_565 w h s p x y
 
 instance Image Rgb30 where
 	type Pixel Rgb30 = PixelRgb30
-	imageSize (Rgb30 w h _ _) = (fromIntegral w, fromIntegral h)
-	generateImagePrimM w h f = generateRgb30PrimM
-		(fromIntegral w) (fromIntegral h)
-		\x y -> f (fromIntegral x) (fromIntegral y)
-	pixelAt (Rgb30 w h s d) (fromIntegral -> x) (fromIntegral -> y) = unsafePerformIO do
+	imageSize (Rgb30 w h _ _) = (w, h)
+	generateImagePrimM = generateRgb30PrimM
+	pixelAt (Rgb30 w h s d) x y = unsafePerformIO do
 		withForeignPtr d \p -> maybe (pure Nothing) ((Just <$>) . peek) $ ptrRgb30 w h s p x y
 
 instance Image A8 where
 	type Pixel A8 = PixelA8
-	imageSize (A8 w h _ _) = (fromIntegral w, fromIntegral h)
-	generateImagePrimM w h f = generateA8PrimM
-		(fromIntegral w) (fromIntegral h) \x y -> f (fromIntegral x) (fromIntegral y)
+	imageSize (A8 w h _ _) = (w, h)
+	generateImagePrimM = generateA8PrimM
 	pixelAt (A8 w h s d) x y = unsafePerformIO do
-		withForeignPtr d \p -> maybe (pure Nothing) ((Just <$>) . peek) $ ptrA8 w h s p
-			(fromIntegral x) (fromIntegral y)
+		withForeignPtr d \p -> maybe (pure Nothing) ((Just <$>) . peek) $ ptrA8 w h s p x y
 
 generateArgb32PrimM :: PrimBase	m => CInt -> CInt -> (CInt -> CInt -> m PixelArgb32) -> m Argb32
 generateArgb32PrimM w h f = unsafeIOToPrim do
-	s <- c_cairo_format_stride_for_width #{const CAIRO_FORMAT_ARGB32} (fromIntegral w)
-	d <- mallocBytes . fromIntegral $ fromIntegral s * h
+	s <- c_cairo_format_stride_for_width #{const CAIRO_FORMAT_ARGB32} w
+	d <- mallocBytes . fromIntegral $ s * h
 	for_ [0 .. h - 1] \y -> for_ [0 .. w - 1] \x -> do
 		p <- unsafePrimToIO $ f x y
-		maybe (pure ()) (`poke` p) $ ptrArgb32 w h (fromIntegral s) d x y
+		maybe (pure ()) (`poke` p) $ ptrArgb32 w h s d x y
 	fd <- newForeignPtr d $ free d
-	pure $ Argb32 w h (fromIntegral s) fd
+	pure $ Argb32 w h s fd
 
 generateRgb24PrimM :: PrimBase m => CInt -> CInt -> (CInt -> CInt -> m PixelRgb24) -> m Rgb24
 generateRgb24PrimM w h f = unsafeIOToPrim do
-	s <- c_cairo_format_stride_for_width #{const CAIRO_FORMAT_RGB24} (fromIntegral w)
-	d <- mallocBytes . fromIntegral $ (fromIntegral s) * h
+	s <- c_cairo_format_stride_for_width #{const CAIRO_FORMAT_RGB24} w
+	d <- mallocBytes . fromIntegral $ s * h
 	for_ [0 .. h - 1] \y -> for_ [0 .. w - 1] \x -> do
 		p <- unsafePrimToIO $ f x y
-		maybe (pure ()) (`poke` p) $ ptrRgb24 w h (fromIntegral s) d x y
+		maybe (pure ()) (`poke` p) $ ptrRgb24 w h s d x y
 	fd <- newForeignPtr d $ free d
-	pure $ Rgb24 w h (fromIntegral s) fd
+	pure $ Rgb24 w h s fd
 
 generateRgb16_565PrimM :: PrimBase m => CInt -> CInt -> (CInt -> CInt -> m PixelRgb16_565) -> m Rgb16_565
 generateRgb16_565PrimM w h f = unsafeIOToPrim do
-	s <- c_cairo_format_stride_for_width #{const CAIRO_FORMAT_RGB16_565} $ fromIntegral w
-	d <- mallocBytes . fromIntegral $ fromIntegral s * h
+	s <- c_cairo_format_stride_for_width #{const CAIRO_FORMAT_RGB16_565} w
+	d <- mallocBytes . fromIntegral $ s * h
 	for_ [0 .. h - 1] \y -> for_ [0 .. w - 1] \x -> do
 		p <- unsafePrimToIO $ f x y
-		maybe (pure ()) (`poke` p) $ ptrRgb16_565 w h (fromIntegral s) d x y
+		maybe (pure ()) (`poke` p) $ ptrRgb16_565 w h s d x y
 	fd <- newForeignPtr d $ free d
-	pure $ Rgb16_565 w h (fromIntegral s) fd
+	pure $ Rgb16_565 w h s fd
 
 generateRgb30PrimM :: PrimBase m => CInt -> CInt -> (CInt -> CInt -> m PixelRgb30) -> m Rgb30
 generateRgb30PrimM w h f = unsafeIOToPrim do
-	s <- c_cairo_format_stride_for_width #{const CAIRO_FORMAT_RGB30} $ fromIntegral w
-	d <- mallocBytes . fromIntegral $ fromIntegral s * h
+	s <- c_cairo_format_stride_for_width #{const CAIRO_FORMAT_RGB30} w
+	d <- mallocBytes . fromIntegral $ s * h
 	for_ [0 .. h - 1] \y -> for_ [0 .. w - 1] \x -> do
 		p <- unsafePrimToIO $ f x y
-		maybe (pure ()) (`poke` p) $ ptrRgb30 w h (fromIntegral s) d x y
+		maybe (pure ()) (`poke` p) $ ptrRgb30 w h s d x y
 	fd <- newForeignPtr d $ free d
-	pure $ Rgb30 w h (fromIntegral s) fd
+	pure $ Rgb30 w h s fd
 
 generateA8PrimM :: PrimBase m => CInt -> CInt -> (CInt -> CInt -> m PixelA8) -> m A8
 generateA8PrimM w h f = unsafeIOToPrim do
-	s <- c_cairo_format_stride_for_width #{const CAIRO_FORMAT_A8} (fromIntegral w)
-	d <- mallocBytes . fromIntegral $ (fromIntegral s) * h
+	s <- c_cairo_format_stride_for_width #{const CAIRO_FORMAT_A8} w
+	d <- mallocBytes . fromIntegral $ s * h
 	for_ [0 .. h - 1] \y -> for_ [0 .. w - 1] \x -> do
 		p <- unsafePrimToIO $ f x y
-		maybe (pure ()) (`poke` p) $ ptrA8 w h (fromIntegral s) d x y
+		maybe (pure ()) (`poke` p) $ ptrA8 w h s d x y
 	fd <- newForeignPtr d $ free d
-	pure $ A8 w h (fromIntegral s) fd
+	pure $ A8 w h s fd
 
 generateA1PrimM :: PrimBase m => CInt -> CInt -> (CInt -> CInt -> m PixelA1) -> m A1
 generateA1PrimM w h f = unsafeIOToPrim do
-	s <- c_cairo_format_stride_for_width #{const CAIRO_FORMAT_A8} (fromIntegral w)
-	d <- mallocBytes . fromIntegral $ (fromIntegral s) * h
+	s <- c_cairo_format_stride_for_width #{const CAIRO_FORMAT_A8} w
+	d <- mallocBytes . fromIntegral $ s * h
 	for_ [0 .. h - 1] \y -> for_ [0 .. w - 1] \x -> do
 		p <- unsafePrimToIO $ f x y
-		maybe (pure ()) (\(pt, i) -> pokeA1 pt i p) $ ptrA1 w h (fromIntegral s) d x y
+		maybe (pure ()) (\(pt, i) -> pokeA1 pt i p) $ ptrA1 w h s d x y
 	let	d' = castPtr d
 	fd <- newForeignPtr d' $ free d'
-	pure $ A1 w h (fromIntegral s) fd
+	pure $ A1 w h s fd
 
 instance ImageMut Argb32Mut where
 	type PixelMut Argb32Mut = PixelArgb32
-	imageMutSize (Argb32Mut w h _ _) = (fromIntegral w, fromIntegral h)
-	newImageMut w h = newArgb32Mut (fromIntegral w) (fromIntegral h)
+	imageMutSize (Argb32Mut w h _ _) = (w, h)
+	newImageMut = newArgb32Mut
 	getPixel (Argb32Mut w h s d) x y = unsafeIOToPrim do
-		withForeignPtr d \p -> maybe (pure Nothing) ((Just <$>) . peek) $ ptrArgb32 w h s p
-			(fromIntegral x) (fromIntegral y)
+		withForeignPtr d \p -> maybe (pure Nothing) ((Just <$>) . peek) $ ptrArgb32 w h s p x y
 	putPixel (Argb32Mut w h s d) x y px = unsafeIOToPrim do
-		withForeignPtr d \p -> maybe (pure ()) (`poke` px) $ ptrArgb32 w h (fromIntegral s) p
-			(fromIntegral x) (fromIntegral y)
+		withForeignPtr d \p -> maybe (pure ()) (`poke` px) $ ptrArgb32 w h s p x y
 
 instance ImageMut Rgb24Mut where
 	type PixelMut Rgb24Mut = PixelRgb24
-	imageMutSize (Rgb24Mut w h _ _) = (fromIntegral w, fromIntegral h)
-	newImageMut w h = newRgb24Mut (fromIntegral w) (fromIntegral h)
+	imageMutSize (Rgb24Mut w h _ _) = (w, h)
+	newImageMut w h = newRgb24Mut w h
 	getPixel (Rgb24Mut w h s d) x y = unsafeIOToPrim do
-		withForeignPtr d \p -> maybe (pure Nothing) ((Just <$>) . peek) $ ptrRgb24 w h s p
-			(fromIntegral x) (fromIntegral y)
+		withForeignPtr d \p -> maybe (pure Nothing) ((Just <$>) . peek) $ ptrRgb24 w h s p x y
 	putPixel (Rgb24Mut w h s d) x y px = unsafeIOToPrim do
-		withForeignPtr d \p -> maybe (pure ()) (`poke` px) $ ptrRgb24 w h s p
-			(fromIntegral x) (fromIntegral y)
+		withForeignPtr d \p -> maybe (pure ()) (`poke` px) $ ptrRgb24 w h s p x y
 
 instance ImageMut Rgb16_565Mut where
 	type PixelMut Rgb16_565Mut = PixelRgb16_565
-	imageMutSize (Rgb16_565Mut w h _ _) = (fromIntegral w, fromIntegral h)
-	newImageMut w h = newRgb16_565Mut (fromIntegral w) (fromIntegral h)
+	imageMutSize (Rgb16_565Mut w h _ _) = (w, h)
+	newImageMut w h = newRgb16_565Mut w h
 	getPixel (Rgb16_565Mut w h s d) x y = unsafeIOToPrim do
 		withForeignPtr d \p -> maybe (pure Nothing) ((Just <$>) . peek)
-			$ ptrRgb16_565 w h s p (fromIntegral x) (fromIntegral y)
+			$ ptrRgb16_565 w h s p x y
 	putPixel (Rgb16_565Mut w h s d) x y px = unsafeIOToPrim do
 		withForeignPtr d \p -> maybe (pure ()) (`poke` px)
-			$ ptrRgb16_565 w h s p (fromIntegral x) (fromIntegral y)
+			$ ptrRgb16_565 w h s p x y
 
 instance ImageMut Rgb30Mut where
 	type PixelMut Rgb30Mut = PixelRgb30
-	imageMutSize (Rgb30Mut w h _ _) = (fromIntegral w, fromIntegral h)
-	newImageMut w h = newRgb30Mut (fromIntegral w) (fromIntegral h)
+	imageMutSize (Rgb30Mut w h _ _) = (w, h)
+	newImageMut w h = newRgb30Mut w h
 	getPixel (Rgb30Mut w h s d) x y = unsafeIOToPrim do
 		withForeignPtr d \p -> maybe (pure Nothing) ((Just <$>) . peek)
-			$ ptrRgb30 w h s p (fromIntegral x) (fromIntegral y)
+			$ ptrRgb30 w h s p x y
 	putPixel (Rgb30Mut w h s d) x y px = unsafeIOToPrim do
 		withForeignPtr d \p -> maybe (pure ()) (`poke` px)
-			$ ptrRgb30 w h s p (fromIntegral x) (fromIntegral y)
+			$ ptrRgb30 w h s p x y
 
 newArgb32Mut :: PrimMonad m => CInt -> CInt -> m (Argb32Mut (PrimState m))
 newArgb32Mut w h = unsafeIOToPrim do
-	s <- c_cairo_format_stride_for_width #{const CAIRO_FORMAT_ARGB32} (fromIntegral w)
-	d <- mallocBytes . fromIntegral $ (fromIntegral s) * h
+	s <- c_cairo_format_stride_for_width #{const CAIRO_FORMAT_ARGB32} w
+	d <- mallocBytes . fromIntegral $ s * h
 	fd <- newForeignPtr d $ free d
-	pure $ Argb32Mut w h (fromIntegral s) fd
+	pure $ Argb32Mut w h s fd
 
 newRgb24Mut :: PrimMonad m => CInt -> CInt -> m (Rgb24Mut (PrimState m))
 newRgb24Mut w h = unsafeIOToPrim do
-	s <- c_cairo_format_stride_for_width #{const CAIRO_FORMAT_RGB24} (fromIntegral w)
-	d <- mallocBytes . fromIntegral $ (fromIntegral s) * h
+	s <- c_cairo_format_stride_for_width #{const CAIRO_FORMAT_RGB24} w
+	d <- mallocBytes . fromIntegral $ s * h
 	fd <- newForeignPtr d $ free d
-	pure $ Rgb24Mut w h (fromIntegral s) fd
+	pure $ Rgb24Mut w h s fd
 
 newRgb16_565Mut :: PrimMonad m => CInt -> CInt -> m (Rgb16_565Mut (PrimState m))
 newRgb16_565Mut w h = unsafeIOToPrim do
-	s <- c_cairo_format_stride_for_width #{const CAIRO_FORMAT_RGB16_565} $ fromIntegral w
-	d <- mallocBytes . fromIntegral $ fromIntegral s * h
+	s <- c_cairo_format_stride_for_width #{const CAIRO_FORMAT_RGB16_565} w
+	d <- mallocBytes . fromIntegral $ s * h
 	fd <- newForeignPtr d $ free d
-	pure $ Rgb16_565Mut w h (fromIntegral s) fd
+	pure $ Rgb16_565Mut w h s fd
 
 newRgb30Mut :: PrimMonad m => CInt -> CInt -> m (Rgb30Mut (PrimState m))
 newRgb30Mut w h = unsafeIOToPrim do
-	s <- c_cairo_format_stride_for_width #{const CAIRO_FORMAT_RGB30} $ fromIntegral w
-	d <- mallocBytes . fromIntegral $ fromIntegral s * h
+	s <- c_cairo_format_stride_for_width #{const CAIRO_FORMAT_RGB30} w
+	d <- mallocBytes . fromIntegral $ s * h
 	fd <- newForeignPtr d $ free d
-	pure $ Rgb30Mut w h (fromIntegral s) fd
+	pure $ Rgb30Mut w h s fd
 
 instance ImageMut A8Mut where
 	type PixelMut A8Mut = PixelA8
-	imageMutSize (A8Mut w h _ _) = (fromIntegral w, fromIntegral h)
-	newImageMut w h = newA8Mut (fromIntegral w) (fromIntegral h)
+	imageMutSize (A8Mut w h _ _) = (w, h)
+	newImageMut w h = newA8Mut w h
 	getPixel (A8Mut w h s d) x y = unsafeIOToPrim do
-		withForeignPtr d \p -> maybe (pure Nothing) ((Just <$>) . peek) $ ptrA8 w h s p
-			(fromIntegral x) (fromIntegral y)
+		withForeignPtr d \p -> maybe (pure Nothing) ((Just <$>) . peek) $ ptrA8 w h s p x y
 	putPixel (A8Mut w h s d) x y px = unsafeIOToPrim do
-		withForeignPtr d \p -> maybe (pure ()) (`poke` px) $ ptrA8 w h s p
-			(fromIntegral x) (fromIntegral y)
+		withForeignPtr d \p -> maybe (pure ()) (`poke` px) $ ptrA8 w h s p x y
 
 newA8Mut :: PrimMonad m => CInt -> CInt -> m (A8Mut (PrimState m))
 newA8Mut w h = unsafeIOToPrim do
-	s <- c_cairo_format_stride_for_width #{const CAIRO_FORMAT_A8} (fromIntegral w)
-	d <- mallocBytes . fromIntegral $ (fromIntegral s) * h
+	s <- c_cairo_format_stride_for_width #{const CAIRO_FORMAT_A8} w
+	d <- mallocBytes . fromIntegral $ s * h
 	fd <- newForeignPtr d $ free d
-	pure $ A8Mut w h (fromIntegral s) fd
+	pure $ A8Mut w h s fd
 
 ptrArgb32 :: CInt -> CInt -> CInt -> Ptr PixelArgb32 -> CInt -> CInt -> Maybe (Ptr PixelArgb32)
 ptrArgb32 w h s p x y
@@ -711,30 +686,26 @@ data A1Mut s = A1Mut {
 
 instance Image A1 where
 	type Pixel A1 = PixelA1
-	imageSize (A1 w h _ _) = (fromIntegral w, fromIntegral h)
-	generateImagePrimM w h f =
-		generateA1PrimM (fromIntegral w) (fromIntegral h) (\x y -> f (fromIntegral x) (fromIntegral y))
+	imageSize (A1 w h _ _) = (w, h)
+	generateImagePrimM = generateA1PrimM
 	pixelAt (A1 w h s d) x y = unsafePerformIO do
-		withForeignPtr d \p -> maybe (pure Nothing) ((Just <$>) . uncurry peekA1) $ ptrA1 w h s (castPtr p)
-			(fromIntegral x) (fromIntegral y)
+		withForeignPtr d \p -> maybe (pure Nothing) ((Just <$>) . uncurry peekA1) $ ptrA1 w h s (castPtr p) x y
 
 instance ImageMut A1Mut where
 	type PixelMut A1Mut = PixelA1
-	imageMutSize (A1Mut w h _ _) = (fromIntegral w, fromIntegral h)
-	newImageMut w h = newA1Mut (fromIntegral w) (fromIntegral h)
+	imageMutSize (A1Mut w h _ _) = (w, h)
+	newImageMut w h = newA1Mut w h
 	getPixel (A1Mut w h s d) x y = unsafeIOToPrim do
-		withForeignPtr d \p -> maybe (pure Nothing) ((Just <$>) . uncurry peekA1) $ ptrA1 w h s p
-			(fromIntegral x) (fromIntegral y)
+		withForeignPtr d \p -> maybe (pure Nothing) ((Just <$>) . uncurry peekA1) $ ptrA1 w h s p x y
 	putPixel (A1Mut w h s d) x y px = unsafeIOToPrim do
-		withForeignPtr d \p -> maybe (pure ()) (\(pt, i) -> pokeA1 pt i px) $ ptrA1 w h s p
-			(fromIntegral x) (fromIntegral y)
+		withForeignPtr d \p -> maybe (pure ()) (\(pt, i) -> pokeA1 pt i px) $ ptrA1 w h s p x y
 
 newA1Mut :: PrimMonad m => CInt -> CInt -> m (A1Mut (PrimState m))
 newA1Mut w h = unsafeIOToPrim do
-	s <- c_cairo_format_stride_for_width #{const CAIRO_FORMAT_A1} $ fromIntegral w
-	d <- mallocBytes . fromIntegral $ (fromIntegral s) * h
+	s <- c_cairo_format_stride_for_width #{const CAIRO_FORMAT_A1} w
+	d <- mallocBytes . fromIntegral $ s * h
 	fd <- newForeignPtr d $ free d
-	pure $ A1Mut w h (fromIntegral s) fd
+	pure $ A1Mut w h s fd
 
 unit :: Word8 -> (Word8, Word8) -> Word8
 n `unit` (m, d) = fromIntegral
