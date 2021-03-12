@@ -5,6 +5,13 @@ repair
 ------
 
 * [ ] use CInt instead of #{type int}
+	+ [ ] class Image
+		- [x] imageSize
+		- [ ] pixelAt
+		- [ ] generateImage
+		- [ ] generateImagePrimM
+	+ [ ] class ImageMut
+	+ [ ] format
 * [ ] repair `pattern PixelArgb32`
 	+ [x] function `unit`
 	+ [x] make `pattern PixelArgb32Straight`

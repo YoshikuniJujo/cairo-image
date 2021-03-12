@@ -325,7 +325,7 @@ pixelArgb32ToArgbStraight p = (a, r `unit` (0xff, a), g `unit` (0xff, a), b `uni
 
 class Image i where
 	type Pixel i
-	imageSize :: i -> (#{type int}, #{type int})
+	imageSize :: i -> (CInt, CInt)
 	pixelAt :: i -> #{type int} -> #{type int} -> Maybe (Pixel i)
 	generateImage :: #{type int} -> #{type int} -> (#{type int} -> #{type int} -> Pixel i) -> i
 	generateImagePrimM :: PrimBase m => #{type int} -> #{type int} -> (#{type int} -> #{type int} -> m (Pixel i)) -> m i
@@ -344,14 +344,14 @@ class ImageMut im where
 
 instance Image Argb32 where
 	type Pixel Argb32 = PixelArgb32
-	imageSize (Argb32 w h _ _) = (w, h)
+	imageSize (Argb32 w h _ _) = (fromIntegral w, fromIntegral h)
 	generateImagePrimM = generateArgb32PrimM
 	pixelAt (Argb32 w h s d) x y = unsafePerformIO do
 		withForeignPtr d \p -> maybe (pure Nothing) ((Just <$>) . peek) $ ptrArgb32 w h s p x y
 
 instance Image Rgb24 where
 	type Pixel Rgb24 = PixelRgb24
-	imageSize (Rgb24 w h _ _) = (w, h)
+	imageSize (Rgb24 w h _ _) = (fromIntegral w, fromIntegral h)
 	generateImagePrimM = generateRgb24PrimM
 	pixelAt (Rgb24 w h s d) x y = unsafePerformIO do
 		withForeignPtr d \p -> maybe (pure Nothing) ((Just <$>) . peek) $ ptrRgb24 w h s p x y
@@ -376,7 +376,7 @@ instance Image Rgb30 where
 
 instance Image A8 where
 	type Pixel A8 = PixelA8
-	imageSize (A8 w h _ _) = (w, h)
+	imageSize (A8 w h _ _) = (fromIntegral w, fromIntegral h)
 	generateImagePrimM = generateA8PrimM
 	pixelAt (A8 w h s d) x y = unsafePerformIO do
 		withForeignPtr d \p -> maybe (pure Nothing) ((Just <$>) . peek) $ ptrA8 w h s p x y
@@ -709,7 +709,7 @@ data A1Mut s = A1Mut {
 
 instance Image A1 where
 	type Pixel A1 = PixelA1
-	imageSize (A1 w h _ _) = (w, h)
+	imageSize (A1 w h _ _) = (fromIntegral w, fromIntegral h)
 	generateImagePrimM = generateA1PrimM
 	pixelAt (A1 w h s d) x y = unsafePerformIO do
 		withForeignPtr d \p -> maybe (pure Nothing) ((Just <$>) . uncurry peekA1) $ ptrA1 w h s (castPtr p) x y
