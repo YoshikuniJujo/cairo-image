@@ -18,7 +18,7 @@ repair
 		- [x] ARGB 32
 		- [x] RGB 24
 		- [x] A 8
-		- [ ] A 1
+		- [x] A 1
 		- [ ] RGB 16 565
 		- [ ] RGB 30
 	+ [ ] remove fromIntegral

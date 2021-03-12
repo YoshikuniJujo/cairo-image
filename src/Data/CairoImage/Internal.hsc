@@ -431,7 +431,7 @@ generateA8PrimM w h f = unsafeIOToPrim do
 	fd <- newForeignPtr d $ free d
 	pure $ A8 w h (fromIntegral s) fd
 
-generateA1PrimM :: PrimBase m => #{type int} -> #{type int} -> (#{type int} -> #{type int} -> m PixelA1) -> m A1
+generateA1PrimM :: PrimBase m => CInt -> CInt -> (CInt -> CInt -> m PixelA1) -> m A1
 generateA1PrimM w h f = unsafeIOToPrim do
 	s <- c_cairo_format_stride_for_width #{const CAIRO_FORMAT_A8} (fromIntegral w)
 	d <- mallocBytes . fromIntegral $ (fromIntegral s) * h
@@ -559,18 +559,17 @@ ptrA8 w h s p x y
 	| 0 <= x && x < w && 0 <= y && y < h = Just $ p `plusPtr` fromIntegral (y * s + x)
 	| otherwise = Nothing
 
-ptrA1 :: #{type int} -> #{type int} -> #{type int} ->
-	Ptr PixelA1 -> #{type int} -> #{type int} -> Maybe (Ptr PixelA1, #{type int})
+ptrA1 :: CInt -> CInt -> CInt -> Ptr PixelA1 -> CInt -> CInt -> Maybe (Ptr PixelA1, CInt)
 ptrA1 w h s p x y
 	| 0 <= x && x < w && 0 <= y && y < h = Just (p `plusPtr` fromIntegral (y * s + x `div` 32 * 4), x `mod` 32)
 	| otherwise = Nothing
 
-peekA1 :: Ptr PixelA1 -> #{type int} -> IO PixelA1
+peekA1 :: Ptr PixelA1 -> CInt -> IO PixelA1
 peekA1 p i = do
 	w32 <- peek (castPtr p) :: IO Word32
 	pure . PixelA1 . toBit $ w32 `testBit` (fromIntegral $(endian [e| i |] [e| 31 - i |]))
 
-pokeA1 :: Ptr PixelA1 -> #{type int} -> PixelA1 -> IO ()
+pokeA1 :: Ptr PixelA1 -> CInt -> PixelA1 -> IO ()
 pokeA1 p i (PixelA1 b) = do
 	w32 <- peek (castPtr p) :: IO Word32
 	poke (castPtr p) (put w32 (fromIntegral $(endian [e| i |] [e| 31 - i |])) b)
@@ -701,13 +700,13 @@ put n i I = n `setBit` i
 newtype PixelA1 = PixelA1 Bit deriving Show -- (Show, Storable)
 
 data A1 = A1 {
-	a1Width :: #{type int}, a1Height :: #{type int},
-	a1Stride :: #{type int}, a1Data :: ForeignPtr Word32 }
+	a1Width :: CInt, a1Height :: CInt,
+	a1Stride :: CInt, a1Data :: ForeignPtr Word32 }
 	deriving Show
 
 data A1Mut s = A1Mut {
-	a1MutWidth :: #{type int}, a1MutHeight :: #{type int},
-	a1MutStride :: #{type int}, a1MutData :: ForeignPtr PixelA1 }
+	a1MutWidth :: CInt, a1MutHeight :: CInt,
+	a1MutStride :: CInt, a1MutData :: ForeignPtr PixelA1 }
 	deriving Show
 
 instance Image A1 where
@@ -730,7 +729,7 @@ instance ImageMut A1Mut where
 		withForeignPtr d \p -> maybe (pure ()) (\(pt, i) -> pokeA1 pt i px) $ ptrA1 w h s p
 			(fromIntegral x) (fromIntegral y)
 
-newA1Mut :: PrimMonad m => #{type int} -> #{type int} -> m (A1Mut (PrimState m))
+newA1Mut :: PrimMonad m => CInt -> CInt -> m (A1Mut (PrimState m))
 newA1Mut w h = unsafeIOToPrim do
 	s <- c_cairo_format_stride_for_width #{const CAIRO_FORMAT_A1} $ fromIntegral w
 	d <- mallocBytes . fromIntegral $ (fromIntegral s) * h
