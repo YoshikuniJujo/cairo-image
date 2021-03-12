@@ -11,7 +11,17 @@ repair
 		- [x] generateImage
 		- [x] generateImagePrimM
 	+ [x] class ImageMut
+	+ [ ] CairoImage
+	+ [ ] CairoImageMut
+	+ [ ] c\_cairo\_format\_stride\_for\_width
 	+ [ ] format
+		- [x] ARGB 32
+		- [ ] RGB 24
+		- [ ] A 8
+		- [ ] A 1
+		- [ ] RGB 16 565
+		- [ ] RGB 30
+	+ [ ] remove fromIntegral
 * [ ] repair `pattern PixelArgb32`
 	+ [x] function `unit`
 	+ [x] make `pattern PixelArgb32Straight`
