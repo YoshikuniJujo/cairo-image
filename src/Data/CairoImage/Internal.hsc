@@ -441,6 +441,17 @@ instance ImageMut Rgb16_565Mut where
 		withForeignPtr d \p -> maybe (pure ()) (`poke` px)
 			$ ptrRgb16_565 w h s p (fromIntegral x) (fromIntegral y)
 
+instance ImageMut Rgb30Mut where
+	type PixelMut Rgb30Mut = PixelRgb30
+	imageMutSize (Rgb30Mut w h _ _) = (fromIntegral w, fromIntegral h)
+	newImageMut w h = newRgb30Mut (fromIntegral w) (fromIntegral h)
+	getPixel (Rgb30Mut w h s d) x y = unsafeIOToPrim do
+		withForeignPtr d \p -> maybe (pure Nothing) ((Just <$>) . peek)
+			$ ptrRgb30 w h s p (fromIntegral x) (fromIntegral y)
+	putPixel (Rgb30Mut w h s d) x y px = unsafeIOToPrim do
+		withForeignPtr d \p -> maybe (pure ()) (`poke` px)
+			$ ptrRgb30 w h s p (fromIntegral x) (fromIntegral y)
+
 newArgb32Mut :: PrimMonad m => #{type int} -> #{type int} -> m (Argb32Mut (PrimState m))
 newArgb32Mut w h = unsafeIOToPrim do
 	s <- c_cairo_format_stride_for_width #{const CAIRO_FORMAT_ARGB32} w
@@ -461,6 +472,13 @@ newRgb16_565Mut w h = unsafeIOToPrim do
 	d <- mallocBytes . fromIntegral $ fromIntegral s * h
 	fd <- newForeignPtr d $ free d
 	pure $ Rgb16_565Mut w h (fromIntegral s) fd
+
+newRgb30Mut :: PrimMonad m => CInt -> CInt -> m (Rgb30Mut (PrimState m))
+newRgb30Mut w h = unsafeIOToPrim do
+	s <- c_cairo_format_stride_for_width #{const CAIRO_FORMAT_RGB30} $ fromIntegral w
+	d <- mallocBytes . fromIntegral $ fromIntegral s * h
+	fd <- newForeignPtr d $ free d
+	pure $ Rgb30Mut w h (fromIntegral s) fd
 
 instance ImageMut A8Mut where
 	type PixelMut A8Mut = PixelA8

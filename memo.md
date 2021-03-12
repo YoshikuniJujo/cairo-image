@@ -70,8 +70,8 @@ enhancement
 	+ [x] `data Rgb30`
 		- [x] define data type
 		- [x] instance Image
-	+ [ ] `data Rgb30Mut`
+	+ [x] `data Rgb30Mut`
 		- [x] define data type
-		- [ ] instance ImageMut
+		- [x] instance ImageMut
 	+ [ ] `pattern CairoImageRgb30`
 	+ [ ] `pattern CairoImageMutRgb30`
