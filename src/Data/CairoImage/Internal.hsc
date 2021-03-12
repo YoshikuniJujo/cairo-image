@@ -59,8 +59,7 @@ import System.TargetEndian
 #include <cairo.h>
 
 foreign import ccall "cairo_format_stride_for_width"
-	c_cairo_format_stride_for_width ::
-	#{type cairo_format_t} -> #{type int} -> IO #{type int}
+	c_cairo_format_stride_for_width :: #{type cairo_format_t} -> CInt -> IO CInt
 
 data CairoImage = CairoImage {
 	cairoImageFormat :: #{type cairo_format_t},
@@ -394,13 +393,13 @@ generateArgb32PrimM w h f = unsafeIOToPrim do
 
 generateRgb24PrimM :: PrimBase m => #{type int} -> #{type int} -> (#{type int} -> #{type int} -> m PixelRgb24) -> m Rgb24
 generateRgb24PrimM w h f = unsafeIOToPrim do
-	s <- c_cairo_format_stride_for_width #{const CAIRO_FORMAT_RGB24} w
-	d <- mallocBytes . fromIntegral $ s * h
+	s <- c_cairo_format_stride_for_width #{const CAIRO_FORMAT_RGB24} (fromIntegral w)
+	d <- mallocBytes . fromIntegral $ (fromIntegral s) * h
 	for_ [0 .. h - 1] \y -> for_ [0 .. w - 1] \x -> do
 		p <- unsafePrimToIO $ f x y
-		maybe (pure ()) (`poke` p) $ ptrRgb24 w h s d x y
+		maybe (pure ()) (`poke` p) $ ptrRgb24 w h (fromIntegral s) d x y
 	fd <- newForeignPtr d $ free d
-	pure $ Rgb24 w h s fd
+	pure $ Rgb24 w h (fromIntegral s) fd
 
 generateRgb16_565PrimM :: PrimBase m => CInt -> CInt -> (CInt -> CInt -> m PixelRgb16_565) -> m Rgb16_565
 generateRgb16_565PrimM w h f = unsafeIOToPrim do
@@ -424,24 +423,24 @@ generateRgb30PrimM w h f = unsafeIOToPrim do
 
 generateA8PrimM :: PrimBase m => #{type int} -> #{type int} -> (#{type int} -> #{type int} -> m PixelA8) -> m A8
 generateA8PrimM w h f = unsafeIOToPrim do
-	s <- c_cairo_format_stride_for_width #{const CAIRO_FORMAT_A8} w
-	d <- mallocBytes . fromIntegral $ s * h
+	s <- c_cairo_format_stride_for_width #{const CAIRO_FORMAT_A8} (fromIntegral w)
+	d <- mallocBytes . fromIntegral $ (fromIntegral s) * h
 	for_ [0 .. h - 1] \y -> for_ [0 .. w - 1] \x -> do
 		p <- unsafePrimToIO $ f x y
-		maybe (pure ()) (`poke` p) $ ptrA8 w h s d x y
+		maybe (pure ()) (`poke` p) $ ptrA8 w h (fromIntegral s) d x y
 	fd <- newForeignPtr d $ free d
-	pure $ A8 w h s fd
+	pure $ A8 w h (fromIntegral s) fd
 
 generateA1PrimM :: PrimBase m => #{type int} -> #{type int} -> (#{type int} -> #{type int} -> m PixelA1) -> m A1
 generateA1PrimM w h f = unsafeIOToPrim do
-	s <- c_cairo_format_stride_for_width #{const CAIRO_FORMAT_A8} w
-	d <- mallocBytes . fromIntegral $ s * h
+	s <- c_cairo_format_stride_for_width #{const CAIRO_FORMAT_A8} (fromIntegral w)
+	d <- mallocBytes . fromIntegral $ (fromIntegral s) * h
 	for_ [0 .. h - 1] \y -> for_ [0 .. w - 1] \x -> do
 		p <- unsafePrimToIO $ f x y
-		maybe (pure ()) (\(pt, i) -> pokeA1 pt i p) $ ptrA1 w h s d x y
+		maybe (pure ()) (\(pt, i) -> pokeA1 pt i p) $ ptrA1 w h (fromIntegral s) d x y
 	let	d' = castPtr d
 	fd <- newForeignPtr d' $ free d'
-	pure $ A1 w h s fd
+	pure $ A1 w h (fromIntegral s) fd
 
 instance ImageMut Argb32Mut where
 	type PixelMut Argb32Mut = PixelArgb32
@@ -496,10 +495,10 @@ newArgb32Mut w h = unsafeIOToPrim do
 
 newRgb24Mut :: PrimMonad m => #{type int} -> #{type int} -> m (Rgb24Mut (PrimState m))
 newRgb24Mut w h = unsafeIOToPrim do
-	s <- c_cairo_format_stride_for_width #{const CAIRO_FORMAT_RGB24} w
-	d <- mallocBytes . fromIntegral $ s * h
+	s <- c_cairo_format_stride_for_width #{const CAIRO_FORMAT_RGB24} (fromIntegral w)
+	d <- mallocBytes . fromIntegral $ (fromIntegral s) * h
 	fd <- newForeignPtr d $ free d
-	pure $ Rgb24Mut w h s fd
+	pure $ Rgb24Mut w h (fromIntegral s) fd
 
 newRgb16_565Mut :: PrimMonad m => CInt -> CInt -> m (Rgb16_565Mut (PrimState m))
 newRgb16_565Mut w h = unsafeIOToPrim do
@@ -528,10 +527,10 @@ instance ImageMut A8Mut where
 
 newA8Mut :: PrimMonad m => #{type int} -> #{type int} -> m (A8Mut (PrimState m))
 newA8Mut w h = unsafeIOToPrim do
-	s <- c_cairo_format_stride_for_width #{const CAIRO_FORMAT_A8} w
-	d <- mallocBytes . fromIntegral $ s * h
+	s <- c_cairo_format_stride_for_width #{const CAIRO_FORMAT_A8} (fromIntegral w)
+	d <- mallocBytes . fromIntegral $ (fromIntegral s) * h
 	fd <- newForeignPtr d $ free d
-	pure $ A8Mut w h s fd
+	pure $ A8Mut w h (fromIntegral s) fd
 
 ptrArgb32 :: CInt -> CInt -> CInt -> Ptr PixelArgb32 -> CInt -> CInt -> Maybe (Ptr PixelArgb32)
 ptrArgb32 w h s p x y
@@ -735,10 +734,10 @@ instance ImageMut A1Mut where
 
 newA1Mut :: PrimMonad m => #{type int} -> #{type int} -> m (A1Mut (PrimState m))
 newA1Mut w h = unsafeIOToPrim do
-	s <- c_cairo_format_stride_for_width #{const CAIRO_FORMAT_A1} w
-	d <- mallocBytes . fromIntegral $ s * h
+	s <- c_cairo_format_stride_for_width #{const CAIRO_FORMAT_A1} $ fromIntegral w
+	d <- mallocBytes . fromIntegral $ (fromIntegral s) * h
 	fd <- newForeignPtr d $ free d
-	pure $ A1Mut w h s fd
+	pure $ A1Mut w h (fromIntegral s) fd
 
 unit :: Word8 -> (Word8, Word8) -> Word8
 n `unit` (m, d) = fromIntegral

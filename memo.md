@@ -13,7 +13,7 @@ repair
 	+ [x] class ImageMut
 	+ [x] CairoImage
 	+ [x] CairoImageMut
-	+ [ ] c\_cairo\_format\_stride\_for\_width
+	+ [x] c\_cairo\_format\_stride\_for\_width
 	+ [ ] format
 		- [x] ARGB 32
 		- [ ] RGB 24
