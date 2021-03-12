@@ -334,13 +334,12 @@ class Image i where
 
 class ImageMut im where
 	type PixelMut im
-	imageMutSize :: im s -> (#{type int}, #{type int})
+	imageMutSize :: im s -> (CInt, CInt)
 	getPixel :: PrimMonad m =>
-		im (PrimState m) -> #{type int} -> #{type int} -> m (Maybe (PixelMut im))
-	newImageMut :: PrimMonad m =>
-		#{type int} -> #{type int} -> m (im (PrimState m))
+		im (PrimState m) -> CInt -> CInt -> m (Maybe (PixelMut im))
+	newImageMut :: PrimMonad m => CInt -> CInt -> m (im (PrimState m))
 	putPixel :: PrimMonad m =>
-		im (PrimState m) -> #{type int} -> #{type int} -> PixelMut im -> m ()
+		im (PrimState m) -> CInt -> CInt -> PixelMut im -> m ()
 
 instance Image Argb32 where
 	type Pixel Argb32 = PixelArgb32
@@ -450,21 +449,25 @@ generateA1PrimM w h f = unsafeIOToPrim do
 
 instance ImageMut Argb32Mut where
 	type PixelMut Argb32Mut = PixelArgb32
-	imageMutSize (Argb32Mut w h _ _) = (w, h)
-	newImageMut = newArgb32Mut
+	imageMutSize (Argb32Mut w h _ _) = (fromIntegral w, fromIntegral h)
+	newImageMut w h = newArgb32Mut (fromIntegral w) (fromIntegral h)
 	getPixel (Argb32Mut w h s d) x y = unsafeIOToPrim do
-		withForeignPtr d \p -> maybe (pure Nothing) ((Just <$>) . peek) $ ptrArgb32 w h s p x y
+		withForeignPtr d \p -> maybe (pure Nothing) ((Just <$>) . peek) $ ptrArgb32 w h s p
+			(fromIntegral x) (fromIntegral y)
 	putPixel (Argb32Mut w h s d) x y px = unsafeIOToPrim do
-		withForeignPtr d \p -> maybe (pure ()) (`poke` px) $ ptrArgb32 w h s p x y
+		withForeignPtr d \p -> maybe (pure ()) (`poke` px) $ ptrArgb32 w h s p
+			(fromIntegral x) (fromIntegral y)
 
 instance ImageMut Rgb24Mut where
 	type PixelMut Rgb24Mut = PixelRgb24
-	imageMutSize (Rgb24Mut w h _ _) = (w, h)
-	newImageMut = newRgb24Mut
+	imageMutSize (Rgb24Mut w h _ _) = (fromIntegral w, fromIntegral h)
+	newImageMut w h = newRgb24Mut (fromIntegral w) (fromIntegral h)
 	getPixel (Rgb24Mut w h s d) x y = unsafeIOToPrim do
-		withForeignPtr d \p -> maybe (pure Nothing) ((Just <$>) . peek) $ ptrRgb24 w h s p x y
+		withForeignPtr d \p -> maybe (pure Nothing) ((Just <$>) . peek) $ ptrRgb24 w h s p
+			(fromIntegral x) (fromIntegral y)
 	putPixel (Rgb24Mut w h s d) x y px = unsafeIOToPrim do
-		withForeignPtr d \p -> maybe (pure ()) (`poke` px) $ ptrRgb24 w h s p x y
+		withForeignPtr d \p -> maybe (pure ()) (`poke` px) $ ptrRgb24 w h s p
+			(fromIntegral x) (fromIntegral y)
 
 instance ImageMut Rgb16_565Mut where
 	type PixelMut Rgb16_565Mut = PixelRgb16_565
@@ -518,12 +521,14 @@ newRgb30Mut w h = unsafeIOToPrim do
 
 instance ImageMut A8Mut where
 	type PixelMut A8Mut = PixelA8
-	imageMutSize (A8Mut w h _ _) = (w, h)
-	newImageMut = newA8Mut
+	imageMutSize (A8Mut w h _ _) = (fromIntegral w, fromIntegral h)
+	newImageMut w h = newA8Mut (fromIntegral w) (fromIntegral h)
 	getPixel (A8Mut w h s d) x y = unsafeIOToPrim do
-		withForeignPtr d \p -> maybe (pure Nothing) ((Just <$>) . peek) $ ptrA8 w h s p x y
+		withForeignPtr d \p -> maybe (pure Nothing) ((Just <$>) . peek) $ ptrA8 w h s p
+			(fromIntegral x) (fromIntegral y)
 	putPixel (A8Mut w h s d) x y px = unsafeIOToPrim do
-		withForeignPtr d \p -> maybe (pure ()) (`poke` px) $ ptrA8 w h s p x y
+		withForeignPtr d \p -> maybe (pure ()) (`poke` px) $ ptrA8 w h s p
+			(fromIntegral x) (fromIntegral y)
 
 newA8Mut :: PrimMonad m => #{type int} -> #{type int} -> m (A8Mut (PrimState m))
 newA8Mut w h = unsafeIOToPrim do
@@ -724,12 +729,14 @@ instance Image A1 where
 
 instance ImageMut A1Mut where
 	type PixelMut A1Mut = PixelA1
-	imageMutSize (A1Mut w h _ _) = (w, h)
-	newImageMut = newA1Mut
+	imageMutSize (A1Mut w h _ _) = (fromIntegral w, fromIntegral h)
+	newImageMut w h = newA1Mut (fromIntegral w) (fromIntegral h)
 	getPixel (A1Mut w h s d) x y = unsafeIOToPrim do
-		withForeignPtr d \p -> maybe (pure Nothing) ((Just <$>) . uncurry peekA1) $ ptrA1 w h s p x y
+		withForeignPtr d \p -> maybe (pure Nothing) ((Just <$>) . uncurry peekA1) $ ptrA1 w h s p
+			(fromIntegral x) (fromIntegral y)
 	putPixel (A1Mut w h s d) x y px = unsafeIOToPrim do
-		withForeignPtr d \p -> maybe (pure ()) (\(pt, i) -> pokeA1 pt i px) $ ptrA1 w h s p x y
+		withForeignPtr d \p -> maybe (pure ()) (\(pt, i) -> pokeA1 pt i px) $ ptrA1 w h s p
+			(fromIntegral x) (fromIntegral y)
 
 newA1Mut :: PrimMonad m => #{type int} -> #{type int} -> m (A1Mut (PrimState m))
 newA1Mut w h = unsafeIOToPrim do

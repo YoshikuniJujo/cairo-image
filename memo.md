@@ -10,7 +10,7 @@ repair
 		- [x] pixelAt
 		- [x] generateImage
 		- [x] generateImagePrimM
-	+ [ ] class ImageMut
+	+ [x] class ImageMut
 	+ [ ] format
 * [ ] repair `pattern PixelArgb32`
 	+ [x] function `unit`
