@@ -335,6 +335,15 @@ instance Image Rgb16_565 where
 	pixelAt (Rgb16_565 w h s d) (fromIntegral -> x) (fromIntegral -> y) = unsafePerformIO do
 		withForeignPtr d \p -> maybe (pure Nothing) ((Just <$>) . peek) $ ptrRgb16_565 w h s p x y
 
+instance Image Rgb30 where
+	type Pixel Rgb30 = PixelRgb30
+	imageSize (Rgb30 w h _ _) = (fromIntegral w, fromIntegral h)
+	generateImagePrimM w h f = generateRgb30PrimM
+		(fromIntegral w) (fromIntegral h)
+		\x y -> f (fromIntegral x) (fromIntegral y)
+	pixelAt (Rgb30 w h s d) (fromIntegral -> x) (fromIntegral -> y) = unsafePerformIO do
+		withForeignPtr d \p -> maybe (pure Nothing) ((Just <$>) . peek) $ ptrRgb30 w h s p x y
+
 instance Image A8 where
 	type Pixel A8 = PixelA8
 	imageSize (A8 w h _ _) = (w, h)
@@ -371,6 +380,16 @@ generateRgb16_565PrimM w h f = unsafeIOToPrim do
 		maybe (pure ()) (`poke` p) $ ptrRgb16_565 w h (fromIntegral s) d x y
 	fd <- newForeignPtr d $ free d
 	pure $ Rgb16_565 w h (fromIntegral s) fd
+
+generateRgb30PrimM :: PrimBase m => CInt -> CInt -> (CInt -> CInt -> m PixelRgb30) -> m Rgb30
+generateRgb30PrimM w h f = unsafeIOToPrim do
+	s <- c_cairo_format_stride_for_width #{const CAIRO_FORMAT_RGB30} $ fromIntegral w
+	d <- mallocBytes . fromIntegral $ fromIntegral s * h
+	for_ [0 .. h - 1] \y -> for_ [0 .. w - 1] \x -> do
+		p <- unsafePrimToIO $ f x y
+		maybe (pure ()) (`poke` p) $ ptrRgb30 w h (fromIntegral s) d x y
+	fd <- newForeignPtr d $ free d
+	pure $ Rgb30 w h (fromIntegral s) fd
 
 generateA8PrimM :: PrimBase m => #{type int} -> #{type int} -> (#{type int} -> #{type int} -> m PixelA8) -> m A8
 generateA8PrimM w h f = unsafeIOToPrim do
@@ -475,6 +494,12 @@ ptrRgb16_565 :: CInt -> CInt -> CInt ->
 	Ptr PixelRgb16_565 -> CInt -> CInt -> Maybe (Ptr PixelRgb16_565)
 ptrRgb16_565 w h s p x y
 	| 0 <= x && x < w && 0 <= y && y < h = Just $ p `plusPtr` fromIntegral (y * s + x * 2)
+	| otherwise = Nothing
+
+ptrRgb30 :: CInt -> CInt -> CInt ->
+	Ptr PixelRgb30 -> CInt -> CInt -> Maybe (Ptr PixelRgb30)
+ptrRgb30 w h s p x y
+	| 0 <= x && x < w && 0 <= y && y < h = Just $ p `plusPtr` fromIntegral (y * s + x * 4)
 	| otherwise = Nothing
 
 ptrA8 :: #{type int} -> #{type int} -> #{type int} ->

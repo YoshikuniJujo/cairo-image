@@ -67,9 +67,9 @@ enhancement
 		- [x] `pattern PixelRgb30`
 		- [x] COMPLETE pragma
 	+ [x] test `pattern PixelRgb30`
-	+ [ ] `data Rgb30`
+	+ [x] `data Rgb30`
 		- [x] define data type
-		- [ ] instance Image
+		- [x] instance Image
 	+ [ ] `data Rgb30Mut`
 		- [x] define data type
 		- [ ] instance ImageMut
