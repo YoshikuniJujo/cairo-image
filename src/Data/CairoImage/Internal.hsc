@@ -64,22 +64,21 @@ foreign import ccall "cairo_format_stride_for_width"
 
 data CairoImage = CairoImage {
 	cairoImageFormat :: #{type cairo_format_t},
-	cairoImageWidth :: #{type int},
-	cairoImageHeight :: #{type int},
-	cairoImageStride :: #{type int},
-	cairoImageData :: ForeignPtr #{type unsigned char} }
+	cairoImageWidth :: CInt,
+	cairoImageHeight :: CInt,
+	cairoImageStride :: CInt,
+	cairoImageData :: ForeignPtr CUChar }
 	deriving Show
 
 data CairoImageMut s = CairoImageMut {
 	cairoImageMutFormat :: #{type cairo_format_t},
-	cairoImageMutWidth :: #{type int},
-	cairoImageMutHeight :: #{type int},
-	cairoImageMutStride :: #{type int},
-	cairoImageMutData :: ForeignPtr #{type unsigned char} }
+	cairoImageMutWidth :: CInt,
+	cairoImageMutHeight :: CInt,
+	cairoImageMutStride :: CInt,
+	cairoImageMutData :: ForeignPtr CUChar }
 	deriving Show
 
-cairoImageDataCopy :: #{type int} -> #{type int} ->
-	ForeignPtr #{type unsigned char} -> IO (ForeignPtr #{type unsigned char})
+cairoImageDataCopy :: CInt -> CInt -> ForeignPtr CUChar -> IO (ForeignPtr CUChar)
 cairoImageDataCopy str h fdt = withForeignPtr fdt \dt -> do
 	dt' <- mallocBytes . fromIntegral $ str * h
 	copyBytes dt' dt . fromIntegral $ str * h
@@ -142,12 +141,12 @@ cairoImageToArgb32 = \case
 pattern CairoImageRgb24 :: Rgb24 -> CairoImage
 pattern CairoImageRgb24 r <- (cairoImageToRgb24 -> Just r)
 	where CairoImageRgb24 (Rgb24 w h s d) =
-		CairoImage #{const CAIRO_FORMAT_RGB24} w h s $ castForeignPtr d
+		CairoImage #{const CAIRO_FORMAT_RGB24} (fromIntegral w) (fromIntegral h) (fromIntegral s) $ castForeignPtr d
 
 cairoImageToRgb24 :: CairoImage -> Maybe Rgb24
 cairoImageToRgb24 = \case
 	CairoImage #{const CAIRO_FORMAT_RGB24} w h s d ->
-		Just . Rgb24 w h s $ castForeignPtr d
+		Just . Rgb24 (fromIntegral w) (fromIntegral h) (fromIntegral s) $ castForeignPtr d
 	_ -> Nothing
 
 pattern CairoImageRgb16_565 :: Rgb16_565 -> CairoImage
@@ -181,34 +180,35 @@ cairoImageToRgb30 = \case
 pattern CairoImageA8 :: A8 -> CairoImage
 pattern CairoImageA8 a <- (cairoImageToA8 -> Just a)
 	where CairoImageA8 (A8 w h s d) =
-		CairoImage #{const CAIRO_FORMAT_A8} w h s $ castForeignPtr d
+		CairoImage #{const CAIRO_FORMAT_A8} (fromIntegral w) (fromIntegral h) (fromIntegral s) $ castForeignPtr d
 
 cairoImageToA8 :: CairoImage -> Maybe A8
 cairoImageToA8 = \case
 	CairoImage #{const CAIRO_FORMAT_A8} w h s d ->
-		Just . A8 w h s $ castForeignPtr d
+		Just . A8 (fromIntegral w) (fromIntegral h) (fromIntegral s) $ castForeignPtr d
 	_ -> Nothing
 
 pattern CairoImageA1 :: A1 -> CairoImage
 pattern CairoImageA1 a <- (cairoImageToA1 -> Just a)
 	where CairoImageA1 (A1 w h s d) =
-		CairoImage #{const CAIRO_FORMAT_A1} w h s $ castForeignPtr d
+		CairoImage #{const CAIRO_FORMAT_A1}
+			(fromIntegral w) (fromIntegral h) (fromIntegral s) $ castForeignPtr d
 
 cairoImageToA1 :: CairoImage -> Maybe A1
 cairoImageToA1 = \case
 	CairoImage #{const CAIRO_FORMAT_A1} w h s d ->
-		Just . A1 w h s $ castForeignPtr d
+		Just . A1 (fromIntegral w) (fromIntegral h) (fromIntegral s) $ castForeignPtr d
 	_ -> Nothing
 
 pattern CairoImageMutRgb24 :: Rgb24Mut s -> CairoImageMut s
 pattern CairoImageMutRgb24 r <- (cairoImageMutToRgb24 -> Just r)
 	where CairoImageMutRgb24 (Rgb24Mut w h s d) =
-		CairoImageMut #{const CAIRO_FORMAT_RGB24} w h s $ castForeignPtr d
+		CairoImageMut #{const CAIRO_FORMAT_RGB24} (fromIntegral w) (fromIntegral h) (fromIntegral s) $ castForeignPtr d
 
 cairoImageMutToRgb24 :: CairoImageMut s -> Maybe (Rgb24Mut s)
 cairoImageMutToRgb24 = \case
 	CairoImageMut #{const CAIRO_FORMAT_RGB24} w h s d ->
-		Just . Rgb24Mut w h s $ castForeignPtr d
+		Just . Rgb24Mut (fromIntegral w) (fromIntegral h) (fromIntegral s) $ castForeignPtr d
 	_ -> Nothing
 
 pattern CairoImageMutRgb16_565 :: Rgb16_565Mut s -> CairoImageMut s
@@ -242,23 +242,23 @@ cairoImageMutToRgb30 = \case
 pattern CairoImageMutA8 :: A8Mut s -> CairoImageMut s
 pattern CairoImageMutA8 a <- (cairoImageMutToA8 -> Just a)
 	where CairoImageMutA8 (A8Mut w h s d) =
-		CairoImageMut #{const CAIRO_FORMAT_A8} w h s $ castForeignPtr d
+		CairoImageMut #{const CAIRO_FORMAT_A8} (fromIntegral w) (fromIntegral h) (fromIntegral s) $ castForeignPtr d
 
 cairoImageMutToA8 :: CairoImageMut s -> Maybe (A8Mut s)
 cairoImageMutToA8 = \case
 	CairoImageMut #{const CAIRO_FORMAT_A8} w h s d ->
-		Just . A8Mut w h s $ castForeignPtr d
+		Just . A8Mut (fromIntegral w) (fromIntegral h) (fromIntegral s) $ castForeignPtr d
 	_ -> Nothing
 
 pattern CairoImageMutA1 :: A1Mut s -> CairoImageMut s
 pattern CairoImageMutA1 a <- (cairoImageMutToA1 -> Just a)
 	where CairoImageMutA1 (A1Mut w h s d) =
-		CairoImageMut #{const CAIRO_FORMAT_A1} w h s $ castForeignPtr d
+		CairoImageMut #{const CAIRO_FORMAT_A1} (fromIntegral w) (fromIntegral h) (fromIntegral s) $ castForeignPtr d
 
 cairoImageMutToA1 :: CairoImageMut s -> Maybe (A1Mut s)
 cairoImageMutToA1 = \case
 	CairoImageMut #{const CAIRO_FORMAT_A1} w h s d ->
-		Just . A1Mut w h s $ castForeignPtr d
+		Just . A1Mut (fromIntegral w) (fromIntegral h) (fromIntegral s) $ castForeignPtr d
 	_ -> Nothing
 
 data Argb32 = Argb32 {

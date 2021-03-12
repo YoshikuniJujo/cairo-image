@@ -11,8 +11,8 @@ repair
 		- [x] generateImage
 		- [x] generateImagePrimM
 	+ [x] class ImageMut
-	+ [ ] CairoImage
-	+ [ ] CairoImageMut
+	+ [x] CairoImage
+	+ [x] CairoImageMut
 	+ [ ] c\_cairo\_format\_stride\_for\_width
 	+ [ ] format
 		- [x] ARGB 32
