@@ -59,7 +59,7 @@ enhancement
 		- [x] instance ImageMut
 	+ [x] `pattern CairoImageRgb16_565`
 	+ [x] `pattern CairoImageMutRgb16_565`
-* [ ] add RGB 30
+* [x] add RGB 30
 	+ [x] `data PixelRgb30`
 	+ [x] `pattern PixelRgb30`
 		- [x] function `pixelRgb30FromRgb`
@@ -73,5 +73,5 @@ enhancement
 	+ [x] `data Rgb30Mut`
 		- [x] define data type
 		- [x] instance ImageMut
-	+ [ ] `pattern CairoImageRgb30`
-	+ [ ] `pattern CairoImageMutRgb30`
+	+ [x] `pattern CairoImageRgb30`
+	+ [x] `pattern CairoImageMutRgb30`
