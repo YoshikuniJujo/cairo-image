@@ -587,6 +587,16 @@ pixelRgb30ToRgb (PixelRgb30Word32 rgb) =
 	g = fromIntegral $ rgb `shiftR` 10 `shiftL` 6
 	b = fromIntegral $ rgb `shiftL` 6
 
+data Rgb30 = Rgb30 {
+	rgb30Width :: CInt, rgb30Height :: CInt,
+	rgb30Stride :: CInt, rgb30Data :: ForeignPtr PixelRgb30 }
+	deriving Show
+
+data Rgb30Mut s = Rgb30Mut {
+	rgb30MutWidth :: CInt, rgb30MutHeight :: CInt,
+	rgb30MutStride :: CInt, rgb30MutData :: ForeignPtr PixelRgb30 }
+	deriving Show
+
 newtype PixelA8 = PixelA8 Word8 deriving (Show, Storable)
 
 data A8 = A8 {

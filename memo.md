@@ -56,7 +56,7 @@ enhancement
 		- [x] instance Image
 	+ [x] `data Rgb16_565Mut`
 		- [x] define data type
-		- [x] instance Image
+		- [x] instance ImageMut
 	+ [x] `pattern CairoImageRgb16_565`
 	+ [x] `pattern CairoImageMutRgb16_565`
 * [ ] add RGB 30
@@ -68,6 +68,10 @@ enhancement
 		- [x] COMPLETE pragma
 	+ [x] test `pattern PixelRgb30`
 	+ [ ] `data Rgb30`
+		- [x] define data type
+		- [ ] instance Image
 	+ [ ] `data Rgb30Mut`
+		- [x] define data type
+		- [ ] instance ImageMut
 	+ [ ] `pattern CairoImageRgb30`
 	+ [ ] `pattern CairoImageMutRgb30`
