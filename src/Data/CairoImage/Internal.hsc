@@ -326,11 +326,11 @@ pixelArgb32ToArgbStraight p = (a, r `unit` (0xff, a), g `unit` (0xff, a), b `uni
 class Image i where
 	type Pixel i
 	imageSize :: i -> (CInt, CInt)
-	pixelAt :: i -> #{type int} -> #{type int} -> Maybe (Pixel i)
-	generateImage :: #{type int} -> #{type int} -> (#{type int} -> #{type int} -> Pixel i) -> i
-	generateImagePrimM :: PrimBase m => #{type int} -> #{type int} -> (#{type int} -> #{type int} -> m (Pixel i)) -> m i
+	pixelAt :: i -> CInt -> CInt -> Maybe (Pixel i)
+	generateImage :: CInt -> CInt -> (CInt -> CInt -> Pixel i) -> i
+	generateImagePrimM :: PrimBase m => CInt -> CInt -> (CInt -> CInt -> m (Pixel i)) -> m i
 
-	generateImage w h f = runST $ generateImagePrimM w h (\x y -> pure $ f x y)
+	generateImage w h f = runST $ generateImagePrimM w h \x y -> pure $ f x y
 
 class ImageMut im where
 	type PixelMut im
@@ -345,16 +345,20 @@ class ImageMut im where
 instance Image Argb32 where
 	type Pixel Argb32 = PixelArgb32
 	imageSize (Argb32 w h _ _) = (fromIntegral w, fromIntegral h)
-	generateImagePrimM = generateArgb32PrimM
+	generateImagePrimM w h f = generateArgb32PrimM
+		(fromIntegral w) (fromIntegral h) \x y -> f (fromIntegral x) (fromIntegral y)
 	pixelAt (Argb32 w h s d) x y = unsafePerformIO do
-		withForeignPtr d \p -> maybe (pure Nothing) ((Just <$>) . peek) $ ptrArgb32 w h s p x y
+		withForeignPtr d \p -> maybe (pure Nothing) ((Just <$>) . peek) $ ptrArgb32 w h s p
+			(fromIntegral x) (fromIntegral y)
 
 instance Image Rgb24 where
 	type Pixel Rgb24 = PixelRgb24
 	imageSize (Rgb24 w h _ _) = (fromIntegral w, fromIntegral h)
-	generateImagePrimM = generateRgb24PrimM
+	generateImagePrimM w h f = generateRgb24PrimM
+		(fromIntegral w) (fromIntegral h) \x y -> f (fromIntegral x) (fromIntegral y)
 	pixelAt (Rgb24 w h s d) x y = unsafePerformIO do
-		withForeignPtr d \p -> maybe (pure Nothing) ((Just <$>) . peek) $ ptrRgb24 w h s p x y
+		withForeignPtr d \p -> maybe (pure Nothing) ((Just <$>) . peek) $ ptrRgb24 w h s p
+			(fromIntegral x) (fromIntegral y)
 
 instance Image Rgb16_565 where
 	type Pixel Rgb16_565 = PixelRgb16_565
@@ -377,9 +381,11 @@ instance Image Rgb30 where
 instance Image A8 where
 	type Pixel A8 = PixelA8
 	imageSize (A8 w h _ _) = (fromIntegral w, fromIntegral h)
-	generateImagePrimM = generateA8PrimM
+	generateImagePrimM w h f = generateA8PrimM
+		(fromIntegral w) (fromIntegral h) \x y -> f (fromIntegral x) (fromIntegral y)
 	pixelAt (A8 w h s d) x y = unsafePerformIO do
-		withForeignPtr d \p -> maybe (pure Nothing) ((Just <$>) . peek) $ ptrA8 w h s p x y
+		withForeignPtr d \p -> maybe (pure Nothing) ((Just <$>) . peek) $ ptrA8 w h s p
+			(fromIntegral x) (fromIntegral y)
 
 generateArgb32PrimM :: PrimBase	m => #{type int} -> #{type int} -> (#{type int} -> #{type int} -> m PixelArgb32) -> m Argb32
 generateArgb32PrimM w h f = unsafeIOToPrim do
@@ -710,9 +716,11 @@ data A1Mut s = A1Mut {
 instance Image A1 where
 	type Pixel A1 = PixelA1
 	imageSize (A1 w h _ _) = (fromIntegral w, fromIntegral h)
-	generateImagePrimM = generateA1PrimM
+	generateImagePrimM w h f =
+		generateA1PrimM (fromIntegral w) (fromIntegral h) (\x y -> f (fromIntegral x) (fromIntegral y))
 	pixelAt (A1 w h s d) x y = unsafePerformIO do
-		withForeignPtr d \p -> maybe (pure Nothing) ((Just <$>) . uncurry peekA1) $ ptrA1 w h s (castPtr p) x y
+		withForeignPtr d \p -> maybe (pure Nothing) ((Just <$>) . uncurry peekA1) $ ptrA1 w h s (castPtr p)
+			(fromIntegral x) (fromIntegral y)
 
 instance ImageMut A1Mut where
 	type PixelMut A1Mut = PixelA1
