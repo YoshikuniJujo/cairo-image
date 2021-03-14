@@ -64,6 +64,8 @@ refactoring
 	+ [x] export list
 	+ [x] import list
 	+ [ ] structure
+		- [x] remove function `foo`
+		- [ ] others
 	+ [ ] body
 * [ ] refactor Data.CairoImage.Internal
 * [ ] refactor Data.CairoImage

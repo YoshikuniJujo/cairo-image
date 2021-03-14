@@ -1,4 +1,5 @@
 {-# LANGUAGE BlockArguments, LambdaCase #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 {-# OPTIONS_GHC -Wall -fno-warn-tabs #-}
 
 module System.TargetEndian (
@@ -14,18 +15,14 @@ import System.Environment (lookupEnv)
 
 ---------------------------------------------------------------------------
 
+endian :: ExpQ -> ExpQ -> ExpQ
+endian el eb = runIO targetEndian >>= \case
+	Right LittleEndian -> el
+	Right BigEndian -> eb
+	Right UnknownEndian -> error "Unknown endian"
+	Left emsg -> error emsg
+
 data Endian = LittleEndian | BigEndian | UnknownEndian deriving Show
-
-foo :: Word32 -> IO [Word8]
-foo w32 = alloca \p -> do
-	poke p w32
-	peekArray 4 $ castPtr p :: IO [Word8]
-
-checkEndian :: IO Endian
-checkEndian = (<$> foo 0x01020304) \case
-	[4, 3, 2, 1] -> LittleEndian
-	[1, 2, 3, 4] -> BigEndian
-	_ -> UnknownEndian
 
 targetEndian :: IO (Either String Endian)
 targetEndian = lookupEnv "GHC_TARGET_ENDIAN" >>= \case
@@ -35,9 +32,9 @@ targetEndian = lookupEnv "GHC_TARGET_ENDIAN" >>= \case
 		"\tGHC_TARGET_ENDIAN: little-endian or big-endian"
 	Nothing -> Right <$> checkEndian
 
-endian :: ExpQ -> ExpQ -> ExpQ
-endian el eb = runIO targetEndian >>= \case
-	Right LittleEndian -> el
-	Right BigEndian -> eb
-	Right UnknownEndian -> error "Unknown endian"
-	Left emsg -> error emsg
+checkEndian :: IO Endian
+checkEndian = (<$> alloca \p -> poke p word32 >> peekArray 4 (castPtr p)) \case
+	[4 :: Word8, 3, 2, 1] -> LittleEndian
+	[1, 2, 3, 4] -> BigEndian
+	_ -> UnknownEndian
+	where word32 :: Word32; word32 = 0x01020304
