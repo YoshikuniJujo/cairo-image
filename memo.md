@@ -74,6 +74,8 @@ refactoring
 	+ [x] export list
 	+ [x] import list
 	+ [ ] structure
+		- [x] rough
+		- [ ] detailed
 	+ [ ] body
 * [ ] refactor Data.CairoImage
 
