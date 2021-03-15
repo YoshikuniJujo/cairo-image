@@ -92,7 +92,10 @@ refactoring
 				+ [x] Pixel
 				+ [x] Image
 				+ [x] Image Mutable
-			* [ ] RGB 16 565
+			* [x] RGB 16 565
+				+ [x] Pixel
+				+ [x] Image
+				+ [x] Image Mutable
 			* [ ] RGB 30
 	+ [ ] body
 		- [ ] CLASS IMAGE AND IMAGE MUTABLE
@@ -171,6 +174,24 @@ refactoring
 					- [ ] `instance ImageMut A1Mut`
 					- [ ] function `newA1Mut`
 			* [ ] RGB 16 565
+				+ [ ] Pixel
+					- [ ] `newtype PixelRgb16_565`
+					- [ ] function `ptrRgb16_565`
+					- [ ] `pattern PixelRgb16_565`
+					- [ ] function `pixelRgb16_565FromRgb`
+					- [ ] function `pixelRgb16_565ToRgb`
+				+ [ ] Image
+					- [ ] `data Rgb16_565`
+					- [ ] `pattern CairoImageRgb16_565`
+					- [ ] function `cairoImageToRgb16_565`
+					- [ ] `instance Image Rgb16_565`
+					- [ ] function `generateRgb16_565PrimM`
+				+ [ ] Image Mutable
+					- [ ] `data Rgb16_565Mut s`
+					- [ ] `pattern CairoImageMutRgb16_565`
+					- [ ] function `cairoImageMutToRgb16_565`
+					- [ ] `instance ImageMut Rgb16_565Mut`
+					- [ ] function `newRgb16_565Mut`
 			* [ ] RGB 30
 * [ ] refactor Data.CairoImage
 
