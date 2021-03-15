@@ -226,6 +226,11 @@ n `div'` m = n `div` m
 
 -- Image
 
+data Argb32 = Argb32 {
+	argb32Width :: CInt, argb32Height :: CInt, argb32Stride :: CInt,
+	argb32Data :: ForeignPtr PixelArgb32 }
+	deriving Show
+
 pattern CairoImageArgb32 :: Argb32 -> CairoImage
 pattern CairoImageArgb32 a <- (cairoImageToArgb32 -> Just a)
 	where CairoImageArgb32 (Argb32 w h s d) =
@@ -236,11 +241,6 @@ cairoImageToArgb32 = \case
 	CairoImage #{const CAIRO_FORMAT_ARGB32} w h s d ->
 		Just . Argb32 w h s $ castForeignPtr d
 	_ -> Nothing
-
-data Argb32 = Argb32 {
-	argb32Width :: CInt, argb32Height :: CInt, argb32Stride :: CInt,
-	argb32Data :: ForeignPtr PixelArgb32 }
-	deriving Show
 
 instance Image Argb32 where
 	type Pixel Argb32 = PixelArgb32

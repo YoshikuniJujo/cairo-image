@@ -78,7 +78,7 @@ refactoring
 		- [ ] detailed
 			* [ ] ARGB 32
 				+ [x] Pixel
-				+ [ ] Image
+				+ [x] Image
 				+ [ ] Image Mutable
 			* [ ] RGB 24
 			* [ ] A 8
@@ -96,6 +96,11 @@ refactoring
 					- [ ] `pattern PixelArgb32Premultiplied`
 					- [ ] `pattern PixelArgb32Straight`
 				+ [ ] Image
+					- [ ] `data Argb32`
+					- [ ] `pattern CairoImageArgb32`
+					- [ ] function `cairoImageToArgb32`
+					- [ ] `instance Image Argb32`
+					- [ ] function `generateArgb32PrimM`
 				+ [ ] Image Mutable
 			* [ ] RGB 24
 			* [ ] A 8
