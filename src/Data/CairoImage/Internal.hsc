@@ -68,7 +68,13 @@ import System.TargetEndian (endian)
 --		- Image
 --		- Image Mutable
 --	+ RGB 24
+--		- Pixel
+--		- Image
+--		- Image Mutable
 --	+ A 8
+--		- Pixel
+--		- Image
+--		- Image Mutable
 --	+ A 1
 --	+ RGB 16 565
 --	+ RGB 30
@@ -388,6 +394,22 @@ newRgb24Mut w h = unsafeIOToPrim do
 
 -- A 8
 
+-- Pixel
+
+newtype PixelA8 = PixelA8 Word8 deriving (Show, Storable)
+
+ptrA8 :: CInt -> CInt -> CInt -> Ptr PixelA8 -> CInt -> CInt -> Maybe (Ptr PixelA8)
+ptrA8 w h s p x y
+	| 0 <= x && x < w && 0 <= y && y < h = Just $ p `plusPtr` fromIntegral (y * s + x)
+	| otherwise = Nothing
+
+-- Image
+
+data A8 = A8 {
+	a8Width :: CInt, a8Height :: CInt,
+	a8Stride :: CInt, a8Data :: ForeignPtr PixelA8 }
+	deriving Show
+
 pattern CairoImageA8 :: A8 -> CairoImage
 pattern CairoImageA8 a <- (cairoImageToA8 -> Just a)
 	where CairoImageA8 (A8 w h s d) =
@@ -397,17 +419,6 @@ cairoImageToA8 :: CairoImage -> Maybe A8
 cairoImageToA8 = \case
 	CairoImage #{const CAIRO_FORMAT_A8} w h s d ->
 		Just . A8 w h s $ castForeignPtr d
-	_ -> Nothing
-
-pattern CairoImageMutA8 :: A8Mut s -> CairoImageMut s
-pattern CairoImageMutA8 a <- (cairoImageMutToA8 -> Just a)
-	where CairoImageMutA8 (A8Mut w h s d) =
-		CairoImageMut #{const CAIRO_FORMAT_A8} w h s $ castForeignPtr d
-
-cairoImageMutToA8 :: CairoImageMut s -> Maybe (A8Mut s)
-cairoImageMutToA8 = \case
-	CairoImageMut #{const CAIRO_FORMAT_A8} w h s d ->
-		Just . A8Mut w h s $ castForeignPtr d
 	_ -> Nothing
 
 instance Image A8 where
@@ -427,6 +438,24 @@ generateA8PrimM w h f = unsafeIOToPrim do
 	fd <- newForeignPtr d $ free d
 	pure $ A8 w h s fd
 
+-- Image Mutable
+
+data A8Mut s = A8Mut {
+	a8MutWidth :: CInt, a8MutHeight :: CInt,
+	a8MutStride :: CInt, a8MutData :: ForeignPtr PixelA8 }
+	deriving Show
+
+pattern CairoImageMutA8 :: A8Mut s -> CairoImageMut s
+pattern CairoImageMutA8 a <- (cairoImageMutToA8 -> Just a)
+	where CairoImageMutA8 (A8Mut w h s d) =
+		CairoImageMut #{const CAIRO_FORMAT_A8} w h s $ castForeignPtr d
+
+cairoImageMutToA8 :: CairoImageMut s -> Maybe (A8Mut s)
+cairoImageMutToA8 = \case
+	CairoImageMut #{const CAIRO_FORMAT_A8} w h s d ->
+		Just . A8Mut w h s $ castForeignPtr d
+	_ -> Nothing
+
 instance ImageMut A8Mut where
 	type PixelMut A8Mut = PixelA8
 	imageMutSize (A8Mut w h _ _) = (w, h)
@@ -442,23 +471,6 @@ newA8Mut w h = unsafeIOToPrim do
 	d <- mallocBytes . fromIntegral $ s * h
 	fd <- newForeignPtr d $ free d
 	pure $ A8Mut w h s fd
-
-ptrA8 :: CInt -> CInt -> CInt -> Ptr PixelA8 -> CInt -> CInt -> Maybe (Ptr PixelA8)
-ptrA8 w h s p x y
-	| 0 <= x && x < w && 0 <= y && y < h = Just $ p `plusPtr` fromIntegral (y * s + x)
-	| otherwise = Nothing
-
-newtype PixelA8 = PixelA8 Word8 deriving (Show, Storable)
-
-data A8 = A8 {
-	a8Width :: CInt, a8Height :: CInt,
-	a8Stride :: CInt, a8Data :: ForeignPtr PixelA8 }
-	deriving Show
-
-data A8Mut s = A8Mut {
-	a8MutWidth :: CInt, a8MutHeight :: CInt,
-	a8MutStride :: CInt, a8MutData :: ForeignPtr PixelA8 }
-	deriving Show
 
 -- A 1
 
