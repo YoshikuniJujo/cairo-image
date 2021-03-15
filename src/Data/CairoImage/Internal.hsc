@@ -98,18 +98,20 @@ class Image i where
 	imageSize :: i -> (CInt, CInt)
 	pixelAt :: i -> CInt -> CInt -> Maybe (Pixel i)
 	generateImage :: CInt -> CInt -> (CInt -> CInt -> Pixel i) -> i
-	generateImagePrimM :: PrimBase m => CInt -> CInt -> (CInt -> CInt -> m (Pixel i)) -> m i
+	generateImagePrimM :: PrimBase m =>
+		CInt -> CInt -> (CInt -> CInt -> m (Pixel i)) -> m i
 
-	generateImage w h f = runST $ generateImagePrimM w h \x y -> pure $ f x y
+	generateImage w h f =
+		runST $ generateImagePrimM w h \x y -> pure $ f x y
 
 class ImageMut im where
 	type PixelMut im
 	imageMutSize :: im s -> (CInt, CInt)
 	getPixel :: PrimMonad m =>
 		im (PrimState m) -> CInt -> CInt -> m (Maybe (PixelMut im))
-	newImageMut :: PrimMonad m => CInt -> CInt -> m (im (PrimState m))
 	putPixel :: PrimMonad m =>
 		im (PrimState m) -> CInt -> CInt -> PixelMut im -> m ()
+	newImageMut :: PrimMonad m => CInt -> CInt -> m (im (PrimState m))
 
 ---------------------------------------------------------------------------
 -- TYPE CAIRO IMAGE AND CAIRO IMAGE MUTABLE

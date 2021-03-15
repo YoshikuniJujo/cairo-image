@@ -101,7 +101,9 @@ refactoring
 				+ [x] IMAEG
 				+ [x] IMAEG MUTABLE
 	+ [ ] body
-		- [ ] CLASS IMAGE AND IMAGE MUTABLE
+		- [x] CLASS IMAGE AND IMAGE MUTABLE
+			* [x] `class Image`
+			* [x] `class ImageMut`
 		- [ ] TYPE CAIRO IMAGE AND CAIRO IMAGE MUTABLE
 		- [ ] IMAGE FORMAT
 			* [ ] ARGB 32
