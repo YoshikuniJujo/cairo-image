@@ -64,6 +64,9 @@ import System.TargetEndian (endian)
 -- * TYPE CAIRO IMAGE AND CAIRO IMAGE MUTABLE
 -- * IMAGE FORMAT
 --	+ ARGB 32
+--		- Pixel
+--		- Image
+--		- Image Mutable
 --	+ RGB 24
 --	+ A 8
 --	+ A 1
@@ -167,39 +170,14 @@ cairoImageThaw ci = unsafeIOToPrim
 
 -- ARGB 32
 
-pattern CairoImageArgb32 :: Argb32 -> CairoImage
-pattern CairoImageArgb32 a <- (cairoImageToArgb32 -> Just a)
-	where CairoImageArgb32 (Argb32 w h s d) =
-		CairoImage #{const CAIRO_FORMAT_ARGB32} w h s $ castForeignPtr d
-
-cairoImageToArgb32 :: CairoImage -> Maybe Argb32
-cairoImageToArgb32 = \case
-	CairoImage #{const CAIRO_FORMAT_ARGB32} w h s d ->
-		Just . Argb32 w h s $ castForeignPtr d
-	_ -> Nothing
-
-data Argb32 = Argb32 {
-	argb32Width :: CInt, argb32Height :: CInt, argb32Stride :: CInt,
-	argb32Data :: ForeignPtr PixelArgb32 }
-	deriving Show
-
-pattern CairoImageMutArgb32 :: Argb32Mut s -> CairoImageMut s
-pattern CairoImageMutArgb32 a <- (cairoImageMutToArgb32 -> Just a)
-	where CairoImageMutArgb32 (Argb32Mut w h s d) =
-		CairoImageMut #{const CAIRO_FORMAT_ARGB32} w h s $ castForeignPtr d
-
-cairoImageMutToArgb32 :: CairoImageMut s -> Maybe (Argb32Mut s)
-cairoImageMutToArgb32 = \case
-	CairoImageMut #{const CAIRO_FORMAT_ARGB32} w h s d ->
-		Just . Argb32Mut w h s $ castForeignPtr d
-	_ -> Nothing
-
-data Argb32Mut s = Argb32Mut {
-	argb32MutWidth :: CInt, argb32MutHeight :: CInt, argb32MutStride :: CInt,
-	argb32MutData :: ForeignPtr PixelArgb32 }
-	deriving Show
+-- Pixel
 
 newtype PixelArgb32 = PixelArgb32Word32 Word32 deriving (Show, Storable)
+
+ptrArgb32 :: CInt -> CInt -> CInt -> Ptr PixelArgb32 -> CInt -> CInt -> Maybe (Ptr PixelArgb32)
+ptrArgb32 w h s p x y
+	| 0 <= x && x < w && 0 <= y && y < h = Just $ p `plusPtr` fromIntegral (y * s + x * 4)
+	| otherwise = Nothing
 
 {-# COMPLETE PixelArgb32Premultiplied #-}
 
@@ -246,6 +224,24 @@ div' :: Integral n => n -> n -> n
 _ `div'` 0 = 0
 n `div'` m = n `div` m
 
+-- Image
+
+pattern CairoImageArgb32 :: Argb32 -> CairoImage
+pattern CairoImageArgb32 a <- (cairoImageToArgb32 -> Just a)
+	where CairoImageArgb32 (Argb32 w h s d) =
+		CairoImage #{const CAIRO_FORMAT_ARGB32} w h s $ castForeignPtr d
+
+cairoImageToArgb32 :: CairoImage -> Maybe Argb32
+cairoImageToArgb32 = \case
+	CairoImage #{const CAIRO_FORMAT_ARGB32} w h s d ->
+		Just . Argb32 w h s $ castForeignPtr d
+	_ -> Nothing
+
+data Argb32 = Argb32 {
+	argb32Width :: CInt, argb32Height :: CInt, argb32Stride :: CInt,
+	argb32Data :: ForeignPtr PixelArgb32 }
+	deriving Show
+
 instance Image Argb32 where
 	type Pixel Argb32 = PixelArgb32
 	imageSize (Argb32 w h _ _) = (w, h)
@@ -263,6 +259,24 @@ generateArgb32PrimM w h f = unsafeIOToPrim do
 	fd <- newForeignPtr d $ free d
 	pure $ Argb32 w h s fd
 
+-- Image Mutable
+
+pattern CairoImageMutArgb32 :: Argb32Mut s -> CairoImageMut s
+pattern CairoImageMutArgb32 a <- (cairoImageMutToArgb32 -> Just a)
+	where CairoImageMutArgb32 (Argb32Mut w h s d) =
+		CairoImageMut #{const CAIRO_FORMAT_ARGB32} w h s $ castForeignPtr d
+
+cairoImageMutToArgb32 :: CairoImageMut s -> Maybe (Argb32Mut s)
+cairoImageMutToArgb32 = \case
+	CairoImageMut #{const CAIRO_FORMAT_ARGB32} w h s d ->
+		Just . Argb32Mut w h s $ castForeignPtr d
+	_ -> Nothing
+
+data Argb32Mut s = Argb32Mut {
+	argb32MutWidth :: CInt, argb32MutHeight :: CInt, argb32MutStride :: CInt,
+	argb32MutData :: ForeignPtr PixelArgb32 }
+	deriving Show
+
 instance ImageMut Argb32Mut where
 	type PixelMut Argb32Mut = PixelArgb32
 	imageMutSize (Argb32Mut w h _ _) = (w, h)
@@ -278,11 +292,6 @@ newArgb32Mut w h = unsafeIOToPrim do
 	d <- mallocBytes . fromIntegral $ s * h
 	fd <- newForeignPtr d $ free d
 	pure $ Argb32Mut w h s fd
-
-ptrArgb32 :: CInt -> CInt -> CInt -> Ptr PixelArgb32 -> CInt -> CInt -> Maybe (Ptr PixelArgb32)
-ptrArgb32 w h s p x y
-	| 0 <= x && x < w && 0 <= y && y < h = Just $ p `plusPtr` fromIntegral (y * s + x * 4)
-	| otherwise = Nothing
 
 -- RGB 24
 

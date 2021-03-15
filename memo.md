@@ -76,7 +76,32 @@ refactoring
 	+ [ ] structure
 		- [x] rough
 		- [ ] detailed
+			* [ ] ARGB 32
+				+ [x] Pixel
+				+ [ ] Image
+				+ [ ] Image Mutable
+			* [ ] RGB 24
+			* [ ] A 8
+			* [ ] A 1
+			* [ ] RGB 16 565
+			* [ ] RGB 30
 	+ [ ] body
+		- [ ] CLASS IMAGE AND IMAGE MUTABLE
+		- [ ] TYPE CAIRO IMAGE AND CAIRO IMAGE MUTABLE
+		- [ ] IMAGE FORMAT
+			* [ ] ARGB 32
+				+ [ ] Pixel
+					- [ ] `newtype PixelArgb32`
+					- [ ] function `ptrArgb32`
+					- [ ] `pattern PixelArgb32Premultiplied`
+					- [ ] `pattern PixelArgb32Straight`
+				+ [ ] Image
+				+ [ ] Image Mutable
+			* [ ] RGB 24
+			* [ ] A 8
+			* [ ] A 1
+			* [ ] RGB 16 565
+			* [ ] RGB 30
 * [ ] refactor Data.CairoImage
 
 test
