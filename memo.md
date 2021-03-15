@@ -88,7 +88,10 @@ refactoring
 				+ [x] Pixel
 				+ [x] Image
 				+ [x] Image Mutable
-			* [ ] A 1
+			* [x] A 1
+				+ [x] Pixel
+				+ [x] Image
+				+ [x] Image Mutable
 			* [ ] RGB 16 565
 			* [ ] RGB 30
 	+ [ ] body
@@ -148,6 +151,25 @@ refactoring
 					- [ ] `instance ImageMut A8Mut`
 					- [ ] function `newA8Mut`
 			* [ ] A 1
+				+ [ ] Pixel
+					- [ ] `newtype PixelA1`
+					- [ ] `data Bit`
+					- [ ] function `bit`
+					- [ ] function `ptrA1`
+					- [ ] function `peekA1`
+					- [ ] function `pokeA1`
+				+ [ ] Image
+					- [ ] `data A1`
+					- [ ] `pattern CairoImageA1`
+					- [ ] function `cairoImageToA1`
+					- [ ] `instance Image A1`
+					- [ ] function `generateA1PrimM`
+				+ [ ] Image Mutable
+					- [ ] `data A1Mut s`
+					- [ ] `pattern CairoImageMutA1`
+					- [ ] function `cairoImageMutToA1`
+					- [ ] `instance ImageMut A1Mut`
+					- [ ] function `newA1Mut`
 			* [ ] RGB 16 565
 			* [ ] RGB 30
 * [ ] refactor Data.CairoImage

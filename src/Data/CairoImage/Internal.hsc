@@ -49,8 +49,9 @@ import Control.Monad.Primitive (
 	PrimMonad(..), PrimBase, unsafeIOToPrim, unsafePrimToIO )
 import Control.Monad.ST (runST)
 import Data.Foldable (for_)
+import Data.Bool (bool)
 import Data.Bits (
-	Bits, (.&.), (.|.), testBit, clearBit, setBit, shift, shiftL, shiftR )
+	(.&.), (.|.), testBit, clearBit, setBit, shift, shiftL, shiftR )
 import Data.Word (Word8, Word16, Word32)
 import Data.Int (Int32)
 import System.IO.Unsafe (unsafePerformIO)
@@ -76,6 +77,9 @@ import System.TargetEndian (endian)
 --		- Image
 --		- Image Mutable
 --	+ A 1
+--		- Pixel
+--		- Image
+--		- Image Mutable
 --	+ RGB 16 565
 --	+ RGB 30
 
@@ -474,6 +478,38 @@ newA8Mut w h = unsafeIOToPrim do
 
 -- A 1
 
+-- Pixel
+
+newtype PixelA1 = PixelA1 Bit deriving Show
+
+data Bit = O | I deriving (Show, Enum)
+
+bit :: a -> a -> Bit -> a
+bit x y = \case O -> x; I -> y
+
+ptrA1 :: CInt -> CInt -> CInt -> Ptr PixelA1 -> CInt -> CInt -> Maybe (Ptr PixelA1, CInt)
+ptrA1 w h s p x y
+	| 0 <= x && x < w && 0 <= y && y < h = Just (p `plusPtr` fromIntegral (y * s + x `div` 32 * 4), x `mod` 32)
+	| otherwise = Nothing
+
+peekA1 :: Ptr PixelA1 -> CInt -> IO PixelA1
+peekA1 p i = do
+	w32 <- peek (castPtr p) :: IO Word32
+	pure . PixelA1 . bool O I $ w32 `testBit` (fromIntegral $(endian [e| i |] [e| 31 - i |]))
+
+pokeA1 :: Ptr PixelA1 -> CInt -> PixelA1 -> IO ()
+pokeA1 p i (PixelA1 b) = do
+	w32 <- peek (castPtr p) :: IO Word32
+	poke (castPtr p) (put w32 (fromIntegral $(endian [e| i |] [e| 31 - i |])) b)
+	where put n j = \case O -> n `clearBit` j; I -> n `setBit` j
+
+-- Image
+
+data A1 = A1 {
+	a1Width :: CInt, a1Height :: CInt,
+	a1Stride :: CInt, a1Data :: ForeignPtr Word32 }
+	deriving Show
+
 pattern CairoImageA1 :: A1 -> CairoImage
 pattern CairoImageA1 a <- (cairoImageToA1 -> Just a)
 	where CairoImageA1 (A1 w h s d) =
@@ -485,16 +521,12 @@ cairoImageToA1 = \case
 		Just . A1 w h s $ castForeignPtr d
 	_ -> Nothing
 
-pattern CairoImageMutA1 :: A1Mut s -> CairoImageMut s
-pattern CairoImageMutA1 a <- (cairoImageMutToA1 -> Just a)
-	where CairoImageMutA1 (A1Mut w h s d) =
-		CairoImageMut #{const CAIRO_FORMAT_A1} w h s $ castForeignPtr d
-
-cairoImageMutToA1 :: CairoImageMut s -> Maybe (A1Mut s)
-cairoImageMutToA1 = \case
-	CairoImageMut #{const CAIRO_FORMAT_A1} w h s d ->
-		Just . A1Mut w h s $ castForeignPtr d
-	_ -> Nothing
+instance Image A1 where
+	type Pixel A1 = PixelA1
+	imageSize (A1 w h _ _) = (w, h)
+	generateImagePrimM = generateA1PrimM
+	pixelAt (A1 w h s d) x y = unsafePerformIO do
+		withForeignPtr d \p -> maybe (pure Nothing) ((Just <$>) . uncurry peekA1) $ ptrA1 w h s (castPtr p) x y
 
 generateA1PrimM :: PrimBase m => CInt -> CInt -> (CInt -> CInt -> m PixelA1) -> m A1
 generateA1PrimM w h f = unsafeIOToPrim do
@@ -507,52 +539,23 @@ generateA1PrimM w h f = unsafeIOToPrim do
 	fd <- newForeignPtr d' $ free d'
 	pure $ A1 w h s fd
 
-ptrA1 :: CInt -> CInt -> CInt -> Ptr PixelA1 -> CInt -> CInt -> Maybe (Ptr PixelA1, CInt)
-ptrA1 w h s p x y
-	| 0 <= x && x < w && 0 <= y && y < h = Just (p `plusPtr` fromIntegral (y * s + x `div` 32 * 4), x `mod` 32)
-	| otherwise = Nothing
-
-peekA1 :: Ptr PixelA1 -> CInt -> IO PixelA1
-peekA1 p i = do
-	w32 <- peek (castPtr p) :: IO Word32
-	pure . PixelA1 . toBit $ w32 `testBit` (fromIntegral $(endian [e| i |] [e| 31 - i |]))
-
-pokeA1 :: Ptr PixelA1 -> CInt -> PixelA1 -> IO ()
-pokeA1 p i (PixelA1 b) = do
-	w32 <- peek (castPtr p) :: IO Word32
-	poke (castPtr p) (put w32 (fromIntegral $(endian [e| i |] [e| 31 - i |])) b)
-
-data Bit = O | I deriving (Show, Enum)
-
-bit :: a -> a -> Bit -> a
-bit x _ O = x
-bit _ y I = y
-
-toBit :: Bool -> Bit
-toBit = \case False -> O; True -> I
-
-put :: Bits a => a -> Int -> Bit -> a
-put n i O = n `clearBit` i
-put n i I = n `setBit` i
-
-newtype PixelA1 = PixelA1 Bit deriving Show -- (Show, Storable)
-
-data A1 = A1 {
-	a1Width :: CInt, a1Height :: CInt,
-	a1Stride :: CInt, a1Data :: ForeignPtr Word32 }
-	deriving Show
+-- Image Mutable
 
 data A1Mut s = A1Mut {
 	a1MutWidth :: CInt, a1MutHeight :: CInt,
 	a1MutStride :: CInt, a1MutData :: ForeignPtr PixelA1 }
 	deriving Show
 
-instance Image A1 where
-	type Pixel A1 = PixelA1
-	imageSize (A1 w h _ _) = (w, h)
-	generateImagePrimM = generateA1PrimM
-	pixelAt (A1 w h s d) x y = unsafePerformIO do
-		withForeignPtr d \p -> maybe (pure Nothing) ((Just <$>) . uncurry peekA1) $ ptrA1 w h s (castPtr p) x y
+pattern CairoImageMutA1 :: A1Mut s -> CairoImageMut s
+pattern CairoImageMutA1 a <- (cairoImageMutToA1 -> Just a)
+	where CairoImageMutA1 (A1Mut w h s d) =
+		CairoImageMut #{const CAIRO_FORMAT_A1} w h s $ castForeignPtr d
+
+cairoImageMutToA1 :: CairoImageMut s -> Maybe (A1Mut s)
+cairoImageMutToA1 = \case
+	CairoImageMut #{const CAIRO_FORMAT_A1} w h s d ->
+		Just . A1Mut w h s $ castForeignPtr d
+	_ -> Nothing
 
 instance ImageMut A1Mut where
 	type PixelMut A1Mut = PixelA1
