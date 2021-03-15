@@ -102,6 +102,11 @@ refactoring
 					- [ ] `instance Image Argb32`
 					- [ ] function `generateArgb32PrimM`
 				+ [ ] Image Mutable
+					- [ ] `data Argb32Mut s`
+					- [ ] `pattern CairoImageMutArgb32`
+					- [ ] function `cairoImageMutToArgb32`
+					- [ ] `instance ImageMut Argb32Mut`
+					- [ ] function `newArgb32Mut`
 			* [ ] RGB 24
 			* [ ] A 8
 			* [ ] A 1

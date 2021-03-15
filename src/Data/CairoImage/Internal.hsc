@@ -261,6 +261,11 @@ generateArgb32PrimM w h f = unsafeIOToPrim do
 
 -- Image Mutable
 
+data Argb32Mut s = Argb32Mut {
+	argb32MutWidth :: CInt, argb32MutHeight :: CInt, argb32MutStride :: CInt,
+	argb32MutData :: ForeignPtr PixelArgb32 }
+	deriving Show
+
 pattern CairoImageMutArgb32 :: Argb32Mut s -> CairoImageMut s
 pattern CairoImageMutArgb32 a <- (cairoImageMutToArgb32 -> Just a)
 	where CairoImageMutArgb32 (Argb32Mut w h s d) =
@@ -271,11 +276,6 @@ cairoImageMutToArgb32 = \case
 	CairoImageMut #{const CAIRO_FORMAT_ARGB32} w h s d ->
 		Just . Argb32Mut w h s $ castForeignPtr d
 	_ -> Nothing
-
-data Argb32Mut s = Argb32Mut {
-	argb32MutWidth :: CInt, argb32MutHeight :: CInt, argb32MutStride :: CInt,
-	argb32MutData :: ForeignPtr PixelArgb32 }
-	deriving Show
 
 instance ImageMut Argb32Mut where
 	type PixelMut Argb32Mut = PixelArgb32
