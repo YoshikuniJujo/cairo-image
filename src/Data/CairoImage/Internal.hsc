@@ -295,6 +295,35 @@ newArgb32Mut w h = unsafeIOToPrim do
 
 -- RGB 24
 
+-- Pixel
+
+newtype PixelRgb24 = PixelRgb24Word32 Word32 deriving (Show, Storable)
+
+ptrRgb24 :: CInt -> CInt -> CInt -> Ptr PixelRgb24 -> CInt -> CInt -> Maybe (Ptr PixelRgb24)
+ptrRgb24 w h s p x y
+	| 0 <= x && x < w && 0 <= y && y < h = Just $ p `plusPtr` fromIntegral (y * s + x * 4)
+	| otherwise = Nothing
+
+{-# COMPLETE PixelRgb24 #-}
+
+pattern PixelRgb24 :: Word8 -> Word8 -> Word8 -> PixelRgb24
+pattern PixelRgb24 r g b <- (pixelRgb24ToRgb -> (r, g, b))
+	where PixelRgb24
+		(fromIntegral -> r) (fromIntegral -> g) (fromIntegral -> b) =
+		PixelRgb24Word32 $ r `shiftL` 16 .|. g `shift` 8 .|. b
+
+pixelRgb24ToRgb :: PixelRgb24 -> (Word8, Word8, Word8)
+pixelRgb24ToRgb (PixelRgb24Word32 w) = (
+	fromIntegral $ w `shiftR` 16,
+	fromIntegral $ w `shiftR` 8, fromIntegral w )
+
+-- Image
+
+data Rgb24 = Rgb24 {
+	rgb24Width :: CInt, rgb24Height :: CInt,
+	rgb24Stride :: CInt, rgb24Data :: ForeignPtr PixelRgb24 }
+	deriving Show
+
 pattern CairoImageRgb24 :: Rgb24 -> CairoImage
 pattern CairoImageRgb24 r <- (cairoImageToRgb24 -> Just r)
 	where CairoImageRgb24 (Rgb24 w h s d) =
@@ -304,17 +333,6 @@ cairoImageToRgb24 :: CairoImage -> Maybe Rgb24
 cairoImageToRgb24 = \case
 	CairoImage #{const CAIRO_FORMAT_RGB24} w h s d ->
 		Just . Rgb24 w h s $ castForeignPtr d
-	_ -> Nothing
-
-pattern CairoImageMutRgb24 :: Rgb24Mut s -> CairoImageMut s
-pattern CairoImageMutRgb24 r <- (cairoImageMutToRgb24 -> Just r)
-	where CairoImageMutRgb24 (Rgb24Mut w h s d) =
-		CairoImageMut #{const CAIRO_FORMAT_RGB24} w h s $ castForeignPtr d
-
-cairoImageMutToRgb24 :: CairoImageMut s -> Maybe (Rgb24Mut s)
-cairoImageMutToRgb24 = \case
-	CairoImageMut #{const CAIRO_FORMAT_RGB24} w h s d ->
-		Just . Rgb24Mut w h s $ castForeignPtr d
 	_ -> Nothing
 
 instance Image Rgb24 where
@@ -334,6 +352,24 @@ generateRgb24PrimM w h f = unsafeIOToPrim do
 	fd <- newForeignPtr d $ free d
 	pure $ Rgb24 w h s fd
 
+-- Image Mutable
+
+data Rgb24Mut s = Rgb24Mut {
+	rgb24MutWidth :: CInt, rgb24MutHeight :: CInt,
+	rgb24MutStride :: CInt, rgb24MutData :: ForeignPtr PixelRgb24 }
+	deriving Show
+
+pattern CairoImageMutRgb24 :: Rgb24Mut s -> CairoImageMut s
+pattern CairoImageMutRgb24 r <- (cairoImageMutToRgb24 -> Just r)
+	where CairoImageMutRgb24 (Rgb24Mut w h s d) =
+		CairoImageMut #{const CAIRO_FORMAT_RGB24} w h s $ castForeignPtr d
+
+cairoImageMutToRgb24 :: CairoImageMut s -> Maybe (Rgb24Mut s)
+cairoImageMutToRgb24 = \case
+	CairoImageMut #{const CAIRO_FORMAT_RGB24} w h s d ->
+		Just . Rgb24Mut w h s $ castForeignPtr d
+	_ -> Nothing
+
 instance ImageMut Rgb24Mut where
 	type PixelMut Rgb24Mut = PixelRgb24
 	imageMutSize (Rgb24Mut w h _ _) = (w, h)
@@ -349,39 +385,6 @@ newRgb24Mut w h = unsafeIOToPrim do
 	d <- mallocBytes . fromIntegral $ s * h
 	fd <- newForeignPtr d $ free d
 	pure $ Rgb24Mut w h s fd
-
-ptrRgb24 :: CInt -> CInt -> CInt -> Ptr PixelRgb24 -> CInt -> CInt -> Maybe (Ptr PixelRgb24)
-ptrRgb24 w h s p x y
-	| 0 <= x && x < w && 0 <= y && y < h = Just $ p `plusPtr` fromIntegral (y * s + x * 4)
-	| otherwise = Nothing
-
-newtype PixelRgb24 = PixelRgb24Word32 Word32 deriving (Show, Storable)
-
-{-# COMPLETE PixelRgb24 #-}
-
-pattern PixelRgb24 :: Word8 -> Word8 -> Word8 -> PixelRgb24
-pattern PixelRgb24 r g b <- (pixelRgb24ToRgb -> (r, g, b))
-	where PixelRgb24 = pixelRgb24FromRgb
-
-pixelRgb24FromRgb :: Word8 -> Word8 -> Word8 -> PixelRgb24
-pixelRgb24FromRgb (fromIntegral -> r)
-	(fromIntegral -> g) (fromIntegral -> b) =
-	PixelRgb24Word32 $ r `shiftL` 16 .|. g `shift` 8 .|. b
-
-pixelRgb24ToRgb :: PixelRgb24 -> (Word8, Word8, Word8)
-pixelRgb24ToRgb (PixelRgb24Word32 w) = (
-	fromIntegral $ w `shiftR` 16,
-	fromIntegral $ w `shiftR` 8, fromIntegral w )
-
-data Rgb24 = Rgb24 {
-	rgb24Width :: CInt, rgb24Height :: CInt,
-	rgb24Stride :: CInt, rgb24Data :: ForeignPtr PixelRgb24 }
-	deriving Show
-
-data Rgb24Mut s = Rgb24Mut {
-	rgb24MutWidth :: CInt, rgb24MutHeight :: CInt,
-	rgb24MutStride :: CInt, rgb24MutData :: ForeignPtr PixelRgb24 }
-	deriving Show
 
 -- A 8
 

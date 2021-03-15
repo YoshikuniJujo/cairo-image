@@ -76,11 +76,14 @@ refactoring
 	+ [ ] structure
 		- [x] rough
 		- [ ] detailed
-			* [ ] ARGB 32
+			* [x] ARGB 32
 				+ [x] Pixel
 				+ [x] Image
-				+ [ ] Image Mutable
-			* [ ] RGB 24
+				+ [x] Image Mutable
+			* [x] RGB 24
+				+ [x] Pixel
+				+ [x] Image
+				+ [x] Image Mutable
 			* [ ] A 8
 			* [ ] A 1
 			* [ ] RGB 16 565
@@ -108,6 +111,23 @@ refactoring
 					- [ ] `instance ImageMut Argb32Mut`
 					- [ ] function `newArgb32Mut`
 			* [ ] RGB 24
+				+ [ ] Pixel
+					- [ ] `newtype PixelRgb24`
+					- [ ] function `ptrRgb24`
+					- [ ] `pattern PixelRgb24`
+					- [ ] function `pixelRgb24ToRgb`
+				+ [ ] Image
+					- [ ] `data Rgb24`
+					- [ ] `pattern CairoImageRgb24`
+					- [ ] function `cairoImageToRgb24`
+					- [ ] `instance Image Rgb24`
+					- [ ] function `generateRgb24PrimM`
+				+ [ ] Image Mutable
+					- [ ] `data Rgb24Mut s`
+					- [ ] `pattern CairoImageMutRgb24`
+					- [ ] function `cairoImageMutToRgb24`
+					- [ ] `instance ImageMut Rgb24Mut`
+					- [ ] function `newRgb24Mut`
 			* [ ] A 8
 			* [ ] A 1
 			* [ ] RGB 16 565
