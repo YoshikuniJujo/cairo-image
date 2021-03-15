@@ -17,10 +17,8 @@ import System.Environment (lookupEnv)
 
 endian :: ExpQ -> ExpQ -> ExpQ
 endian el eb = runIO targetEndian >>= \case
-	Right LittleEndian -> el
-	Right BigEndian -> eb
-	Right UnknownEndian -> error "Unknown endian"
-	Left emsg -> error emsg
+	Right LittleEndian -> el; Right BigEndian -> eb
+	Right UnknownEndian -> error "Unknown endian"; Left emsg -> error emsg
 
 data Endian = LittleEndian | BigEndian | UnknownEndian deriving Show
 
@@ -34,7 +32,6 @@ targetEndian = lookupEnv "GHC_TARGET_ENDIAN" >>= \case
 
 checkEndian :: IO Endian
 checkEndian = (<$> alloca \p -> poke p word32 >> peekArray 4 (castPtr p)) \case
-	[4 :: Word8, 3, 2, 1] -> LittleEndian
-	[1, 2, 3, 4] -> BigEndian
+	[4 :: Word8, 3, 2, 1] -> LittleEndian; [1, 2, 3, 4] -> BigEndian
 	_ -> UnknownEndian
 	where word32 :: Word32; word32 = 0x01020304

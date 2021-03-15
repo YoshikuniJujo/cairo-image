@@ -60,13 +60,16 @@ refactoring
 	+ [x] Data.CairoImage
 		- [x] structure
 		- [x] others
-* [ ] refactor System.TargetEndian
+* [x] refactor System.TargetEndian
 	+ [x] export list
 	+ [x] import list
-	+ [ ] structure
+	+ [x] structure
 		- [x] remove function `foo`
-		- [ ] others
-	+ [ ] body
+	+ [x] body
+		- [x] function `endian`
+		- [x] `data Endian`
+		- [x] function `targetEndian`
+		- [x] function `checkEndian`
 * [ ] refactor Data.CairoImage.Internal
 * [ ] refactor Data.CairoImage
 
