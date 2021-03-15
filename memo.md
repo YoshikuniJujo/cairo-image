@@ -73,9 +73,9 @@ refactoring
 * [ ] refactor Data.CairoImage.Internal
 	+ [x] export list
 	+ [x] import list
-	+ [ ] structure
+	+ [x] structure
 		- [x] rough
-		- [ ] detailed
+		- [x] detailed
 			* [x] ARGB 32
 				+ [x] Pixel
 				+ [x] Image
@@ -96,10 +96,10 @@ refactoring
 				+ [x] Pixel
 				+ [x] Image
 				+ [x] Image Mutable
-			* [ ] RGB 30
-				+ [ ] PIXEL
-				+ [ ] IMAEG
-				+ [ ] IMAEG MUTABLE
+			* [x] RGB 30
+				+ [x] PIXEL
+				+ [x] IMAEG
+				+ [x] IMAEG MUTABLE
 	+ [ ] body
 		- [ ] CLASS IMAGE AND IMAGE MUTABLE
 		- [ ] TYPE CAIRO IMAGE AND CAIRO IMAGE MUTABLE
@@ -196,6 +196,25 @@ refactoring
 					- [ ] `instance ImageMut Rgb16_565Mut`
 					- [ ] function `newRgb16_565Mut`
 			* [ ] RGB 30
+				+ [ ] PIXEL
+					- [ ] `newtype PixelRgb30`
+					- [ ] function `ptrRgb30`
+					- [ ] `pattern PixelRgb30`
+					- [ ] function `pixelRgb30FromRgb`
+					- [ ] function `pixelRgb30ToRgb`
+				+ [ ] IMAGE
+					- [ ] `data Rgb30`
+					- [ ] `pattern CairoImageRgb30`
+					- [ ] function `cairoImageToRgb30`
+					- [ ] `instance Image Rgb30`
+					- [ ] function `generateRgb30PrimM`
+				+ [ ] IMAGE MUTABLE
+					- [ ] `data Rgb30Mut s`
+					- [ ] `pattern CairoImageMutRgb30`
+					- [ ] function `cairoImageMutToRgb30`
+					- [ ] `instance ImageMut Rgb30Mut`
+					- [ ] function `newRgb30Mut`
+	+ [ ] FOREIN IMPORT
 * [ ] refactor Data.CairoImage
 
 test

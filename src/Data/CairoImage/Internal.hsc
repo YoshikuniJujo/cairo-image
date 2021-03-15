@@ -87,6 +87,7 @@ import System.TargetEndian (endian)
 --	+ PIXEL
 --	+ IMAGE
 --	+ IMAGE MUTABLE
+-- * FOREIGN IMPORT
 
 ---------------------------------------------------------------------------
 -- CLASS IMAGE AND IMAGE MUTABLE
@@ -696,72 +697,15 @@ newRgb16_565Mut w h = unsafeIOToPrim do
 -- RGB 30
 ---------------------------------------------------------------------------
 
-pattern CairoImageRgb30 :: Rgb30 -> CairoImage
-pattern CairoImageRgb30 r <- (cairoImageToRgb30 -> Just r)
-	where CairoImageRgb30 (Rgb30 w h s d) =
-		CairoImage
-			#{const CAIRO_FORMAT_RGB30} w h s $ castForeignPtr d
+-- PIXEL
 
-cairoImageToRgb30 :: CairoImage -> Maybe Rgb30
-cairoImageToRgb30 = \case
-	CairoImage #{const CAIRO_FORMAT_RGB30} w h s d ->
-		Just . Rgb30 w h s $ castForeignPtr d
-	_ -> Nothing
-
-pattern CairoImageMutRgb30 :: Rgb30Mut s -> CairoImageMut s
-pattern CairoImageMutRgb30 r <- (cairoImageMutToRgb30 -> Just r)
-	where CairoImageMutRgb30 (Rgb30Mut w h s d) =
-		CairoImageMut
-			#{const CAIRO_FORMAT_RGB30} w h s $ castForeignPtr d
-
-cairoImageMutToRgb30 :: CairoImageMut s -> Maybe (Rgb30Mut s)
-cairoImageMutToRgb30 = \case
-	CairoImageMut #{const CAIRO_FORMAT_RGB30} w h s d ->
-		Just . Rgb30Mut w h s $ castForeignPtr d
-	_ -> Nothing
-
-instance Image Rgb30 where
-	type Pixel Rgb30 = PixelRgb30
-	imageSize (Rgb30 w h _ _) = (w, h)
-	generateImagePrimM = generateRgb30PrimM
-	pixelAt (Rgb30 w h s d) x y = unsafePerformIO do
-		withForeignPtr d \p -> maybe (pure Nothing) ((Just <$>) . peek) $ ptrRgb30 w h s p x y
-
-generateRgb30PrimM :: PrimBase m => CInt -> CInt -> (CInt -> CInt -> m PixelRgb30) -> m Rgb30
-generateRgb30PrimM w h f = unsafeIOToPrim do
-	s <- c_cairo_format_stride_for_width #{const CAIRO_FORMAT_RGB30} w
-	d <- mallocBytes . fromIntegral $ s * h
-	for_ [0 .. h - 1] \y -> for_ [0 .. w - 1] \x -> do
-		p <- unsafePrimToIO $ f x y
-		maybe (pure ()) (`poke` p) $ ptrRgb30 w h s d x y
-	fd <- newForeignPtr d $ free d
-	pure $ Rgb30 w h s fd
-
-instance ImageMut Rgb30Mut where
-	type PixelMut Rgb30Mut = PixelRgb30
-	imageMutSize (Rgb30Mut w h _ _) = (w, h)
-	newImageMut w h = newRgb30Mut w h
-	getPixel (Rgb30Mut w h s d) x y = unsafeIOToPrim do
-		withForeignPtr d \p -> maybe (pure Nothing) ((Just <$>) . peek)
-			$ ptrRgb30 w h s p x y
-	putPixel (Rgb30Mut w h s d) x y px = unsafeIOToPrim do
-		withForeignPtr d \p -> maybe (pure ()) (`poke` px)
-			$ ptrRgb30 w h s p x y
-
-newRgb30Mut :: PrimMonad m => CInt -> CInt -> m (Rgb30Mut (PrimState m))
-newRgb30Mut w h = unsafeIOToPrim do
-	s <- c_cairo_format_stride_for_width #{const CAIRO_FORMAT_RGB30} w
-	d <- mallocBytes . fromIntegral $ s * h
-	fd <- newForeignPtr d $ free d
-	pure $ Rgb30Mut w h s fd
+newtype PixelRgb30 = PixelRgb30Word32 Word32 deriving (Show, Storable)
 
 ptrRgb30 :: CInt -> CInt -> CInt ->
 	Ptr PixelRgb30 -> CInt -> CInt -> Maybe (Ptr PixelRgb30)
 ptrRgb30 w h s p x y
 	| 0 <= x && x < w && 0 <= y && y < h = Just $ p `plusPtr` fromIntegral (y * s + x * 4)
 	| otherwise = Nothing
-
-newtype PixelRgb30 = PixelRgb30Word32 Word32 deriving (Show, Storable)
 
 {-# COMPLETE PixelRgb30 #-}
 
@@ -786,17 +730,82 @@ pixelRgb30ToRgb (PixelRgb30Word32 rgb) =
 	g = fromIntegral $ rgb `shiftR` 10 `shiftL` 6
 	b = fromIntegral $ rgb `shiftL` 6
 
+-- IMAGE
+
 data Rgb30 = Rgb30 {
 	rgb30Width :: CInt, rgb30Height :: CInt,
 	rgb30Stride :: CInt, rgb30Data :: ForeignPtr PixelRgb30 }
 	deriving Show
+
+pattern CairoImageRgb30 :: Rgb30 -> CairoImage
+pattern CairoImageRgb30 r <- (cairoImageToRgb30 -> Just r)
+	where CairoImageRgb30 (Rgb30 w h s d) =
+		CairoImage
+			#{const CAIRO_FORMAT_RGB30} w h s $ castForeignPtr d
+
+cairoImageToRgb30 :: CairoImage -> Maybe Rgb30
+cairoImageToRgb30 = \case
+	CairoImage #{const CAIRO_FORMAT_RGB30} w h s d ->
+		Just . Rgb30 w h s $ castForeignPtr d
+	_ -> Nothing
+
+instance Image Rgb30 where
+	type Pixel Rgb30 = PixelRgb30
+	imageSize (Rgb30 w h _ _) = (w, h)
+	generateImagePrimM = generateRgb30PrimM
+	pixelAt (Rgb30 w h s d) x y = unsafePerformIO do
+		withForeignPtr d \p -> maybe (pure Nothing) ((Just <$>) . peek) $ ptrRgb30 w h s p x y
+
+generateRgb30PrimM :: PrimBase m => CInt -> CInt -> (CInt -> CInt -> m PixelRgb30) -> m Rgb30
+generateRgb30PrimM w h f = unsafeIOToPrim do
+	s <- c_cairo_format_stride_for_width #{const CAIRO_FORMAT_RGB30} w
+	d <- mallocBytes . fromIntegral $ s * h
+	for_ [0 .. h - 1] \y -> for_ [0 .. w - 1] \x -> do
+		p <- unsafePrimToIO $ f x y
+		maybe (pure ()) (`poke` p) $ ptrRgb30 w h s d x y
+	fd <- newForeignPtr d $ free d
+	pure $ Rgb30 w h s fd
+
+-- IMAGE MUTABLE
 
 data Rgb30Mut s = Rgb30Mut {
 	rgb30MutWidth :: CInt, rgb30MutHeight :: CInt,
 	rgb30MutStride :: CInt, rgb30MutData :: ForeignPtr PixelRgb30 }
 	deriving Show
 
+pattern CairoImageMutRgb30 :: Rgb30Mut s -> CairoImageMut s
+pattern CairoImageMutRgb30 r <- (cairoImageMutToRgb30 -> Just r)
+	where CairoImageMutRgb30 (Rgb30Mut w h s d) =
+		CairoImageMut
+			#{const CAIRO_FORMAT_RGB30} w h s $ castForeignPtr d
+
+cairoImageMutToRgb30 :: CairoImageMut s -> Maybe (Rgb30Mut s)
+cairoImageMutToRgb30 = \case
+	CairoImageMut #{const CAIRO_FORMAT_RGB30} w h s d ->
+		Just . Rgb30Mut w h s $ castForeignPtr d
+	_ -> Nothing
+
+instance ImageMut Rgb30Mut where
+	type PixelMut Rgb30Mut = PixelRgb30
+	imageMutSize (Rgb30Mut w h _ _) = (w, h)
+	newImageMut w h = newRgb30Mut w h
+	getPixel (Rgb30Mut w h s d) x y = unsafeIOToPrim do
+		withForeignPtr d \p -> maybe (pure Nothing) ((Just <$>) . peek)
+			$ ptrRgb30 w h s p x y
+	putPixel (Rgb30Mut w h s d) x y px = unsafeIOToPrim do
+		withForeignPtr d \p -> maybe (pure ()) (`poke` px)
+			$ ptrRgb30 w h s p x y
+
+newRgb30Mut :: PrimMonad m => CInt -> CInt -> m (Rgb30Mut (PrimState m))
+newRgb30Mut w h = unsafeIOToPrim do
+	s <- c_cairo_format_stride_for_width #{const CAIRO_FORMAT_RGB30} w
+	d <- mallocBytes . fromIntegral $ s * h
+	fd <- newForeignPtr d $ free d
+	pure $ Rgb30Mut w h s fd
+
+---------------------------------------------------------------------------
 -- FOREIGN IMPORT
+---------------------------------------------------------------------------
 
 foreign import ccall "cairo_format_stride_for_width"
 	c_cairo_format_stride_for_width :: #{type cairo_format_t} -> CInt -> IO CInt
