@@ -97,23 +97,26 @@ refactoring
 				+ [x] Image
 				+ [x] Image Mutable
 			* [ ] RGB 30
+				+ [ ] PIXEL
+				+ [ ] IMAEG
+				+ [ ] IMAEG MUTABLE
 	+ [ ] body
 		- [ ] CLASS IMAGE AND IMAGE MUTABLE
 		- [ ] TYPE CAIRO IMAGE AND CAIRO IMAGE MUTABLE
 		- [ ] IMAGE FORMAT
 			* [ ] ARGB 32
-				+ [ ] Pixel
+				+ [ ] PIXEL
 					- [ ] `newtype PixelArgb32`
 					- [ ] function `ptrArgb32`
 					- [ ] `pattern PixelArgb32Premultiplied`
 					- [ ] `pattern PixelArgb32Straight`
-				+ [ ] Image
+				+ [ ] IMAGE
 					- [ ] `data Argb32`
 					- [ ] `pattern CairoImageArgb32`
 					- [ ] function `cairoImageToArgb32`
 					- [ ] `instance Image Argb32`
 					- [ ] function `generateArgb32PrimM`
-				+ [ ] Image Mutable
+				+ [ ] IMAGE MUTABLE
 					- [ ] `data Argb32Mut s`
 					- [ ] `pattern CairoImageMutArgb32`
 					- [ ] function `cairoImageMutToArgb32`

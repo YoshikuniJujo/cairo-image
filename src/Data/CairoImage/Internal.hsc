@@ -63,28 +63,30 @@ import System.TargetEndian (endian)
 
 -- * CLASS IMAGE AND IMAGE MUTABLE
 -- * TYPE CAIRO IMAGE AND CAIRO IMAGE MUTABLE
--- * IMAGE FORMAT
---	+ ARGB 32
---		- Pixel
---		- Image
---		- Image Mutable
---	+ RGB 24
---		- Pixel
---		- Image
---		- Image Mutable
---	+ A 8
---		- Pixel
---		- Image
---		- Image Mutable
---	+ A 1
---		- Pixel
---		- Image
---		- Image Mutable
---	+ RGB 16 565
---		- Pixel
---		- Image
---		- Image Mutable
---	+ RGB 30
+-- * ARGB 32
+--	+ PIXEL
+--	+ IMAGE
+--	+ IMAGE MUTABLE
+-- * RGB 24
+--	+ PIXEL
+--	+ IMAGE
+--	+ IMAGE MUTABLE
+-- * A 8
+--	+ PIXEL
+--	+ IMAGE
+--	+ IMAGE MUTABLE
+-- * A 1
+--	+ PIXEL
+--	+ IMAGE
+--	+ IMAGE MUTABLE
+-- * RGB 16 565
+--	+ PIXEL
+--	+ IMAGE
+--	+ IMAGE MUTABLE
+-- * RGB 30
+--	+ PIXEL
+--	+ IMAGE
+--	+ IMAGE MUTABLE
 
 ---------------------------------------------------------------------------
 -- CLASS IMAGE AND IMAGE MUTABLE
@@ -178,12 +180,10 @@ cairoImageThaw ci = unsafeIOToPrim
 	dt = cairoImageData ci
 
 ---------------------------------------------------------------------------
--- IMAGE FORMAT
+-- ARGB 32
 ---------------------------------------------------------------------------
 
--- ARGB 32
-
--- Pixel
+-- PIXEL
 
 newtype PixelArgb32 = PixelArgb32Word32 Word32 deriving (Show, Storable)
 
@@ -237,7 +237,7 @@ div' :: Integral n => n -> n -> n
 _ `div'` 0 = 0
 n `div'` m = n `div` m
 
--- Image
+-- IMAGE
 
 data Argb32 = Argb32 {
 	argb32Width :: CInt, argb32Height :: CInt, argb32Stride :: CInt,
@@ -272,7 +272,7 @@ generateArgb32PrimM w h f = unsafeIOToPrim do
 	fd <- newForeignPtr d $ free d
 	pure $ Argb32 w h s fd
 
--- Image Mutable
+-- IMAGE MUTABLE
 
 data Argb32Mut s = Argb32Mut {
 	argb32MutWidth :: CInt, argb32MutHeight :: CInt, argb32MutStride :: CInt,
@@ -306,9 +306,11 @@ newArgb32Mut w h = unsafeIOToPrim do
 	fd <- newForeignPtr d $ free d
 	pure $ Argb32Mut w h s fd
 
+---------------------------------------------------------------------------
 -- RGB 24
+---------------------------------------------------------------------------
 
--- Pixel
+-- PIXEL
 
 newtype PixelRgb24 = PixelRgb24Word32 Word32 deriving (Show, Storable)
 
@@ -330,7 +332,7 @@ pixelRgb24ToRgb (PixelRgb24Word32 w) = (
 	fromIntegral $ w `shiftR` 16,
 	fromIntegral $ w `shiftR` 8, fromIntegral w )
 
--- Image
+-- IMAGE
 
 data Rgb24 = Rgb24 {
 	rgb24Width :: CInt, rgb24Height :: CInt,
@@ -365,7 +367,7 @@ generateRgb24PrimM w h f = unsafeIOToPrim do
 	fd <- newForeignPtr d $ free d
 	pure $ Rgb24 w h s fd
 
--- Image Mutable
+-- IMAGE MUTABLE
 
 data Rgb24Mut s = Rgb24Mut {
 	rgb24MutWidth :: CInt, rgb24MutHeight :: CInt,
@@ -399,9 +401,11 @@ newRgb24Mut w h = unsafeIOToPrim do
 	fd <- newForeignPtr d $ free d
 	pure $ Rgb24Mut w h s fd
 
+---------------------------------------------------------------------------
 -- A 8
+---------------------------------------------------------------------------
 
--- Pixel
+-- PIXEL
 
 newtype PixelA8 = PixelA8 Word8 deriving (Show, Storable)
 
@@ -410,7 +414,7 @@ ptrA8 w h s p x y
 	| 0 <= x && x < w && 0 <= y && y < h = Just $ p `plusPtr` fromIntegral (y * s + x)
 	| otherwise = Nothing
 
--- Image
+-- IMAGE
 
 data A8 = A8 {
 	a8Width :: CInt, a8Height :: CInt,
@@ -445,7 +449,7 @@ generateA8PrimM w h f = unsafeIOToPrim do
 	fd <- newForeignPtr d $ free d
 	pure $ A8 w h s fd
 
--- Image Mutable
+-- IMAGE MUTABLE
 
 data A8Mut s = A8Mut {
 	a8MutWidth :: CInt, a8MutHeight :: CInt,
@@ -479,9 +483,11 @@ newA8Mut w h = unsafeIOToPrim do
 	fd <- newForeignPtr d $ free d
 	pure $ A8Mut w h s fd
 
+---------------------------------------------------------------------------
 -- A 1
+---------------------------------------------------------------------------
 
--- Pixel
+-- PIXEL
 
 newtype PixelA1 = PixelA1 Bit deriving Show
 
@@ -506,7 +512,7 @@ pokeA1 p i (PixelA1 b) = do
 	poke (castPtr p) (put w32 (fromIntegral $(endian [e| i |] [e| 31 - i |])) b)
 	where put n j = \case O -> n `clearBit` j; I -> n `setBit` j
 
--- Image
+-- IMAGE
 
 data A1 = A1 {
 	a1Width :: CInt, a1Height :: CInt,
@@ -542,7 +548,7 @@ generateA1PrimM w h f = unsafeIOToPrim do
 	fd <- newForeignPtr d' $ free d'
 	pure $ A1 w h s fd
 
--- Image Mutable
+-- IMAGE MUTABLE
 
 data A1Mut s = A1Mut {
 	a1MutWidth :: CInt, a1MutHeight :: CInt,
@@ -576,9 +582,11 @@ newA1Mut w h = unsafeIOToPrim do
 	fd <- newForeignPtr d $ free d
 	pure $ A1Mut w h s fd
 
+---------------------------------------------------------------------------
 -- RGB 16 565
+---------------------------------------------------------------------------
 
--- Pixel
+-- PIXEL
 
 newtype PixelRgb16_565 = PixelRgb16_565Word16 Word16 deriving (Show, Storable)
 
@@ -611,7 +619,7 @@ pixelRgb16_565ToRgb (PixelRgb16_565Word16 rgb) =
 	g = fromIntegral $ rgb `shiftR` 5 `shiftL` 2
 	b = fromIntegral $ rgb `shiftL` 3
 
--- Image
+-- IMAGE
 
 data Rgb16_565 = Rgb16_565 {
 	rgb16_565Width :: CInt, rgb16_565Height :: CInt,
@@ -647,7 +655,7 @@ generateRgb16_565PrimM w h f = unsafeIOToPrim do
 	fd <- newForeignPtr d $ free d
 	pure $ Rgb16_565 w h s fd
 
--- Image Mutable
+-- IMAGE MUTABLE
 
 data Rgb16_565Mut s = Rgb16_565Mut {
 	rgb16_565MutWidth :: CInt, rgb16_565MutHeight :: CInt,
@@ -684,7 +692,9 @@ newRgb16_565Mut w h = unsafeIOToPrim do
 	fd <- newForeignPtr d $ free d
 	pure $ Rgb16_565Mut w h s fd
 
+---------------------------------------------------------------------------
 -- RGB 30
+---------------------------------------------------------------------------
 
 pattern CairoImageRgb30 :: Rgb30 -> CairoImage
 pattern CairoImageRgb30 r <- (cairoImageToRgb30 -> Just r)
