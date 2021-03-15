@@ -71,6 +71,10 @@ refactoring
 		- [x] function `targetEndian`
 		- [x] function `checkEndian`
 * [ ] refactor Data.CairoImage.Internal
+	+ [x] export list
+	+ [x] import list
+	+ [ ] structure
+	+ [ ] body
 * [ ] refactor Data.CairoImage
 
 test

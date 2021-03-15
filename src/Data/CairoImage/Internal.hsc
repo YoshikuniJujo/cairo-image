@@ -37,24 +37,26 @@ module Data.CairoImage.Internal (
 	-- ** RGB 30
 	PixelRgb30(..), pattern PixelRgb30,
 	pattern CairoImageRgb30, Rgb30,
-	pattern CairoImageMutRgb30, Rgb30Mut
-	) where
+	pattern CairoImageMutRgb30, Rgb30Mut ) where
 
-import Foreign.Ptr
-import Foreign.ForeignPtr hiding (newForeignPtr)
-import Foreign.Concurrent
-import Foreign.Marshal
-import Foreign.Storable
-import Foreign.C.Types
-import Control.Monad.Primitive
-import Control.Monad.ST
-import Data.Foldable
+import Foreign.Ptr (Ptr, castPtr, plusPtr)
+import Foreign.ForeignPtr (ForeignPtr, castForeignPtr, withForeignPtr)
+import Foreign.Concurrent (newForeignPtr)
+import Foreign.Marshal (mallocBytes, free, copyBytes)
+import Foreign.Storable (Storable, peek, poke)
+import Foreign.C.Types (CInt(..), CUChar)
+import Control.Monad.Primitive (
+	PrimMonad(..), PrimBase, unsafeIOToPrim, unsafePrimToIO )
+import Control.Monad.ST (runST)
+import Data.Foldable (for_)
 import Data.Bits (
-	Bits, (.&.), (.|.), testBit, clearBit, setBit, shift, shiftL, shiftR)
-import Data.Word
-import Data.Int
-import System.IO.Unsafe
-import System.TargetEndian
+	Bits, (.&.), (.|.), testBit, clearBit, setBit, shift, shiftL, shiftR )
+import Data.Word (Word8, Word16, Word32)
+import Data.Int (Int32)
+import System.IO.Unsafe (unsafePerformIO)
+import System.TargetEndian (endian)
+
+---------------------------------------------------------------------------
 
 #include <cairo.h>
 
