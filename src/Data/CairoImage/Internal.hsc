@@ -428,14 +428,13 @@ ptrA1 w h s p x y
 		(p `plusPtr` fromIntegral (y * s + x `div` 32 * 4), x `mod` 32)
 	| otherwise = Nothing
 
-peekA1 :: Ptr PixelA1 -> CInt -> IO PixelA1
-peekA1 (castPtr -> p) (fromIntegral . $(endian [e| id |] [e| (31 -) |]) -> i) =
+peA1 :: (Ptr PixelA1, CInt) -> IO PixelA1
+peA1 ((castPtr -> p), (fromIntegral . $(endian [e| id |] [e| (31 -) |]) -> i)) =
 	PixelA1 . bool O I . (`testBit` i) <$> peek @Word32 p
 
-pokeA1 :: Ptr PixelA1 -> CInt -> PixelA1 -> IO ()
-pokeA1 (castPtr -> p)
-	(fromIntegral . $(endian [e| id |] [e| (31 -) |]) -> i) (PixelA1 b) =
-	poke p . flip (bit clearBit setBit b) i =<< peek @Word32 p
+poA1 :: (Ptr PixelA1, CInt) -> PixelA1 -> IO ()
+poA1 ((castPtr -> p), (fromIntegral . $(endian [e| id |] [e| (31 -) |]) -> i))
+	(PixelA1 b) = poke p . flip (bit clearBit setBit b) i =<< peek @Word32 p
 
 -- IMAGE
 
@@ -447,31 +446,27 @@ data A1 = A1 {
 pattern CairoImageA1 :: A1 -> CairoImage
 pattern CairoImageA1 a <- (cairoImageToA1 -> Just a)
 	where CairoImageA1 (A1 w h s d) =
-		CairoImage #{const CAIRO_FORMAT_A1} w h s $ castForeignPtr d
+		CairoImage CairoFormatA1 w h s $ castForeignPtr d
 
 cairoImageToA1 :: CairoImage -> Maybe A1
 cairoImageToA1 = \case
-	CairoImage #{const CAIRO_FORMAT_A1} w h s d ->
-		Just . A1 w h s $ castForeignPtr d
+	CairoImage CairoFormatA1 w h s d -> Just . A1 w h s $ castForeignPtr d
 	_ -> Nothing
 
 instance Image A1 where
 	type Pixel A1 = PixelA1
 	imageSize (A1 w h _ _) = (w, h)
-	generateImagePrimM = generateA1PrimM
-	pixelAt (A1 w h s d) x y = unsafePerformIO do
-		with d \p -> maybe (pure Nothing) ((Just <$>) . uncurry peekA1) $ ptrA1 w h s (castPtr p) x y
+	pixelAt (A1 w h s d) x y = unsafePerformIO $ with d \p -> maybe
+		(pure Nothing) ((Just <$>) . peA1) $ ptrA1 w h s (castPtr p) x y
+	generateImagePrimM = genA1
 
-generateA1PrimM :: PrimBase m => CInt -> CInt -> (CInt -> CInt -> m PixelA1) -> m A1
-generateA1PrimM w h f = unsafeIOToPrim do
-	s <- c_cairo_format_stride_for_width #{const CAIRO_FORMAT_A8} w
+genA1 :: PrimBase m => CInt -> CInt -> (CInt -> CInt -> m PixelA1) -> m A1
+genA1 w h f = unsafeIOToPrim $ stride CairoFormatA1 w >>= \s -> do
 	d <- mallocBytes . fromIntegral $ s * h
-	for_ [0 .. h - 1] \y -> for_ [0 .. w - 1] \x -> do
-		p <- unsafePrimToIO $ f x y
-		maybe (pure ()) (\(pt, i) -> pokeA1 pt i p) $ ptrA1 w h s d x y
-	let	d' = castPtr d
-	fd <- newForeignPtr d' $ free d'
-	pure $ A1 w h s fd
+	for_ [0 .. h - 1] \y -> for_ [0 .. w - 1] \x ->
+		unsafePrimToIO (f x y) >>= \px ->
+			maybe (pure ()) (`poA1` px) $ ptrA1 w h s d x y
+	let d' = castPtr d in A1 w h s <$> newForeignPtr d' (free d')
 
 -- IMAGE MUTABLE
 
@@ -496,9 +491,9 @@ instance ImageMut A1Mut where
 	imageMutSize (A1Mut w h _ _) = (w, h)
 	newImageMut w h = newA1Mut w h
 	getPixel (A1Mut w h s d) x y = unsafeIOToPrim do
-		with d \p -> maybe (pure Nothing) ((Just <$>) . uncurry peekA1) $ ptrA1 w h s p x y
+		with d \p -> maybe (pure Nothing) ((Just <$>) . peA1) $ ptrA1 w h s p x y
 	putPixel (A1Mut w h s d) x y px = unsafeIOToPrim do
-		with d \p -> maybe (pure ()) (\(pt, i) -> pokeA1 pt i px) $ ptrA1 w h s p x y
+		with d \p -> maybe (pure ()) (\(pt, i) -> poA1 (pt, i) px) $ ptrA1 w h s p x y
 
 newA1Mut :: PrimMonad m => CInt -> CInt -> m (A1Mut (PrimState m))
 newA1Mut w h = unsafeIOToPrim do
@@ -771,3 +766,7 @@ pattern CairoFormatRgb24 <- #{const CAIRO_FORMAT_RGB24} where
 pattern CairoFormatA8 :: #{type cairo_format_t}
 pattern CairoFormatA8 <- #{const CAIRO_FORMAT_A8} where
 	CairoFormatA8 = #{const CAIRO_FORMAT_A8}
+
+pattern CairoFormatA1 :: #{type cairo_format_t}
+pattern CairoFormatA1 <- #{const CAIRO_FORMAT_A1} where
+	CairoFormatA1 = #{const CAIRO_FORMAT_A1}

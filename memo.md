@@ -172,12 +172,12 @@ refactoring
 					- [x] function `ptrA1`
 					- [x] function `peekA1`
 					- [x] function `pokeA1`
-				+ [ ] IMAGE
-					- [ ] `data A1`
-					- [ ] `pattern CairoImageA1`
-					- [ ] function `cairoImageToA1`
-					- [ ] `instance Image A1`
-					- [ ] function `generateA1PrimM`
+				+ [x] IMAGE
+					- [x] `data A1`
+					- [x] `pattern CairoImageA1`
+					- [x] function `cairoImageToA1`
+					- [x] `instance Image A1`
+					- [x] function `genA1`
 				+ [ ] IMAGE MUTABLE
 					- [ ] `data A1Mut s`
 					- [ ] `pattern CairoImageMutA1`
