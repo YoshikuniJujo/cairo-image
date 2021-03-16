@@ -115,11 +115,16 @@ refactoring
 			* [x] function `cairoImageDataCopy`
 		- [ ] IMAGE FORMAT
 			* [ ] ARGB 32
-				+ [ ] PIXEL
-					- [ ] `newtype PixelArgb32`
-					- [ ] function `ptrArgb32`
-					- [ ] `pattern PixelArgb32Premultiplied`
-					- [ ] `pattern PixelArgb32Straight`
+				+ [x] PIXEL
+					- [x] `newtype PixelArgb32`
+					- [x] `pattern PixelArgb32Premultiplied`
+					- [x] function `pixelArgb32Premultiplied`
+					- [x] function `pixelArgb32FromArgb`
+					- [x] function `pixelArgb32ToArgb`
+					- [x] `pattern PixelArgb32Straight`
+					- [x] function `pixelArgb32ToArgbSt`
+					- [x] function `unit`
+					- [x] function `div'`
 				+ [ ] IMAGE
 					- [ ] `data Argb32`
 					- [ ] `pattern CairoImageArgb32`

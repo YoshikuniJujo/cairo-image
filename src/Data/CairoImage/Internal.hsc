@@ -1,7 +1,7 @@
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE BlockArguments, LambdaCase #-}
 {-# LANGUAGE PatternSynonyms, ViewPatterns #-}
-{-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE ScopedTypeVariables, TypeApplications #-}
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
@@ -50,6 +50,7 @@ import Control.Monad.Primitive (
 	PrimMonad(..), PrimBase, unsafeIOToPrim, unsafePrimToIO )
 import Control.Monad.ST (runST)
 import Data.Foldable (for_)
+import Data.List (foldl1')
 import Data.Bool (bool)
 import Data.Bits (
 	(.&.), (.|.), testBit, clearBit, setBit, shift, shiftL, shiftR )
@@ -179,10 +180,12 @@ newtype PixelArgb32 = PixelArgb32Word32 Word32 deriving (Show, Storable)
 
 {-# COMPLETE PixelArgb32Premultiplied #-}
 
-pattern PixelArgb32Premultiplied :: Word8 -> Word8 -> Word8 -> Word8 -> PixelArgb32
+pattern PixelArgb32Premultiplied ::
+	Word8 -> Word8 -> Word8 -> Word8 -> PixelArgb32
 pattern PixelArgb32Premultiplied a r g b <- (pixelArgb32ToArgb -> (a, r, g, b))
 
-pixelArgb32Premultiplied :: Word8 -> Word8 -> Word8 -> Word8 -> Maybe PixelArgb32
+pixelArgb32Premultiplied ::
+	Word8 -> Word8 -> Word8 -> Word8 -> Maybe PixelArgb32
 pixelArgb32Premultiplied a r g b
 	| r <= a, g <= a, b <= a = Just $ pixelArgb32FromArgb a r g b
 	| otherwise = Nothing
@@ -191,7 +194,7 @@ pixelArgb32FromArgb :: Word8 -> Word8 -> Word8 -> Word8 -> PixelArgb32
 pixelArgb32FromArgb
 	(fromIntegral -> a) (fromIntegral -> r)
 	(fromIntegral -> g) (fromIntegral -> b) = PixelArgb32Word32
-	$ a `shiftL` 24 .|. r `shiftL` 16 .|. g `shift` 8 .|. b
+	. foldl1' (.|.) $ zipWith shiftL [a, r, g, b] [24, 16, 8, 0]
 
 pixelArgb32ToArgb :: PixelArgb32 -> (Word8, Word8, Word8, Word8)
 pixelArgb32ToArgb (PixelArgb32Word32 w) = (
@@ -201,26 +204,22 @@ pixelArgb32ToArgb (PixelArgb32Word32 w) = (
 {-# COMPLETE PixelArgb32Straight #-}
 
 pattern PixelArgb32Straight :: Word8 -> Word8 -> Word8 -> Word8 -> PixelArgb32
-pattern PixelArgb32Straight a r g b <- (pixelArgb32ToArgbStraight -> (a, r, g, b))
-	where PixelArgb32Straight = pixelArgb32FromArgbStraight
+pattern PixelArgb32Straight a r g b <- (pixelArgb32ToArgbSt -> (a, r, g, b))
+	where PixelArgb32Straight a r g b = pixelArgb32FromArgb
+		a (r `unit` (a, 0xff)) (g `unit` (a, 0xff)) (b `unit` (a, 0xff))
 
-pixelArgb32FromArgbStraight :: Word8 -> Word8 -> Word8 -> Word8 -> PixelArgb32
-pixelArgb32FromArgbStraight a r g b = pixelArgb32FromArgb
-	a (r `unit` (a, 0xff)) (g `unit` (a, 0xff)) (b `unit` (a, 0xff))
-
-pixelArgb32ToArgbStraight :: PixelArgb32 -> (Word8, Word8, Word8, Word8)
-pixelArgb32ToArgbStraight p = (a, r `unit` (0xff, a), g `unit` (0xff, a), b `unit` (0xff, a))
-	where (a, r, g, b) = pixelArgb32ToArgb p
+pixelArgb32ToArgbSt :: PixelArgb32 -> (Word8, Word8, Word8, Word8)
+pixelArgb32ToArgbSt p = let (a, r, g, b) = pixelArgb32ToArgb p in
+	(a, r `unit` (0xff, a), g `unit` (0xff, a), b `unit` (0xff, a))
 
 unit :: Word8 -> (Word8, Word8) -> Word8
-n `unit` (m, d) = fromIntegral
-	(fromIntegral n * fromIntegral m `div'` fromIntegral d :: Word16)
+(fromIntegral -> n) `unit` ((fromIntegral -> m), (fromIntegral -> d)) =
+	fromIntegral @Word16 $ n * m `div'` d
 
 infixl 7 `div'`
 
 div' :: Integral n => n -> n -> n
-_ `div'` 0 = 0
-n `div'` m = n `div` m
+div' n = \case 0 -> 0; m -> n `div` m
 
 -- IMAGE
 
