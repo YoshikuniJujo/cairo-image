@@ -137,11 +137,10 @@ refactoring
 					- [x] function `cairoImageMutToArgb32`
 					- [x] `instance ImageMut Argb32Mut`
 			* [ ] RGB 24
-				+ [ ] Pixel
-					- [ ] `newtype PixelRgb24`
-					- [ ] function `ptrRgb24`
-					- [ ] `pattern PixelRgb24`
-					- [ ] function `pixelRgb24ToRgb`
+				+ [x] Pixel
+					- [x] `newtype PixelRgb24`
+					- [x] `pattern PixelRgb24`
+					- [x] function `pixelRgb24ToRgb`
 				+ [ ] Image
 					- [ ] `data Rgb24`
 					- [ ] `pattern CairoImageRgb24`

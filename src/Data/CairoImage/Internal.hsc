@@ -52,8 +52,7 @@ import Control.Monad.ST (runST)
 import Data.Foldable (for_)
 import Data.List (foldl1')
 import Data.Bool (bool)
-import Data.Bits (
-	(.&.), (.|.), testBit, clearBit, setBit, shift, shiftL, shiftR )
+import Data.Bits ((.&.), (.|.), testBit, clearBit, setBit, shiftL, shiftR)
 import Data.Word (Word8, Word16, Word32)
 import Data.Int (Int32)
 import System.IO.Unsafe (unsafePerformIO)
@@ -284,18 +283,13 @@ instance ImageMut Argb32Mut where
 
 newtype PixelRgb24 = PixelRgb24Word32 Word32 deriving (Show, Storable)
 
-ptrRgb24 :: CInt -> CInt -> CInt -> Ptr PixelRgb24 -> CInt -> CInt -> Maybe (Ptr PixelRgb24)
-ptrRgb24 w h s p x y
-	| 0 <= x && x < w && 0 <= y && y < h = Just $ p `plusPtr` fromIntegral (y * s + x * 4)
-	| otherwise = Nothing
-
 {-# COMPLETE PixelRgb24 #-}
 
 pattern PixelRgb24 :: Word8 -> Word8 -> Word8 -> PixelRgb24
-pattern PixelRgb24 r g b <- (pixelRgb24ToRgb -> (r, g, b))
-	where PixelRgb24
-		(fromIntegral -> r) (fromIntegral -> g) (fromIntegral -> b) =
-		PixelRgb24Word32 $ r `shiftL` 16 .|. g `shift` 8 .|. b
+pattern PixelRgb24 r g b <- (pixelRgb24ToRgb -> (r, g, b)) where
+	PixelRgb24 (fromIntegral -> r) (fromIntegral -> g) (fromIntegral -> b) =
+		PixelRgb24Word32
+			. foldl1' (.|.) $ zipWith shiftL [r, g, b] [16, 8, 0]
 
 pixelRgb24ToRgb :: PixelRgb24 -> (Word8, Word8, Word8)
 pixelRgb24ToRgb (PixelRgb24Word32 w) = (
@@ -325,7 +319,7 @@ instance Image Rgb24 where
 	imageSize (Rgb24 w h _ _) = (w, h)
 	generateImagePrimM = generateRgb24PrimM
 	pixelAt (Rgb24 w h s d) x y = unsafePerformIO do
-		with d \p -> maybe (pure Nothing) ((Just <$>) . peek) $ ptrRgb24 w h s p x y
+		with d \p -> maybe (pure Nothing) ((Just <$>) . peek) $ ptr w h s p x y
 
 generateRgb24PrimM :: PrimBase m => CInt -> CInt -> (CInt -> CInt -> m PixelRgb24) -> m Rgb24
 generateRgb24PrimM w h f = unsafeIOToPrim do
@@ -333,7 +327,7 @@ generateRgb24PrimM w h f = unsafeIOToPrim do
 	d <- mallocBytes . fromIntegral $ s * h
 	for_ [0 .. h - 1] \y -> for_ [0 .. w - 1] \x -> do
 		p <- unsafePrimToIO $ f x y
-		maybe (pure ()) (`poke` p) $ ptrRgb24 w h s d x y
+		maybe (pure ()) (`poke` p) $ ptr w h s d x y
 	fd <- newForeignPtr d $ free d
 	pure $ Rgb24 w h s fd
 
@@ -360,9 +354,9 @@ instance ImageMut Rgb24Mut where
 	imageMutSize (Rgb24Mut w h _ _) = (w, h)
 	newImageMut w h = newRgb24Mut w h
 	getPixel (Rgb24Mut w h s d) x y = unsafeIOToPrim do
-		with d \p -> maybe (pure Nothing) ((Just <$>) . peek) $ ptrRgb24 w h s p x y
+		with d \p -> maybe (pure Nothing) ((Just <$>) . peek) $ ptr w h s p x y
 	putPixel (Rgb24Mut w h s d) x y px = unsafeIOToPrim do
-		with d \p -> maybe (pure ()) (`poke` px) $ ptrRgb24 w h s p x y
+		with d \p -> maybe (pure ()) (`poke` px) $ ptr w h s p x y
 
 newRgb24Mut :: PrimMonad m => CInt -> CInt -> m (Rgb24Mut (PrimState m))
 newRgb24Mut w h = unsafeIOToPrim do
