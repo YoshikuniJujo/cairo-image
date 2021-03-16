@@ -100,6 +100,7 @@ refactoring
 				+ [x] PIXEL
 				+ [x] IMAEG
 				+ [x] IMAEG MUTABLE
+		- [ ] make section COMMON
 	+ [ ] body
 		- [x] CLASS IMAGE AND IMAGE MUTABLE
 			* [x] `class Image`
