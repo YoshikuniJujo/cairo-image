@@ -164,7 +164,7 @@ refactoring
 					- [x] `pattern CairoImageMutA8`
 					- [x] function `cairoImageMutToA8`
 					- [x] `instance ImageMut A8Mut`
-			* [ ] A 1
+			* [x] A 1
 				+ [x] PIXEL
 					- [x] `newtype PixelA1`
 					- [x] `data Bit`
@@ -178,12 +178,11 @@ refactoring
 					- [x] function `cairoImageToA1`
 					- [x] `instance Image A1`
 					- [x] function `genA1`
-				+ [ ] IMAGE MUTABLE
-					- [ ] `data A1Mut s`
-					- [ ] `pattern CairoImageMutA1`
-					- [ ] function `cairoImageMutToA1`
-					- [ ] `instance ImageMut A1Mut`
-					- [ ] function `newA1Mut`
+				+ [x] IMAGE MUTABLE
+					- [x] `data A1Mut s`
+					- [x] `pattern CairoImageMutA1`
+					- [x] function `cairoImageMutToA1`
+					- [x] `instance ImageMut A1Mut`
 			* [ ] RGB 16 565
 				+ [ ] Pixel
 					- [ ] `newtype PixelRgb16_565`
