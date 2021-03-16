@@ -100,7 +100,7 @@ refactoring
 				+ [x] PIXEL
 				+ [x] IMAEG
 				+ [x] IMAEG MUTABLE
-		- [ ] make section COMMON
+		- [x] make section COMMON
 	+ [ ] body
 		- [x] CLASS IMAGE AND IMAGE MUTABLE
 			* [x] `class Image`
@@ -224,7 +224,7 @@ refactoring
 					- [ ] function `cairoImageMutToRgb30`
 					- [ ] `instance ImageMut Rgb30Mut`
 					- [ ] function `newRgb30Mut`
-	+ [ ] FOREIN IMPORT
+	+ [ ] COMMON
 * [ ] refactor Data.CairoImage
 
 test

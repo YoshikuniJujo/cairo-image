@@ -88,7 +88,7 @@ import System.TargetEndian (endian)
 --	+ PIXEL
 --	+ IMAGE
 --	+ IMAGE MUTABLE
--- * FOREIGN IMPORT
+-- * COMMON
 
 ---------------------------------------------------------------------------
 -- CLASS IMAGE AND IMAGE MUTABLE
@@ -176,15 +176,6 @@ cidClone st h fd = withForeignPtr fd \d -> mallocBytes n >>= \d' ->
 -- PIXEL
 
 newtype PixelArgb32 = PixelArgb32Word32 Word32 deriving (Show, Storable)
-
-ptr :: forall a . Storable a => CInt -> CInt -> CInt -> Ptr a -> CInt -> CInt -> Maybe (Ptr a)
-ptr w h st p x y
-	| 0 <= x && x < w && 0 <= y && y < h = Just $ p `plusPtr` (fromIntegral y * fromIntegral st + fromIntegral x * u)
-	| otherwise = Nothing
-	where
-	sz = sizeOf (undefined :: a)
-	al = alignment (undefined :: a)
-	u = ((sz - 1) `div` al + 1) * al
 
 {-# COMPLETE PixelArgb32Premultiplied #-}
 
@@ -797,8 +788,17 @@ newRgb30Mut w h = unsafeIOToPrim do
 	pure $ Rgb30Mut w h s fd
 
 ---------------------------------------------------------------------------
--- FOREIGN IMPORT
+-- COMMON
 ---------------------------------------------------------------------------
 
 foreign import ccall "cairo_format_stride_for_width"
 	c_cairo_format_stride_for_width :: #{type cairo_format_t} -> CInt -> IO CInt
+
+ptr :: forall a . Storable a => CInt -> CInt -> CInt -> Ptr a -> CInt -> CInt -> Maybe (Ptr a)
+ptr w h st p x y
+	| 0 <= x && x < w && 0 <= y && y < h = Just $ p `plusPtr` (fromIntegral y * fromIntegral st + fromIntegral x * u)
+	| otherwise = Nothing
+	where
+	sz = sizeOf (undefined :: a)
+	al = alignment (undefined :: a)
+	u = ((sz - 1) `div` al + 1) * al
