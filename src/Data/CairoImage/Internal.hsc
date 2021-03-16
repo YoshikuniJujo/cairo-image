@@ -242,19 +242,22 @@ cairoImageToArgb32 = \case
 instance Image Argb32 where
 	type Pixel Argb32 = PixelArgb32
 	imageSize (Argb32 w h _ _) = (w, h)
-	generateImagePrimM = generateArgb32PrimM
-	pixelAt (Argb32 w h s d) x y = unsafePerformIO do
-		withForeignPtr d \p -> maybe (pure Nothing) ((Just <$>) . peek) $ ptr w h s p x y
+	pixelAt (Argb32 w h s d) x y = unsafePerformIO $ withForeignPtr d \p ->
+		maybe (pure Nothing) ((Just <$>) . peek) $ ptr w h s p x y
+	generateImagePrimM = genArgb32
 
-generateArgb32PrimM :: PrimBase	m => CInt -> CInt -> (CInt -> CInt -> m PixelArgb32) -> m Argb32
-generateArgb32PrimM w h f = unsafeIOToPrim do
+genArgb32 :: PrimBase m => CInt -> CInt -> (CInt -> CInt -> m PixelArgb32) -> m Argb32
+genArgb32 w h f = unsafeIOToPrim do
 	s <- c_cairo_format_stride_for_width #{const CAIRO_FORMAT_ARGB32} w
+	Argb32 w h s <$> gen w h s f
+
+gen :: (PrimBase m, Storable a) => CInt -> CInt -> CInt -> (CInt -> CInt -> m a) -> IO (ForeignPtr a)
+gen w h s f = unsafeIOToPrim do
 	d <- mallocBytes . fromIntegral $ s * h
 	for_ [0 .. h - 1] \y -> for_ [0 .. w - 1] \x -> do
 		p <- unsafePrimToIO $ f x y
 		maybe (pure ()) (`poke` p) $ ptr w h s d x y
-	fd <- newForeignPtr d $ free d
-	pure $ Argb32 w h s fd
+	newForeignPtr d $ free d
 
 -- IMAGE MUTABLE
 
