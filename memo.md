@@ -165,20 +165,20 @@ refactoring
 					- [x] function `cairoImageMutToA8`
 					- [x] `instance ImageMut A8Mut`
 			* [ ] A 1
-				+ [ ] Pixel
-					- [ ] `newtype PixelA1`
-					- [ ] `data Bit`
-					- [ ] function `bit`
-					- [ ] function `ptrA1`
-					- [ ] function `peekA1`
-					- [ ] function `pokeA1`
-				+ [ ] Image
+				+ [x] PIXEL
+					- [x] `newtype PixelA1`
+					- [x] `data Bit`
+					- [x] function `bit`
+					- [x] function `ptrA1`
+					- [x] function `peekA1`
+					- [x] function `pokeA1`
+				+ [ ] IMAGE
 					- [ ] `data A1`
 					- [ ] `pattern CairoImageA1`
 					- [ ] function `cairoImageToA1`
 					- [ ] `instance Image A1`
 					- [ ] function `generateA1PrimM`
-				+ [ ] Image Mutable
+				+ [ ] IMAGE MUTABLE
 					- [ ] `data A1Mut s`
 					- [ ] `pattern CairoImageMutA1`
 					- [ ] function `cairoImageMutToA1`

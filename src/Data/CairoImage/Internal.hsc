@@ -421,21 +421,21 @@ data Bit = O | I deriving (Show, Enum)
 bit :: a -> a -> Bit -> a
 bit x y = \case O -> x; I -> y
 
-ptrA1 :: CInt -> CInt -> CInt -> Ptr PixelA1 -> CInt -> CInt -> Maybe (Ptr PixelA1, CInt)
+ptrA1 :: CInt -> CInt -> CInt ->
+	Ptr PixelA1 -> CInt -> CInt -> Maybe (Ptr PixelA1, CInt)
 ptrA1 w h s p x y
-	| 0 <= x && x < w && 0 <= y && y < h = Just (p `plusPtr` fromIntegral (y * s + x `div` 32 * 4), x `mod` 32)
+	| 0 <= x && x < w && 0 <= y && y < h = Just
+		(p `plusPtr` fromIntegral (y * s + x `div` 32 * 4), x `mod` 32)
 	| otherwise = Nothing
 
 peekA1 :: Ptr PixelA1 -> CInt -> IO PixelA1
-peekA1 p i = do
-	w32 <- peek (castPtr p) :: IO Word32
-	pure . PixelA1 . bool O I $ w32 `testBit` (fromIntegral $(endian [e| i |] [e| 31 - i |]))
+peekA1 (castPtr -> p) (fromIntegral . $(endian [e| id |] [e| (31 -) |]) -> i) =
+	PixelA1 . bool O I . (`testBit` i) <$> peek @Word32 p
 
 pokeA1 :: Ptr PixelA1 -> CInt -> PixelA1 -> IO ()
-pokeA1 p i (PixelA1 b) = do
-	w32 <- peek (castPtr p) :: IO Word32
-	poke (castPtr p) (put w32 (fromIntegral $(endian [e| i |] [e| 31 - i |])) b)
-	where put n j = \case O -> n `clearBit` j; I -> n `setBit` j
+pokeA1 (castPtr -> p)
+	(fromIntegral . $(endian [e| id |] [e| (31 -) |]) -> i) (PixelA1 b) =
+	poke p . flip (bit clearBit setBit b) i =<< peek @Word32 p
 
 -- IMAGE
 
