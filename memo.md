@@ -104,7 +104,14 @@ refactoring
 		- [x] CLASS IMAGE AND IMAGE MUTABLE
 			* [x] `class Image`
 			* [x] `class ImageMut`
-		- [ ] TYPE CAIRO IMAGE AND CAIRO IMAGE MUTABLE
+		- [x] TYPE CAIRO IMAGE AND CAIRO IMAGE MUTABLE
+			* [x] `data CairoImage`
+			* [x] `instance Eq CairoImage`
+			* [x] function `compareBytes`
+			* [x] `data CairoImageMut`
+			* [x] function `cairoImageFreeze`
+			* [x] function `cairoImageThaw`
+			* [x] function `cairoImageDataCopy`
 		- [ ] IMAGE FORMAT
 			* [ ] ARGB 32
 				+ [ ] PIXEL

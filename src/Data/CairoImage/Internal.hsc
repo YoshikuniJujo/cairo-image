@@ -119,10 +119,8 @@ class ImageMut im where
 
 data CairoImage = CairoImage {
 	cairoImageFormat :: #{type cairo_format_t},
-	cairoImageWidth :: CInt,
-	cairoImageHeight :: CInt,
-	cairoImageStride :: CInt,
-	cairoImageData :: ForeignPtr CUChar }
+	cairoImageWidth :: CInt, cairoImageHeight :: CInt,
+	cairoImageStride :: CInt, cairoImageData :: ForeignPtr CUChar }
 	deriving Show
 
 instance Eq CairoImage where
@@ -130,8 +128,7 @@ instance Eq CairoImage where
 		fmt1 == fmt2, w1 == w2, h1 == h2, str1 == str2,
 		unsafePerformIO
 			$ withForeignPtr fd1 \d1 -> withForeignPtr fd2 \d2 ->
-				compareBytes d1 d2 (str1 * h1) >>=
-					\case EQ -> pure True; _ -> pure False ]
+				(EQ ==) <$> compareBytes d1 d2 (str1 * h1) ]
 		where
 		[fmt1, fmt2] = cairoImageFormat <$> [ci1, ci2]
 		[w1, w2] = cairoImageWidth <$> [ci1, ci2]
@@ -142,45 +139,34 @@ instance Eq CairoImage where
 compareBytes :: (Ord n, Num n) => Ptr a -> Ptr a -> n -> IO Ordering
 compareBytes _ _ n | n < 1 = pure EQ
 compareBytes p1 p2 _ | p1 == p2 = pure EQ
-compareBytes p1 p2 n = compare <$> peek p1b <*> peek p2b >>=
-	\case EQ -> compareBytes p1 p2 (n - 1); o -> pure o
-	where [p1b, p2b] = castPtr <$> [p1, p2] :: [Ptr Word8]
+compareBytes p1 p2 n = compare <$> peek pb1 <*> peek pb2 >>= \case
+	EQ -> compareBytes p1 p2 (n - 1); o -> pure o
+	where [pb1, pb2] = castPtr <$> [p1, p2] :: [Ptr Word8]
 
 data CairoImageMut s = CairoImageMut {
 	cairoImageMutFormat :: #{type cairo_format_t},
-	cairoImageMutWidth :: CInt,
-	cairoImageMutHeight :: CInt,
-	cairoImageMutStride :: CInt,
-	cairoImageMutData :: ForeignPtr CUChar }
+	cairoImageMutWidth :: CInt, cairoImageMutHeight :: CInt,
+	cairoImageMutStride :: CInt, cairoImageMutData :: ForeignPtr CUChar }
 	deriving Show
 
-cairoImageDataCopy :: CInt -> CInt -> ForeignPtr CUChar -> IO (ForeignPtr CUChar)
-cairoImageDataCopy str h fdt = withForeignPtr fdt \dt -> do
-	dt' <- mallocBytes . fromIntegral $ str * h
-	copyBytes dt' dt . fromIntegral $ str * h
-	newForeignPtr dt' (free dt')
-
-cairoImageFreeze :: PrimMonad m =>
-	CairoImageMut (PrimState m) -> m CairoImage
-cairoImageFreeze cim = unsafeIOToPrim
-	$ CairoImage fmt w h str <$> cairoImageDataCopy str h dt
+cairoImageFreeze :: PrimMonad m => CairoImageMut (PrimState m) -> m CairoImage
+cairoImageFreeze im = unsafeIOToPrim $ CairoImage f w h st <$> cidClone st h dt
 	where
-	fmt = cairoImageMutFormat cim
-	w = cairoImageMutWidth cim
-	h = cairoImageMutHeight cim
-	str = cairoImageMutStride cim
-	dt = cairoImageMutData cim
+	f = cairoImageMutFormat im
+	w = cairoImageMutWidth im; h = cairoImageMutHeight im
+	st = cairoImageMutStride im; dt = cairoImageMutData im
 
-cairoImageThaw :: PrimMonad m =>
-	CairoImage -> m (CairoImageMut (PrimState m))
-cairoImageThaw ci = unsafeIOToPrim
-	$ CairoImageMut fmt w h str <$> cairoImageDataCopy str h dt
+cairoImageThaw :: PrimMonad m => CairoImage -> m (CairoImageMut (PrimState m))
+cairoImageThaw i = unsafeIOToPrim $ CairoImageMut f w h st <$> cidClone st h dt
 	where
-	fmt = cairoImageFormat ci
-	w = cairoImageWidth ci
-	h = cairoImageHeight ci
-	str = cairoImageStride ci
-	dt = cairoImageData ci
+	f = cairoImageFormat i
+	w = cairoImageWidth i; h = cairoImageHeight i
+	st = cairoImageStride i; dt = cairoImageData i
+
+cidClone :: CInt -> CInt -> ForeignPtr CUChar -> IO (ForeignPtr CUChar)
+cidClone st h fd = withForeignPtr fd \d -> mallocBytes n >>= \d' ->
+	copyBytes d' d n >> newForeignPtr d' (free d')
+	where n = fromIntegral $ st * h
 
 ---------------------------------------------------------------------------
 -- ARGB 32
