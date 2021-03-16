@@ -136,7 +136,7 @@ refactoring
 					- [x] `pattern CairoImageMutArgb32`
 					- [x] function `cairoImageMutToArgb32`
 					- [x] `instance ImageMut Argb32Mut`
-			* [ ] RGB 24
+			* [x] RGB 24
 				+ [x] PIXEL
 					- [x] `newtype PixelRgb24`
 					- [x] `pattern PixelRgb24`
@@ -146,12 +146,11 @@ refactoring
 					- [x] `pattern CairoImageRgb24`
 					- [x] function `cairoImageToRgb24`
 					- [x] `instance Image Rgb24`
-				+ [ ] IMAGE MUTABLE
-					- [ ] `data Rgb24Mut s`
-					- [ ] `pattern CairoImageMutRgb24`
-					- [ ] function `cairoImageMutToRgb24`
-					- [ ] `instance ImageMut Rgb24Mut`
-					- [ ] function `newRgb24Mut`
+				+ [x] IMAGE MUTABLE
+					- [x] `data Rgb24Mut s`
+					- [x] `pattern CairoImageMutRgb24`
+					- [x] function `cairoImageMutToRgb24`
+					- [x] `instance ImageMut Rgb24Mut`
 			* [ ] A 8
 				+ [ ] Pixel
 					- [ ] `newtype PixelA8`

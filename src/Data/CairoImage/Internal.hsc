@@ -1,5 +1,4 @@
-{-# LANGUAGE TemplateHaskell #-}
-{-# LANGUAGE BlockArguments, LambdaCase #-}
+{-# LANGUAGE TemplateHaskell #-} {-# LANGUAGE BlockArguments, LambdaCase #-}
 {-# LANGUAGE PatternSynonyms, ViewPatterns #-}
 {-# LANGUAGE ScopedTypeVariables, TypeApplications #-}
 {-# LANGUAGE DataKinds #-}
@@ -242,9 +241,8 @@ instance Image Argb32 where
 	imageSize (Argb32 w h _ _) = (w, h)
 	pixelAt (Argb32 w h s d) x y = unsafePerformIO $ with d \p ->
 		maybe (pure Nothing) ((Just <$>) . peek) $ ptr w h s p x y
-	generateImagePrimM w h f = unsafeIOToPrim $
-		c_cairo_format_stride_for_width CairoFormatArgb32 w >>= \s ->
-			Argb32 w h s <$> gen w h s f
+	generateImagePrimM w h f = stride CairoFormatArgb32 w >>= \s ->
+		Argb32 w h s <$> gen w h s f
 
 -- IMAGE MUTABLE
 
@@ -271,9 +269,8 @@ instance ImageMut Argb32Mut where
 		maybe (pure Nothing) ((Just <$>) . peek) $ ptr w h s p x y
 	putPixel (Argb32Mut w h s d) x y px = unsafeIOToPrim $ with d \p ->
 		maybe (pure ()) (`poke` px) $ ptr w h s p x y
-	newImageMut w h = unsafeIOToPrim $
-		c_cairo_format_stride_for_width CairoFormatArgb32 w >>= \s ->
-			Argb32Mut w h s <$> new s h
+	newImageMut w h =
+		stride CairoFormatArgb32 w >>= \s -> Argb32Mut w h s <$> new s h
 
 ---------------------------------------------------------------------------
 -- RGB 24
@@ -319,9 +316,8 @@ instance Image Rgb24 where
 	imageSize (Rgb24 w h _ _) = (w, h)
 	pixelAt (Rgb24 w h s d) x y = unsafePerformIO $ with d \p ->
 		maybe (pure Nothing) ((Just <$>) . peek) $ ptr w h s p x y
-	generateImagePrimM w h f = unsafeIOToPrim $
-		c_cairo_format_stride_for_width CairoFormatRgb24 w >>= \s ->
-			Rgb24 w h s <$> gen w h s f
+	generateImagePrimM w h f =
+		stride CairoFormatRgb24 w >>= \s -> Rgb24 w h s <$> gen w h s f
 
 -- IMAGE MUTABLE
 
@@ -344,18 +340,12 @@ cairoImageMutToRgb24 = \case
 instance ImageMut Rgb24Mut where
 	type PixelMut Rgb24Mut = PixelRgb24
 	imageMutSize (Rgb24Mut w h _ _) = (w, h)
-	newImageMut w h = newRgb24Mut w h
-	getPixel (Rgb24Mut w h s d) x y = unsafeIOToPrim do
-		with d \p -> maybe (pure Nothing) ((Just <$>) . peek) $ ptr w h s p x y
-	putPixel (Rgb24Mut w h s d) x y px = unsafeIOToPrim do
-		with d \p -> maybe (pure ()) (`poke` px) $ ptr w h s p x y
-
-newRgb24Mut :: PrimMonad m => CInt -> CInt -> m (Rgb24Mut (PrimState m))
-newRgb24Mut w h = unsafeIOToPrim do
-	s <- c_cairo_format_stride_for_width CairoFormatRgb24 w
-	d <- mallocBytes . fromIntegral $ s * h
-	fd <- newForeignPtr d $ free d
-	pure $ Rgb24Mut w h s fd
+	getPixel (Rgb24Mut w h s d) x y = unsafeIOToPrim $ with d \p ->
+		maybe (pure Nothing) ((Just <$>) . peek) $ ptr w h s p x y
+	putPixel (Rgb24Mut w h s d) x y px = unsafeIOToPrim $ with d \p ->
+		maybe (pure ()) (`poke` px) $ ptr w h s p x y
+	newImageMut w h =
+		stride CairoFormatRgb24 w >>= \s -> Rgb24Mut w h s <$> new s h
 
 ---------------------------------------------------------------------------
 -- A 8
@@ -771,7 +761,7 @@ ptr w h st p x y
 	al = alignment (undefined :: a)
 	u = ((sz - 1) `div` al + 1) * al
 
-gen :: (PrimBase m, Storable a) => CInt -> CInt -> CInt -> (CInt -> CInt -> m a) -> IO (ForeignPtr a)
+gen :: (PrimBase m, Storable a) => CInt -> CInt -> CInt -> (CInt -> CInt -> m a) -> m (ForeignPtr a)
 gen w h s f = unsafeIOToPrim do
 	d <- mallocBytes . fromIntegral $ s * h
 	for_ [0 .. h - 1] \y -> for_ [0 .. w - 1] \x -> do
@@ -779,14 +769,17 @@ gen w h s f = unsafeIOToPrim do
 		maybe (pure ()) (`poke` p) $ ptr w h s d x y
 	newForeignPtr d $ free d
 
-new :: CInt -> CInt -> IO (ForeignPtr a)
-new s h = mallocBytes (fromIntegral $ s * h) >>= \d -> newForeignPtr d $ free d
+new :: PrimMonad m => CInt -> CInt -> m (ForeignPtr a)
+new s h = unsafeIOToPrim $ mallocBytes (fromIntegral $ s * h) >>= \d -> newForeignPtr d $ free d
 
 with :: ForeignPtr a -> (Ptr a -> IO b) -> IO b
 with = withForeignPtr
 
 foreign import ccall "cairo_format_stride_for_width"
 	c_cairo_format_stride_for_width :: #{type cairo_format_t} -> CInt -> IO CInt
+
+stride :: PrimMonad m => #{type cairo_format_t} -> CInt -> m CInt
+stride f w = unsafeIOToPrim $ c_cairo_format_stride_for_width f w
 
 pattern CairoFormatArgb32 :: #{type cairo_format_t}
 pattern CairoFormatArgb32 <- #{const CAIRO_FORMAT_ARGB32}
