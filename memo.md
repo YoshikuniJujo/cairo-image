@@ -101,7 +101,7 @@ refactoring
 				+ [x] IMAEG
 				+ [x] IMAEG MUTABLE
 		- [x] make section COMMON
-		- [ ] move function `gen` to section COMMON
+		- [x] move function `gen` to section COMMON
 	+ [ ] body
 		- [x] CLASS IMAGE AND IMAGE MUTABLE
 			* [x] `class Image`
@@ -126,12 +126,11 @@ refactoring
 					- [x] function `pixelArgb32ToArgbSt`
 					- [x] function `unit`
 					- [x] function `div'`
-				+ [ ] IMAGE
+				+ [x] IMAGE
 					- [x] `data Argb32`
 					- [x] `pattern CairoImageArgb32`
 					- [x] function `cairoImageToArgb32`
 					- [x] `instance Image Argb32`
-					- [ ] function `genArgb32`
 				+ [ ] IMAGE MUTABLE
 					- [ ] `data Argb32Mut s`
 					- [ ] `pattern CairoImageMutArgb32`

@@ -231,11 +231,11 @@ data Argb32 = Argb32 {
 pattern CairoImageArgb32 :: Argb32 -> CairoImage
 pattern CairoImageArgb32 a <- (cairoImageToArgb32 -> Just a)
 	where CairoImageArgb32 (Argb32 w h s d) =
-		CairoImage #{const CAIRO_FORMAT_ARGB32} w h s $ castForeignPtr d
+		CairoImage CairoFormatArgb32 w h s $ castForeignPtr d
 
 cairoImageToArgb32 :: CairoImage -> Maybe Argb32
 cairoImageToArgb32 = \case
-	CairoImage #{const CAIRO_FORMAT_ARGB32} w h s d ->
+	CairoImage CairoFormatArgb32 w h s d ->
 		Just . Argb32 w h s $ castForeignPtr d
 	_ -> Nothing
 
@@ -244,20 +244,9 @@ instance Image Argb32 where
 	imageSize (Argb32 w h _ _) = (w, h)
 	pixelAt (Argb32 w h s d) x y = unsafePerformIO $ withForeignPtr d \p ->
 		maybe (pure Nothing) ((Just <$>) . peek) $ ptr w h s p x y
-	generateImagePrimM = genArgb32
-
-genArgb32 :: PrimBase m => CInt -> CInt -> (CInt -> CInt -> m PixelArgb32) -> m Argb32
-genArgb32 w h f = unsafeIOToPrim do
-	s <- c_cairo_format_stride_for_width #{const CAIRO_FORMAT_ARGB32} w
-	Argb32 w h s <$> gen w h s f
-
-gen :: (PrimBase m, Storable a) => CInt -> CInt -> CInt -> (CInt -> CInt -> m a) -> IO (ForeignPtr a)
-gen w h s f = unsafeIOToPrim do
-	d <- mallocBytes . fromIntegral $ s * h
-	for_ [0 .. h - 1] \y -> for_ [0 .. w - 1] \x -> do
-		p <- unsafePrimToIO $ f x y
-		maybe (pure ()) (`poke` p) $ ptr w h s d x y
-	newForeignPtr d $ free d
+	generateImagePrimM w h f = unsafeIOToPrim $
+		c_cairo_format_stride_for_width CairoFormatArgb32 w >>= \s ->
+			Argb32 w h s <$> gen w h s f
 
 -- IMAGE MUTABLE
 
@@ -269,11 +258,11 @@ data Argb32Mut s = Argb32Mut {
 pattern CairoImageMutArgb32 :: Argb32Mut s -> CairoImageMut s
 pattern CairoImageMutArgb32 a <- (cairoImageMutToArgb32 -> Just a)
 	where CairoImageMutArgb32 (Argb32Mut w h s d) =
-		CairoImageMut #{const CAIRO_FORMAT_ARGB32} w h s $ castForeignPtr d
+		CairoImageMut CairoFormatArgb32 w h s $ castForeignPtr d
 
 cairoImageMutToArgb32 :: CairoImageMut s -> Maybe (Argb32Mut s)
 cairoImageMutToArgb32 = \case
-	CairoImageMut #{const CAIRO_FORMAT_ARGB32} w h s d ->
+	CairoImageMut CairoFormatArgb32 w h s d ->
 		Just . Argb32Mut w h s $ castForeignPtr d
 	_ -> Nothing
 
@@ -288,7 +277,7 @@ instance ImageMut Argb32Mut where
 
 newArgb32Mut :: PrimMonad m => CInt -> CInt -> m (Argb32Mut (PrimState m))
 newArgb32Mut w h = unsafeIOToPrim do
-	s <- c_cairo_format_stride_for_width #{const CAIRO_FORMAT_ARGB32} w
+	s <- c_cairo_format_stride_for_width CairoFormatArgb32 w
 	d <- mallocBytes . fromIntegral $ s * h
 	fd <- newForeignPtr d $ free d
 	pure $ Argb32Mut w h s fd
@@ -793,9 +782,6 @@ newRgb30Mut w h = unsafeIOToPrim do
 -- COMMON
 ---------------------------------------------------------------------------
 
-foreign import ccall "cairo_format_stride_for_width"
-	c_cairo_format_stride_for_width :: #{type cairo_format_t} -> CInt -> IO CInt
-
 ptr :: forall a . Storable a => CInt -> CInt -> CInt -> Ptr a -> CInt -> CInt -> Maybe (Ptr a)
 ptr w h st p x y
 	| 0 <= x && x < w && 0 <= y && y < h = Just $ p `plusPtr` (fromIntegral y * fromIntegral st + fromIntegral x * u)
@@ -804,3 +790,18 @@ ptr w h st p x y
 	sz = sizeOf (undefined :: a)
 	al = alignment (undefined :: a)
 	u = ((sz - 1) `div` al + 1) * al
+
+gen :: (PrimBase m, Storable a) => CInt -> CInt -> CInt -> (CInt -> CInt -> m a) -> IO (ForeignPtr a)
+gen w h s f = unsafeIOToPrim do
+	d <- mallocBytes . fromIntegral $ s * h
+	for_ [0 .. h - 1] \y -> for_ [0 .. w - 1] \x -> do
+		p <- unsafePrimToIO $ f x y
+		maybe (pure ()) (`poke` p) $ ptr w h s d x y
+	newForeignPtr d $ free d
+
+foreign import ccall "cairo_format_stride_for_width"
+	c_cairo_format_stride_for_width :: #{type cairo_format_t} -> CInt -> IO CInt
+
+pattern CairoFormatArgb32 :: #{type cairo_format_t}
+pattern CairoFormatArgb32 <- #{const CAIRO_FORMAT_ARGB32}
+	where CairoFormatArgb32 = #{const CAIRO_FORMAT_ARGB32}
