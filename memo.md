@@ -115,7 +115,7 @@ refactoring
 			* [x] function `cairoImageThaw`
 			* [x] function `cairoImageDataCopy`
 		- [ ] IMAGE FORMAT
-			* [ ] ARGB 32
+			* [x] ARGB 32
 				+ [x] PIXEL
 					- [x] `newtype PixelArgb32`
 					- [x] `pattern PixelArgb32Premultiplied`
@@ -131,12 +131,11 @@ refactoring
 					- [x] `pattern CairoImageArgb32`
 					- [x] function `cairoImageToArgb32`
 					- [x] `instance Image Argb32`
-				+ [ ] IMAGE MUTABLE
-					- [ ] `data Argb32Mut s`
-					- [ ] `pattern CairoImageMutArgb32`
-					- [ ] function `cairoImageMutToArgb32`
-					- [ ] `instance ImageMut Argb32Mut`
-					- [ ] function `newArgb32Mut`
+				+ [x] IMAGE MUTABLE
+					- [x] `data Argb32Mut s`
+					- [x] `pattern CairoImageMutArgb32`
+					- [x] function `cairoImageMutToArgb32`
+					- [x] `instance ImageMut Argb32Mut`
 			* [ ] RGB 24
 				+ [ ] Pixel
 					- [ ] `newtype PixelRgb24`

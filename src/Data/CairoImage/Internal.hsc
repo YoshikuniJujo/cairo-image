@@ -128,9 +128,8 @@ data CairoImage = CairoImage {
 instance Eq CairoImage where
 	ci1 == ci2 = and [
 		fmt1 == fmt2, w1 == w2, h1 == h2, str1 == str2,
-		unsafePerformIO
-			$ withForeignPtr fd1 \d1 -> withForeignPtr fd2 \d2 ->
-				(EQ ==) <$> compareBytes d1 d2 (str1 * h1) ]
+		unsafePerformIO $ with fd1 \d1 -> with fd2 \d2 ->
+			(EQ ==) <$> compareBytes d1 d2 (str1 * h1) ]
 		where
 		[fmt1, fmt2] = cairoImageFormat <$> [ci1, ci2]
 		[w1, w2] = cairoImageWidth <$> [ci1, ci2]
@@ -166,7 +165,7 @@ cairoImageThaw i = unsafeIOToPrim $ CairoImageMut f w h st <$> cidClone st h dt
 	st = cairoImageStride i; dt = cairoImageData i
 
 cidClone :: CInt -> CInt -> ForeignPtr CUChar -> IO (ForeignPtr CUChar)
-cidClone st h fd = withForeignPtr fd \d -> mallocBytes n >>= \d' ->
+cidClone st h fd = with fd \d -> mallocBytes n >>= \d' ->
 	copyBytes d' d n >> newForeignPtr d' (free d')
 	where n = fromIntegral $ st * h
 
@@ -224,8 +223,8 @@ div' n = \case 0 -> 0; m -> n `div` m
 -- IMAGE
 
 data Argb32 = Argb32 {
-	argb32Width :: CInt, argb32Height :: CInt, argb32Stride :: CInt,
-	argb32Data :: ForeignPtr PixelArgb32 }
+	argb32Width :: CInt, argb32Height :: CInt,
+	argb32Stride :: CInt, argb32Data :: ForeignPtr PixelArgb32 }
 	deriving Show
 
 pattern CairoImageArgb32 :: Argb32 -> CairoImage
@@ -242,7 +241,7 @@ cairoImageToArgb32 = \case
 instance Image Argb32 where
 	type Pixel Argb32 = PixelArgb32
 	imageSize (Argb32 w h _ _) = (w, h)
-	pixelAt (Argb32 w h s d) x y = unsafePerformIO $ withForeignPtr d \p ->
+	pixelAt (Argb32 w h s d) x y = unsafePerformIO $ with d \p ->
 		maybe (pure Nothing) ((Just <$>) . peek) $ ptr w h s p x y
 	generateImagePrimM w h f = unsafeIOToPrim $
 		c_cairo_format_stride_for_width CairoFormatArgb32 w >>= \s ->
@@ -251,8 +250,8 @@ instance Image Argb32 where
 -- IMAGE MUTABLE
 
 data Argb32Mut s = Argb32Mut {
-	argb32MutWidth :: CInt, argb32MutHeight :: CInt, argb32MutStride :: CInt,
-	argb32MutData :: ForeignPtr PixelArgb32 }
+	argb32MutWidth :: CInt, argb32MutHeight :: CInt,
+	argb32MutStride :: CInt, argb32MutData :: ForeignPtr PixelArgb32 }
 	deriving Show
 
 pattern CairoImageMutArgb32 :: Argb32Mut s -> CairoImageMut s
@@ -269,18 +268,13 @@ cairoImageMutToArgb32 = \case
 instance ImageMut Argb32Mut where
 	type PixelMut Argb32Mut = PixelArgb32
 	imageMutSize (Argb32Mut w h _ _) = (w, h)
-	newImageMut = newArgb32Mut
-	getPixel (Argb32Mut w h s d) x y = unsafeIOToPrim do
-		withForeignPtr d \p -> maybe (pure Nothing) ((Just <$>) . peek) $ ptr w h s p x y
-	putPixel (Argb32Mut w h s d) x y px = unsafeIOToPrim do
-		withForeignPtr d \p -> maybe (pure ()) (`poke` px) $ ptr w h s p x y
-
-newArgb32Mut :: PrimMonad m => CInt -> CInt -> m (Argb32Mut (PrimState m))
-newArgb32Mut w h = unsafeIOToPrim do
-	s <- c_cairo_format_stride_for_width CairoFormatArgb32 w
-	d <- mallocBytes . fromIntegral $ s * h
-	fd <- newForeignPtr d $ free d
-	pure $ Argb32Mut w h s fd
+	getPixel (Argb32Mut w h s d) x y = unsafeIOToPrim $ with d \p ->
+		maybe (pure Nothing) ((Just <$>) . peek) $ ptr w h s p x y
+	putPixel (Argb32Mut w h s d) x y px = unsafeIOToPrim $ with d \p ->
+		maybe (pure ()) (`poke` px) $ ptr w h s p x y
+	newImageMut w h = unsafeIOToPrim $
+		c_cairo_format_stride_for_width CairoFormatArgb32 w >>= \s ->
+			Argb32Mut w h s <$> new s h
 
 ---------------------------------------------------------------------------
 -- RGB 24
@@ -331,7 +325,7 @@ instance Image Rgb24 where
 	imageSize (Rgb24 w h _ _) = (w, h)
 	generateImagePrimM = generateRgb24PrimM
 	pixelAt (Rgb24 w h s d) x y = unsafePerformIO do
-		withForeignPtr d \p -> maybe (pure Nothing) ((Just <$>) . peek) $ ptrRgb24 w h s p x y
+		with d \p -> maybe (pure Nothing) ((Just <$>) . peek) $ ptrRgb24 w h s p x y
 
 generateRgb24PrimM :: PrimBase m => CInt -> CInt -> (CInt -> CInt -> m PixelRgb24) -> m Rgb24
 generateRgb24PrimM w h f = unsafeIOToPrim do
@@ -366,9 +360,9 @@ instance ImageMut Rgb24Mut where
 	imageMutSize (Rgb24Mut w h _ _) = (w, h)
 	newImageMut w h = newRgb24Mut w h
 	getPixel (Rgb24Mut w h s d) x y = unsafeIOToPrim do
-		withForeignPtr d \p -> maybe (pure Nothing) ((Just <$>) . peek) $ ptrRgb24 w h s p x y
+		with d \p -> maybe (pure Nothing) ((Just <$>) . peek) $ ptrRgb24 w h s p x y
 	putPixel (Rgb24Mut w h s d) x y px = unsafeIOToPrim do
-		withForeignPtr d \p -> maybe (pure ()) (`poke` px) $ ptrRgb24 w h s p x y
+		with d \p -> maybe (pure ()) (`poke` px) $ ptrRgb24 w h s p x y
 
 newRgb24Mut :: PrimMonad m => CInt -> CInt -> m (Rgb24Mut (PrimState m))
 newRgb24Mut w h = unsafeIOToPrim do
@@ -413,7 +407,7 @@ instance Image A8 where
 	imageSize (A8 w h _ _) = (w, h)
 	generateImagePrimM = generateA8PrimM
 	pixelAt (A8 w h s d) x y = unsafePerformIO do
-		withForeignPtr d \p -> maybe (pure Nothing) ((Just <$>) . peek) $ ptrA8 w h s p x y
+		with d \p -> maybe (pure Nothing) ((Just <$>) . peek) $ ptrA8 w h s p x y
 
 generateA8PrimM :: PrimBase m => CInt -> CInt -> (CInt -> CInt -> m PixelA8) -> m A8
 generateA8PrimM w h f = unsafeIOToPrim do
@@ -448,9 +442,9 @@ instance ImageMut A8Mut where
 	imageMutSize (A8Mut w h _ _) = (w, h)
 	newImageMut w h = newA8Mut w h
 	getPixel (A8Mut w h s d) x y = unsafeIOToPrim do
-		withForeignPtr d \p -> maybe (pure Nothing) ((Just <$>) . peek) $ ptrA8 w h s p x y
+		with d \p -> maybe (pure Nothing) ((Just <$>) . peek) $ ptrA8 w h s p x y
 	putPixel (A8Mut w h s d) x y px = unsafeIOToPrim do
-		withForeignPtr d \p -> maybe (pure ()) (`poke` px) $ ptrA8 w h s p x y
+		with d \p -> maybe (pure ()) (`poke` px) $ ptrA8 w h s p x y
 
 newA8Mut :: PrimMonad m => CInt -> CInt -> m (A8Mut (PrimState m))
 newA8Mut w h = unsafeIOToPrim do
@@ -511,7 +505,7 @@ instance Image A1 where
 	imageSize (A1 w h _ _) = (w, h)
 	generateImagePrimM = generateA1PrimM
 	pixelAt (A1 w h s d) x y = unsafePerformIO do
-		withForeignPtr d \p -> maybe (pure Nothing) ((Just <$>) . uncurry peekA1) $ ptrA1 w h s (castPtr p) x y
+		with d \p -> maybe (pure Nothing) ((Just <$>) . uncurry peekA1) $ ptrA1 w h s (castPtr p) x y
 
 generateA1PrimM :: PrimBase m => CInt -> CInt -> (CInt -> CInt -> m PixelA1) -> m A1
 generateA1PrimM w h f = unsafeIOToPrim do
@@ -547,9 +541,9 @@ instance ImageMut A1Mut where
 	imageMutSize (A1Mut w h _ _) = (w, h)
 	newImageMut w h = newA1Mut w h
 	getPixel (A1Mut w h s d) x y = unsafeIOToPrim do
-		withForeignPtr d \p -> maybe (pure Nothing) ((Just <$>) . uncurry peekA1) $ ptrA1 w h s p x y
+		with d \p -> maybe (pure Nothing) ((Just <$>) . uncurry peekA1) $ ptrA1 w h s p x y
 	putPixel (A1Mut w h s d) x y px = unsafeIOToPrim do
-		withForeignPtr d \p -> maybe (pure ()) (\(pt, i) -> pokeA1 pt i px) $ ptrA1 w h s p x y
+		with d \p -> maybe (pure ()) (\(pt, i) -> pokeA1 pt i px) $ ptrA1 w h s p x y
 
 newA1Mut :: PrimMonad m => CInt -> CInt -> m (A1Mut (PrimState m))
 newA1Mut w h = unsafeIOToPrim do
@@ -619,7 +613,7 @@ instance Image Rgb16_565 where
 	imageSize (Rgb16_565 w h _ _) = (w, h)
 	generateImagePrimM = generateRgb16_565PrimM
 	pixelAt (Rgb16_565 w h s d) x y = unsafePerformIO do
-		withForeignPtr d \p -> maybe (pure Nothing) ((Just <$>) . peek) $ ptrRgb16_565 w h s p x y
+		with d \p -> maybe (pure Nothing) ((Just <$>) . peek) $ ptrRgb16_565 w h s p x y
 
 generateRgb16_565PrimM :: PrimBase m => CInt -> CInt -> (CInt -> CInt -> m PixelRgb16_565) -> m Rgb16_565
 generateRgb16_565PrimM w h f = unsafeIOToPrim do
@@ -655,10 +649,10 @@ instance ImageMut Rgb16_565Mut where
 	imageMutSize (Rgb16_565Mut w h _ _) = (w, h)
 	newImageMut w h = newRgb16_565Mut w h
 	getPixel (Rgb16_565Mut w h s d) x y = unsafeIOToPrim do
-		withForeignPtr d \p -> maybe (pure Nothing) ((Just <$>) . peek)
+		with d \p -> maybe (pure Nothing) ((Just <$>) . peek)
 			$ ptrRgb16_565 w h s p x y
 	putPixel (Rgb16_565Mut w h s d) x y px = unsafeIOToPrim do
-		withForeignPtr d \p -> maybe (pure ()) (`poke` px)
+		with d \p -> maybe (pure ()) (`poke` px)
 			$ ptrRgb16_565 w h s p x y
 
 newRgb16_565Mut :: PrimMonad m => CInt -> CInt -> m (Rgb16_565Mut (PrimState m))
@@ -729,7 +723,7 @@ instance Image Rgb30 where
 	imageSize (Rgb30 w h _ _) = (w, h)
 	generateImagePrimM = generateRgb30PrimM
 	pixelAt (Rgb30 w h s d) x y = unsafePerformIO do
-		withForeignPtr d \p -> maybe (pure Nothing) ((Just <$>) . peek) $ ptrRgb30 w h s p x y
+		with d \p -> maybe (pure Nothing) ((Just <$>) . peek) $ ptrRgb30 w h s p x y
 
 generateRgb30PrimM :: PrimBase m => CInt -> CInt -> (CInt -> CInt -> m PixelRgb30) -> m Rgb30
 generateRgb30PrimM w h f = unsafeIOToPrim do
@@ -765,10 +759,10 @@ instance ImageMut Rgb30Mut where
 	imageMutSize (Rgb30Mut w h _ _) = (w, h)
 	newImageMut w h = newRgb30Mut w h
 	getPixel (Rgb30Mut w h s d) x y = unsafeIOToPrim do
-		withForeignPtr d \p -> maybe (pure Nothing) ((Just <$>) . peek)
+		with d \p -> maybe (pure Nothing) ((Just <$>) . peek)
 			$ ptrRgb30 w h s p x y
 	putPixel (Rgb30Mut w h s d) x y px = unsafeIOToPrim do
-		withForeignPtr d \p -> maybe (pure ()) (`poke` px)
+		with d \p -> maybe (pure ()) (`poke` px)
 			$ ptrRgb30 w h s p x y
 
 newRgb30Mut :: PrimMonad m => CInt -> CInt -> m (Rgb30Mut (PrimState m))
@@ -798,6 +792,12 @@ gen w h s f = unsafeIOToPrim do
 		p <- unsafePrimToIO $ f x y
 		maybe (pure ()) (`poke` p) $ ptr w h s d x y
 	newForeignPtr d $ free d
+
+new :: CInt -> CInt -> IO (ForeignPtr a)
+new s h = mallocBytes (fromIntegral $ s * h) >>= \d -> newForeignPtr d $ free d
+
+with :: ForeignPtr a -> (Ptr a -> IO b) -> IO b
+with = withForeignPtr
 
 foreign import ccall "cairo_format_stride_for_width"
 	c_cairo_format_stride_for_width :: #{type cairo_format_t} -> CInt -> IO CInt
