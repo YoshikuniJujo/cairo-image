@@ -355,11 +355,6 @@ instance ImageMut Rgb24Mut where
 
 newtype PixelA8 = PixelA8 Word8 deriving (Show, Storable)
 
-ptrA8 :: CInt -> CInt -> CInt -> Ptr PixelA8 -> CInt -> CInt -> Maybe (Ptr PixelA8)
-ptrA8 w h s p x y
-	| 0 <= x && x < w && 0 <= y && y < h = Just $ p `plusPtr` fromIntegral (y * s + x)
-	| otherwise = Nothing
-
 -- IMAGE
 
 data A8 = A8 {
@@ -370,30 +365,20 @@ data A8 = A8 {
 pattern CairoImageA8 :: A8 -> CairoImage
 pattern CairoImageA8 a <- (cairoImageToA8 -> Just a)
 	where CairoImageA8 (A8 w h s d) =
-		CairoImage #{const CAIRO_FORMAT_A8} w h s $ castForeignPtr d
+		CairoImage CairoFormatA8 w h s $ castForeignPtr d
 
 cairoImageToA8 :: CairoImage -> Maybe A8
 cairoImageToA8 = \case
-	CairoImage #{const CAIRO_FORMAT_A8} w h s d ->
-		Just . A8 w h s $ castForeignPtr d
+	CairoImage CairoFormatA8 w h s d -> Just . A8 w h s $ castForeignPtr d
 	_ -> Nothing
 
 instance Image A8 where
 	type Pixel A8 = PixelA8
 	imageSize (A8 w h _ _) = (w, h)
-	generateImagePrimM = generateA8PrimM
-	pixelAt (A8 w h s d) x y = unsafePerformIO do
-		with d \p -> maybe (pure Nothing) ((Just <$>) . peek) $ ptrA8 w h s p x y
-
-generateA8PrimM :: PrimBase m => CInt -> CInt -> (CInt -> CInt -> m PixelA8) -> m A8
-generateA8PrimM w h f = unsafeIOToPrim do
-	s <- c_cairo_format_stride_for_width #{const CAIRO_FORMAT_A8} w
-	d <- mallocBytes . fromIntegral $ s * h
-	for_ [0 .. h - 1] \y -> for_ [0 .. w - 1] \x -> do
-		p <- unsafePrimToIO $ f x y
-		maybe (pure ()) (`poke` p) $ ptrA8 w h s d x y
-	fd <- newForeignPtr d $ free d
-	pure $ A8 w h s fd
+	pixelAt (A8 w h s d) x y = unsafePerformIO $ with d \p ->
+		maybe (pure Nothing) ((Just <$>) . peek) $ ptr w h s p x y
+	generateImagePrimM w h f =
+		stride CairoFormatA8 w >>= \s -> A8 w h s <$> gen w h s f
 
 -- IMAGE MUTABLE
 
@@ -405,29 +390,23 @@ data A8Mut s = A8Mut {
 pattern CairoImageMutA8 :: A8Mut s -> CairoImageMut s
 pattern CairoImageMutA8 a <- (cairoImageMutToA8 -> Just a)
 	where CairoImageMutA8 (A8Mut w h s d) =
-		CairoImageMut #{const CAIRO_FORMAT_A8} w h s $ castForeignPtr d
+		CairoImageMut CairoFormatA8 w h s $ castForeignPtr d
 
 cairoImageMutToA8 :: CairoImageMut s -> Maybe (A8Mut s)
 cairoImageMutToA8 = \case
-	CairoImageMut #{const CAIRO_FORMAT_A8} w h s d ->
+	CairoImageMut CairoFormatA8 w h s d ->
 		Just . A8Mut w h s $ castForeignPtr d
 	_ -> Nothing
 
 instance ImageMut A8Mut where
 	type PixelMut A8Mut = PixelA8
 	imageMutSize (A8Mut w h _ _) = (w, h)
-	newImageMut w h = newA8Mut w h
-	getPixel (A8Mut w h s d) x y = unsafeIOToPrim do
-		with d \p -> maybe (pure Nothing) ((Just <$>) . peek) $ ptrA8 w h s p x y
-	putPixel (A8Mut w h s d) x y px = unsafeIOToPrim do
-		with d \p -> maybe (pure ()) (`poke` px) $ ptrA8 w h s p x y
-
-newA8Mut :: PrimMonad m => CInt -> CInt -> m (A8Mut (PrimState m))
-newA8Mut w h = unsafeIOToPrim do
-	s <- c_cairo_format_stride_for_width #{const CAIRO_FORMAT_A8} w
-	d <- mallocBytes . fromIntegral $ s * h
-	fd <- newForeignPtr d $ free d
-	pure $ A8Mut w h s fd
+	getPixel (A8Mut w h s d) x y = unsafeIOToPrim $ with d \p ->
+		maybe (pure Nothing) ((Just <$>) . peek) $ ptr w h s p x y
+	putPixel (A8Mut w h s d) x y px = unsafeIOToPrim $ with d \p ->
+		maybe (pure ()) (`poke` px) $ ptr w h s p x y
+	newImageMut w h =
+		stride CairoFormatA8 w >>= \s -> A8Mut w h s <$> new s h
 
 ---------------------------------------------------------------------------
 -- A 1
@@ -782,9 +761,13 @@ stride :: PrimMonad m => #{type cairo_format_t} -> CInt -> m CInt
 stride f w = unsafeIOToPrim $ c_cairo_format_stride_for_width f w
 
 pattern CairoFormatArgb32 :: #{type cairo_format_t}
-pattern CairoFormatArgb32 <- #{const CAIRO_FORMAT_ARGB32}
-	where CairoFormatArgb32 = #{const CAIRO_FORMAT_ARGB32}
+pattern CairoFormatArgb32 <- #{const CAIRO_FORMAT_ARGB32} where
+	CairoFormatArgb32 = #{const CAIRO_FORMAT_ARGB32}
 
 pattern CairoFormatRgb24 :: #{type cairo_format_t}
-pattern CairoFormatRgb24 <- #{const CAIRO_FORMAT_RGB24}
-	where CairoFormatRgb24 = #{const CAIRO_FORMAT_RGB24}
+pattern CairoFormatRgb24 <- #{const CAIRO_FORMAT_RGB24} where
+	CairoFormatRgb24 = #{const CAIRO_FORMAT_RGB24}
+
+pattern CairoFormatA8 :: #{type cairo_format_t}
+pattern CairoFormatA8 <- #{const CAIRO_FORMAT_A8} where
+	CairoFormatA8 = #{const CAIRO_FORMAT_A8}

@@ -151,22 +151,19 @@ refactoring
 					- [x] `pattern CairoImageMutRgb24`
 					- [x] function `cairoImageMutToRgb24`
 					- [x] `instance ImageMut Rgb24Mut`
-			* [ ] A 8
-				+ [ ] Pixel
-					- [ ] `newtype PixelA8`
-					- [ ] function `ptrA8`
-				+ [ ] Image
-					- [ ] `data A8`
-					- [ ] `pattern CairoImageA8`
-					- [ ] function `cairoImageToA8`
-					- [ ] `instance Image A8`
-					- [ ] function `generateA8PrimM`
-				+ [ ] Image Mutable
-					- [ ] `data A8Mut s`
-					- [ ] `pattern CairoImageMutA8`
-					- [ ] function `cairoImageMutToA8`
-					- [ ] `instance ImageMut A8Mut`
-					- [ ] function `newA8Mut`
+			* [x] A 8
+				+ [x] Pixel
+					- [x] `newtype PixelA8`
+				+ [x] Image
+					- [x] `data A8`
+					- [x] `pattern CairoImageA8`
+					- [x] function `cairoImageToA8`
+					- [x] `instance Image A8`
+				+ [x] Image Mutable
+					- [x] `data A8Mut s`
+					- [x] `pattern CairoImageMutA8`
+					- [x] function `cairoImageMutToA8`
+					- [x] `instance ImageMut A8Mut`
 			* [ ] A 1
 				+ [ ] Pixel
 					- [ ] `newtype PixelA1`
