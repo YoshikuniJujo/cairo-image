@@ -114,7 +114,7 @@ refactoring
 			* [x] function `cairoImageFreeze`
 			* [x] function `cairoImageThaw`
 			* [x] function `cairoImageDataCopy`
-		- [ ] IMAGE FORMAT
+		- [x] IMAGE FORMAT
 			* [x] ARGB 32
 				+ [x] PIXEL
 					- [x] `newtype PixelArgb32`
@@ -198,26 +198,22 @@ refactoring
 					- [x] `pattern CairoImageMutRgb16_565`
 					- [x] function `cairoImageMutToRgb16_565`
 					- [x] `instance ImageMut Rgb16_565Mut`
-			* [ ] RGB 30
-				+ [ ] PIXEL
-					- [ ] `newtype PixelRgb30`
-					- [ ] function `ptrRgb30`
-					- [ ] `pattern PixelRgb30`
-					- [ ] function `pixelRgb30FromRgb`
-					- [ ] function `pixelRgb30ToRgb`
-				+ [ ] IMAGE
-					- [ ] `data Rgb30`
-					- [ ] `pattern CairoImageRgb30`
-					- [ ] function `cairoImageToRgb30`
-					- [ ] `instance Image Rgb30`
-					- [ ] function `generateRgb30PrimM`
+			* [x] RGB 30
+				+ [x] PIXEL
+					- [x] `newtype PixelRgb30`
+					- [x] `pattern PixelRgb30`
+					- [x] function `pixelRgb30ToRgb`
+				+ [x] IMAGE
+					- [x] `data Rgb30`
+					- [x] `pattern CairoImageRgb30`
+					- [x] function `cairoImageToRgb30`
+					- [x] `instance Image Rgb30`
 				+ [ ] IMAGE MUTABLE
-					- [ ] `data Rgb30Mut s`
-					- [ ] `pattern CairoImageMutRgb30`
-					- [ ] function `cairoImageMutToRgb30`
-					- [ ] `instance ImageMut Rgb30Mut`
-					- [ ] function `newRgb30Mut`
-	+ [ ] COMMON
+					- [x] `data Rgb30Mut s`
+					- [x] `pattern CairoImageMutRgb30`
+					- [x] function `cairoImageMutToRgb30`
+					- [x] `instance ImageMut Rgb30Mut`
+* [ ] separate common functions from module Data.CairoImage.Internal
 * [ ] refactor Data.CairoImage
 
 test

@@ -51,7 +51,7 @@ import Control.Monad.ST (runST)
 import Data.Foldable (for_)
 import Data.List (foldl1')
 import Data.Bool (bool)
-import Data.Bits ((.&.), (.|.), testBit, clearBit, setBit, shiftL, shiftR)
+import Data.Bits ((.|.), testBit, clearBit, setBit, shiftL, shiftR)
 import Data.Word (Word8, Word16, Word32)
 import Data.Int (Int32)
 import System.IO.Unsafe (unsafePerformIO)
@@ -226,8 +226,8 @@ data Argb32 = Argb32 {
 	deriving Show
 
 pattern CairoImageArgb32 :: Argb32 -> CairoImage
-pattern CairoImageArgb32 a <- (cairoImageToArgb32 -> Just a)
-	where CairoImageArgb32 (Argb32 w h s d) =
+pattern CairoImageArgb32 a <- (cairoImageToArgb32 -> Just a) where
+	CairoImageArgb32 (Argb32 w h s d) =
 		CairoImage CairoFormatArgb32 w h s $ castForeignPtr d
 
 cairoImageToArgb32 :: CairoImage -> Maybe Argb32
@@ -252,8 +252,8 @@ data Argb32Mut s = Argb32Mut {
 	deriving Show
 
 pattern CairoImageMutArgb32 :: Argb32Mut s -> CairoImageMut s
-pattern CairoImageMutArgb32 a <- (cairoImageMutToArgb32 -> Just a)
-	where CairoImageMutArgb32 (Argb32Mut w h s d) =
+pattern CairoImageMutArgb32 a <- (cairoImageMutToArgb32 -> Just a) where
+	CairoImageMutArgb32 (Argb32Mut w h s d) =
 		CairoImageMut CairoFormatArgb32 w h s $ castForeignPtr d
 
 cairoImageMutToArgb32 :: CairoImageMut s -> Maybe (Argb32Mut s)
@@ -301,8 +301,8 @@ data Rgb24 = Rgb24 {
 	deriving Show
 
 pattern CairoImageRgb24 :: Rgb24 -> CairoImage
-pattern CairoImageRgb24 r <- (cairoImageToRgb24 -> Just r)
-	where CairoImageRgb24 (Rgb24 w h s d) =
+pattern CairoImageRgb24 r <- (cairoImageToRgb24 -> Just r) where
+	CairoImageRgb24 (Rgb24 w h s d) =
 		CairoImage CairoFormatRgb24 w h s $ castForeignPtr d
 
 cairoImageToRgb24 :: CairoImage -> Maybe Rgb24
@@ -327,8 +327,8 @@ data Rgb24Mut s = Rgb24Mut {
 	deriving Show
 
 pattern CairoImageMutRgb24 :: Rgb24Mut s -> CairoImageMut s
-pattern CairoImageMutRgb24 r <- (cairoImageMutToRgb24 -> Just r)
-	where CairoImageMutRgb24 (Rgb24Mut w h s d) =
+pattern CairoImageMutRgb24 r <- (cairoImageMutToRgb24 -> Just r) where
+	CairoImageMutRgb24 (Rgb24Mut w h s d) =
 		CairoImageMut CairoFormatRgb24 w h s $ castForeignPtr d
 
 cairoImageMutToRgb24 :: CairoImageMut s -> Maybe (Rgb24Mut s)
@@ -587,26 +587,16 @@ instance ImageMut Rgb16_565Mut where
 
 newtype PixelRgb30 = PixelRgb30Word32 Word32 deriving (Show, Storable)
 
-ptrRgb30 :: CInt -> CInt -> CInt ->
-	Ptr PixelRgb30 -> CInt -> CInt -> Maybe (Ptr PixelRgb30)
-ptrRgb30 w h s p x y
-	| 0 <= x && x < w && 0 <= y && y < h = Just $ p `plusPtr` fromIntegral (y * s + x * 4)
-	| otherwise = Nothing
-
 {-# COMPLETE PixelRgb30 #-}
 
 pattern PixelRgb30 :: Word16 -> Word16 -> Word16 -> PixelRgb30
-pattern PixelRgb30 r g b <- (pixelRgb30ToRgb -> (r, g, b))
-	where PixelRgb30 = pixelRgb30FromRgb
-
-pixelRgb30FromRgb :: Word16 -> Word16 -> Word16 -> PixelRgb30
-pixelRgb30FromRgb
-	(fromIntegral -> r) (fromIntegral -> g) (fromIntegral -> b) =
-	PixelRgb30Word32 $ r' .|. g' .|. b'
-	where
-	r' = (r .&. 0xffc0) `shiftL` (20 - 6)
-	g' = (g .&. 0xffc0) `shiftL` (10 - 6)
-	b' = (b .&. 0xffc0) `shiftR` 6
+pattern PixelRgb30 r g b <- (pixelRgb30ToRgb -> (r, g, b)) where
+	PixelRgb30 (fromIntegral -> r) (fromIntegral -> g) (fromIntegral -> b) =
+		PixelRgb30Word32 $ r' .|. g' .|. b'
+		where
+		r' = r `shiftR` 6 `shiftL` 20
+		g' = g `shiftR` 6 `shiftL` 10
+		b' = b `shiftR` 6
 
 pixelRgb30ToRgb :: PixelRgb30 -> (Word16, Word16, Word16)
 pixelRgb30ToRgb (PixelRgb30Word32 rgb) =
@@ -626,31 +616,21 @@ data Rgb30 = Rgb30 {
 pattern CairoImageRgb30 :: Rgb30 -> CairoImage
 pattern CairoImageRgb30 r <- (cairoImageToRgb30 -> Just r)
 	where CairoImageRgb30 (Rgb30 w h s d) =
-		CairoImage
-			#{const CAIRO_FORMAT_RGB30} w h s $ castForeignPtr d
+		CairoImage CairoFormatRgb30 w h s $ castForeignPtr d
 
 cairoImageToRgb30 :: CairoImage -> Maybe Rgb30
 cairoImageToRgb30 = \case
-	CairoImage #{const CAIRO_FORMAT_RGB30} w h s d ->
+	CairoImage CairoFormatRgb30 w h s d ->
 		Just . Rgb30 w h s $ castForeignPtr d
 	_ -> Nothing
 
 instance Image Rgb30 where
 	type Pixel Rgb30 = PixelRgb30
 	imageSize (Rgb30 w h _ _) = (w, h)
-	generateImagePrimM = generateRgb30PrimM
-	pixelAt (Rgb30 w h s d) x y = unsafePerformIO do
-		with d \p -> maybe (pure Nothing) ((Just <$>) . peek) $ ptrRgb30 w h s p x y
-
-generateRgb30PrimM :: PrimBase m => CInt -> CInt -> (CInt -> CInt -> m PixelRgb30) -> m Rgb30
-generateRgb30PrimM w h f = unsafeIOToPrim do
-	s <- c_cairo_format_stride_for_width #{const CAIRO_FORMAT_RGB30} w
-	d <- mallocBytes . fromIntegral $ s * h
-	for_ [0 .. h - 1] \y -> for_ [0 .. w - 1] \x -> do
-		p <- unsafePrimToIO $ f x y
-		maybe (pure ()) (`poke` p) $ ptrRgb30 w h s d x y
-	fd <- newForeignPtr d $ free d
-	pure $ Rgb30 w h s fd
+	pixelAt (Rgb30 w h s d) x y = unsafePerformIO $ with d \p ->
+		maybe (pure Nothing) ((Just <$>) . peek) $ ptr w h s p x y
+	generateImagePrimM w h f =
+		stride CairoFormatRgb30 w >>= \s -> Rgb30 w h s <$> gen w h s f
 
 -- IMAGE MUTABLE
 
@@ -662,32 +642,23 @@ data Rgb30Mut s = Rgb30Mut {
 pattern CairoImageMutRgb30 :: Rgb30Mut s -> CairoImageMut s
 pattern CairoImageMutRgb30 r <- (cairoImageMutToRgb30 -> Just r)
 	where CairoImageMutRgb30 (Rgb30Mut w h s d) =
-		CairoImageMut
-			#{const CAIRO_FORMAT_RGB30} w h s $ castForeignPtr d
+		CairoImageMut CairoFormatRgb30 w h s $ castForeignPtr d
 
 cairoImageMutToRgb30 :: CairoImageMut s -> Maybe (Rgb30Mut s)
 cairoImageMutToRgb30 = \case
-	CairoImageMut #{const CAIRO_FORMAT_RGB30} w h s d ->
+	CairoImageMut CairoFormatRgb30 w h s d ->
 		Just . Rgb30Mut w h s $ castForeignPtr d
 	_ -> Nothing
 
 instance ImageMut Rgb30Mut where
 	type PixelMut Rgb30Mut = PixelRgb30
 	imageMutSize (Rgb30Mut w h _ _) = (w, h)
-	newImageMut w h = newRgb30Mut w h
-	getPixel (Rgb30Mut w h s d) x y = unsafeIOToPrim do
-		with d \p -> maybe (pure Nothing) ((Just <$>) . peek)
-			$ ptrRgb30 w h s p x y
-	putPixel (Rgb30Mut w h s d) x y px = unsafeIOToPrim do
-		with d \p -> maybe (pure ()) (`poke` px)
-			$ ptrRgb30 w h s p x y
-
-newRgb30Mut :: PrimMonad m => CInt -> CInt -> m (Rgb30Mut (PrimState m))
-newRgb30Mut w h = unsafeIOToPrim do
-	s <- c_cairo_format_stride_for_width #{const CAIRO_FORMAT_RGB30} w
-	d <- mallocBytes . fromIntegral $ s * h
-	fd <- newForeignPtr d $ free d
-	pure $ Rgb30Mut w h s fd
+	getPixel (Rgb30Mut w h s d) x y = unsafeIOToPrim $ with d \p ->
+		maybe (pure Nothing) ((Just <$>) . peek) $ ptr w h s p x y
+	putPixel (Rgb30Mut w h s d) x y px = unsafeIOToPrim $ with d \p ->
+		maybe (pure ()) (`poke` px) $ ptr w h s p x y
+	newImageMut w h =
+		stride CairoFormatRgb30 w >>= \s -> Rgb30Mut w h s <$> new s h
 
 ---------------------------------------------------------------------------
 -- COMMON
@@ -741,3 +712,7 @@ pattern CairoFormatA1 <- #{const CAIRO_FORMAT_A1} where
 pattern CairoFormatRgb16_565 :: #{type cairo_format_t}
 pattern CairoFormatRgb16_565 <- #{const CAIRO_FORMAT_RGB16_565} where
 	CairoFormatRgb16_565 = #{const CAIRO_FORMAT_RGB16_565}
+
+pattern CairoFormatRgb30 :: #{type cairo_format_t}
+pattern CairoFormatRgb30 <- #{const CAIRO_FORMAT_RGB30} where
+	CairoFormatRgb30 = #{const CAIRO_FORMAT_RGB30}
