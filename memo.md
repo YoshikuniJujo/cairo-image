@@ -60,9 +60,8 @@ refactoring
 	+ [x] Data.CairoImage
 		- [x] structure
 		- [x] others
-	+ [ ] Data.CairoImage.Parts
-		- [ ] structore
-		- [ ] others
+	+ [x] Data.CairoImage.Parts
+		- [x] structore
 * [x] refactor System.TargetEndian
 	+ [x] export list
 	+ [x] import list
@@ -73,7 +72,7 @@ refactoring
 		- [x] `data Endian`
 		- [x] function `targetEndian`
 		- [x] function `checkEndian`
-* [ ] refactor Data.CairoImage.Internal
+* [x] refactor Data.CairoImage.Internal
 	+ [x] export list
 	+ [x] import list
 	+ [x] structure
@@ -218,6 +217,10 @@ refactoring
 					- [x] `instance ImageMut Rgb30Mut`
 * [x] separate common functions from module Data.CairoImage.Internal
 * [ ] refactor Data.CairoImage.Parts
+	+ [ ] export list
+	+ [ ] import list
+	+ [ ] structure
+	+ [ ] body
 * [ ] refactor Data.CairoImage
 
 test
