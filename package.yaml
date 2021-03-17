@@ -26,6 +26,9 @@ dependencies:
 
 library:
   source-dirs: src
+  exposed-modules:
+  - Data.CairoImage
+  - Data.CairoImage.Internal
   pkg-config-dependencies: cairo
 
 tests:

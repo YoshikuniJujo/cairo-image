@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: cf2f093d97d6b947a0070e01061b97ccec3be5090ebe162a459c89ef1037f9ab
+-- hash: 33a7a5fa1026d644948a1c8596faab8c9ca4798cca7e9486e5cb76ffa3e021f7
 
 name:           cairo-image
 version:        0.1.0.0
@@ -29,9 +29,9 @@ library
   exposed-modules:
       Data.CairoImage
       Data.CairoImage.Internal
+  other-modules:
       Data.CairoImage.Parts
       System.TargetEndian
-  other-modules:
       Paths_cairo_image
   hs-source-dirs:
       src
