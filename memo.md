@@ -276,4 +276,4 @@ enhancement
 preparation to publish
 ----------------------
 
-* [ ] clarify modules to export
+* [x] clarify modules to export
