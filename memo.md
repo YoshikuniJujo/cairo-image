@@ -216,25 +216,22 @@ refactoring
 					- [x] function `cairoImageMutToRgb30`
 					- [x] `instance ImageMut Rgb30Mut`
 * [x] separate common functions from module Data.CairoImage.Internal
-* [ ] refactor Data.CairoImage.Parts
+* [x] refactor Data.CairoImage.Parts
 	+ [x] export list
 	+ [x] import list
 	+ [x] structure
-	+ [ ] body
-		- [ ] function `gen`
-		- [ ] function `new`
-		- [ ] function `ptr`
-		- [ ] function `stride`
-		- [ ] function `c_cairo_format_stride_for_width`
-		- [ ] `type CairoFormatT`
-		- [ ] `pattern CairoFormatFoo`
-			* [ ] Argb32
-			* [ ] Rgb24
-			* [ ] A8
-			* [ ] A1
-			* [ ] Rgb16_565
-			* [ ] Rgb30
+	+ [x] body
+		- [x] function `gen`
+		- [x] function `new`
+		- [x] function `ptr`
+		- [x] function `stride`
+		- [x] function `c_cairo_format_stride_for_width`
+		- [x] function `with`
+		- [x] `type CairoFormatT`
+		- [x] `pattern CairoFormatFoo`
 * [ ] refactor Data.CairoImage
+	+ [ ] export list
+	+ [ ] import list
 
 test
 ----
@@ -275,3 +272,8 @@ enhancement
 		- [x] instance ImageMut
 	+ [x] `pattern CairoImageRgb30`
 	+ [x] `pattern CairoImageMutRgb30`
+
+preparation to publish
+----------------------
+
+* [ ] clarify modules to export

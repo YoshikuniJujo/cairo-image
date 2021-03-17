@@ -1,5 +1,6 @@
 {-# LANGUAGE BlockArguments #-}
-{-# LANGUAGE ScopedTypeVariables, PatternSynonyms #-}
+{-# LANGUAGE ScopedTypeVariables, TypeApplications, PatternSynonyms,
+	ViewPatterns #-}
 {-# OPTIONS_GHC -Wall -fno-warn-tabs #-}
 
 module Data.CairoImage.Parts (
@@ -33,28 +34,30 @@ import Data.Int (Int32)
 -- TOOL
 ---------------------------------------------------------------------------
 
-gen :: (PrimBase m, Storable a) => CInt -> CInt -> CInt -> (CInt -> CInt -> m a) -> m (ForeignPtr a)
-gen w h s f = unsafeIOToPrim do
-	d <- mallocBytes . fromIntegral $ s * h
-	for_ [0 .. h - 1] \y -> for_ [0 .. w - 1] \x -> do
-		p <- unsafePrimToIO $ f x y
-		maybe (pure ()) (`poke` p) $ ptr w h s d x y
+gen :: (PrimBase m, Storable a) =>
+	CInt -> CInt -> CInt -> (CInt -> CInt -> m a) -> m (ForeignPtr a)
+gen w h s f = unsafeIOToPrim $ mallocBytes (fromIntegral $ s * h) >>= \d -> do
+	for_ [0 .. h - 1] \y -> for_ [0 .. w - 1] \x ->
+		unsafePrimToIO (f x y) >>= \p ->
+			maybe (pure ()) (`poke` p) $ ptr w h s d x y
 	newForeignPtr d $ free d
 
 new :: PrimMonad m => CInt -> CInt -> m (ForeignPtr a)
-new s h = unsafeIOToPrim $ mallocBytes (fromIntegral $ s * h) >>= \d -> newForeignPtr d $ free d
+new s h = unsafeIOToPrim
+	$ mallocBytes (fromIntegral $ s * h) >>= \d -> newForeignPtr d $ free d
 
-ptr :: forall a . Storable a => CInt -> CInt -> CInt -> Ptr a -> CInt -> CInt -> Maybe (Ptr a)
-ptr w h st p x y
-	| 0 <= x && x < w && 0 <= y && y < h = Just $ p `plusPtr` (fromIntegral y * fromIntegral st + fromIntegral x * u)
+ptr :: forall a . Storable a =>
+	CInt -> CInt -> CInt -> Ptr a -> CInt -> CInt -> Maybe (Ptr a)
+ptr (fromIntegral -> w) (fromIntegral -> h) (fromIntegral -> s) p
+	(fromIntegral -> x) (fromIntegral -> y)
+	| 0 <= x && x < w && 0 <= y && y < h = Just $ p `plusPtr` (y * s + b)
 	| otherwise = Nothing
 	where
-	sz = sizeOf (undefined :: a)
-	al = alignment (undefined :: a)
-	u = ((sz - 1) `div` al + 1) * al
+	b = x * ((sizeOf @a undefined - 1) `div` al + 1) * al
+	al = alignment @a undefined
 
 stride :: PrimMonad m => CairoFormatT -> CInt -> m CInt
-stride f w = unsafeIOToPrim $ c_cairo_format_stride_for_width f w
+stride = (unsafeIOToPrim .) . c_cairo_format_stride_for_width
 
 foreign import ccall "cairo_format_stride_for_width"
 	c_cairo_format_stride_for_width :: CairoFormatT -> CInt -> IO CInt
