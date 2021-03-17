@@ -183,25 +183,21 @@ refactoring
 					- [x] `pattern CairoImageMutA1`
 					- [x] function `cairoImageMutToA1`
 					- [x] `instance ImageMut A1Mut`
-			* [ ] RGB 16 565
-				+ [ ] Pixel
-					- [ ] `newtype PixelRgb16_565`
-					- [ ] function `ptrRgb16_565`
-					- [ ] `pattern PixelRgb16_565`
-					- [ ] function `pixelRgb16_565FromRgb`
-					- [ ] function `pixelRgb16_565ToRgb`
-				+ [ ] Image
-					- [ ] `data Rgb16_565`
-					- [ ] `pattern CairoImageRgb16_565`
-					- [ ] function `cairoImageToRgb16_565`
-					- [ ] `instance Image Rgb16_565`
-					- [ ] function `generateRgb16_565PrimM`
-				+ [ ] Image Mutable
-					- [ ] `data Rgb16_565Mut s`
-					- [ ] `pattern CairoImageMutRgb16_565`
-					- [ ] function `cairoImageMutToRgb16_565`
-					- [ ] `instance ImageMut Rgb16_565Mut`
-					- [ ] function `newRgb16_565Mut`
+			* [x] RGB 16 565
+				+ [x] Pixel
+					- [x] `newtype PixelRgb16_565`
+					- [x] `pattern PixelRgb16_565`
+					- [x] function `pixelRgb16_565ToRgb`
+				+ [x] Image
+					- [x] `data Rgb16_565`
+					- [x] `pattern CairoImageRgb16_565`
+					- [x] function `cairoImageToRgb16_565`
+					- [x] `instance Image Rgb16_565`
+				+ [x] Image Mutable
+					- [x] `data Rgb16_565Mut s`
+					- [x] `pattern CairoImageMutRgb16_565`
+					- [x] function `cairoImageMutToRgb16_565`
+					- [x] `instance ImageMut Rgb16_565Mut`
 			* [ ] RGB 30
 				+ [ ] PIXEL
 					- [ ] `newtype PixelRgb30`

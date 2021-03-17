@@ -504,26 +504,17 @@ instance ImageMut A1Mut where
 
 newtype PixelRgb16_565 = PixelRgb16_565Word16 Word16 deriving (Show, Storable)
 
-ptrRgb16_565 :: CInt -> CInt -> CInt ->
-	Ptr PixelRgb16_565 -> CInt -> CInt -> Maybe (Ptr PixelRgb16_565)
-ptrRgb16_565 w h s p x y
-	| 0 <= x && x < w && 0 <= y && y < h = Just $ p `plusPtr` fromIntegral (y * s + x * 2)
-	| otherwise = Nothing
-
 {-# COMPLETE PixelRgb16_565 #-}
 
 pattern PixelRgb16_565 :: Word8 -> Word8 -> Word8 -> PixelRgb16_565
 pattern PixelRgb16_565 r g b <- (pixelRgb16_565ToRgb -> (r, g, b))
-	where PixelRgb16_565 = pixelRgb16_565FromRgb
-
-pixelRgb16_565FromRgb :: Word8 -> Word8 -> Word8 -> PixelRgb16_565
-pixelRgb16_565FromRgb
-	(fromIntegral -> r) (fromIntegral -> g) (fromIntegral -> b) =
-	PixelRgb16_565Word16 $ r' .|. g' .|. b'
-	where
-	r' = (r .&. 0xf8) `shiftL` (11 - 3)
-	g' = (g .&. 0xfc) `shiftL` (5 - 2)
-	b' = (b .&. 0xf8) `shiftR` 3
+	where PixelRgb16_565
+		(fromIntegral -> r) (fromIntegral -> g) (fromIntegral -> b) =
+		PixelRgb16_565Word16 $ r' .|. g' .|. b'
+		where
+		r' = r `shiftR` 3 `shiftL` 11
+		g' = g `shiftR` 2 `shiftL` 5
+		b' = b `shiftR` 3
 
 pixelRgb16_565ToRgb :: PixelRgb16_565 -> (Word8, Word8, Word8)
 pixelRgb16_565ToRgb (PixelRgb16_565Word16 rgb) =
@@ -543,68 +534,50 @@ data Rgb16_565 = Rgb16_565 {
 pattern CairoImageRgb16_565 :: Rgb16_565 -> CairoImage
 pattern CairoImageRgb16_565 r <- (cairoImageToRgb16_565 -> Just r)
 	where CairoImageRgb16_565 (Rgb16_565 w h s d) =
-		CairoImage
-			#{const CAIRO_FORMAT_RGB16_565} w h s $ castForeignPtr d
+		CairoImage CairoFormatRgb16_565 w h s $ castForeignPtr d
 
 cairoImageToRgb16_565 :: CairoImage -> Maybe Rgb16_565
 cairoImageToRgb16_565 = \case
-	CairoImage #{const CAIRO_FORMAT_RGB16_565} w h s d ->
+	CairoImage CairoFormatRgb16_565 w h s d ->
 		Just . Rgb16_565 w h s $ castForeignPtr d
 	_ -> Nothing
 
 instance Image Rgb16_565 where
 	type Pixel Rgb16_565 = PixelRgb16_565
 	imageSize (Rgb16_565 w h _ _) = (w, h)
-	generateImagePrimM = generateRgb16_565PrimM
-	pixelAt (Rgb16_565 w h s d) x y = unsafePerformIO do
-		with d \p -> maybe (pure Nothing) ((Just <$>) . peek) $ ptrRgb16_565 w h s p x y
-
-generateRgb16_565PrimM :: PrimBase m => CInt -> CInt -> (CInt -> CInt -> m PixelRgb16_565) -> m Rgb16_565
-generateRgb16_565PrimM w h f = unsafeIOToPrim do
-	s <- c_cairo_format_stride_for_width #{const CAIRO_FORMAT_RGB16_565} w
-	d <- mallocBytes . fromIntegral $ s * h
-	for_ [0 .. h - 1] \y -> for_ [0 .. w - 1] \x -> do
-		p <- unsafePrimToIO $ f x y
-		maybe (pure ()) (`poke` p) $ ptrRgb16_565 w h s d x y
-	fd <- newForeignPtr d $ free d
-	pure $ Rgb16_565 w h s fd
+	pixelAt (Rgb16_565 w h s d) x y = unsafePerformIO $ with d \p ->
+		maybe (pure Nothing) ((Just <$>) . peek) $ ptr w h s p x y
+	generateImagePrimM w h f = stride CairoFormatRgb16_565 w >>= \s ->
+		Rgb16_565 w h s <$> gen w h s f
 
 -- IMAGE MUTABLE
 
 data Rgb16_565Mut s = Rgb16_565Mut {
 	rgb16_565MutWidth :: CInt, rgb16_565MutHeight :: CInt,
-	rgb16_565MutStride :: CInt, rgb16_565MutData :: ForeignPtr PixelRgb16_565 }
+	rgb16_565MutStride :: CInt,
+	rgb16_565MutData :: ForeignPtr PixelRgb16_565 }
 	deriving Show
 
 pattern CairoImageMutRgb16_565 :: Rgb16_565Mut s -> CairoImageMut s
 pattern CairoImageMutRgb16_565 r <- (cairoImageMutToRgb16_565 -> Just r)
 	where CairoImageMutRgb16_565 (Rgb16_565Mut w h s d) =
-		CairoImageMut
-			#{const CAIRO_FORMAT_RGB16_565} w h s $ castForeignPtr d
+		CairoImageMut CairoFormatRgb16_565 w h s $ castForeignPtr d
 
 cairoImageMutToRgb16_565 :: CairoImageMut s -> Maybe (Rgb16_565Mut s)
 cairoImageMutToRgb16_565 = \case
-	CairoImageMut #{const CAIRO_FORMAT_RGB16_565} w h s d ->
+	CairoImageMut CairoFormatRgb16_565 w h s d ->
 		Just . Rgb16_565Mut w h s $ castForeignPtr d
 	_ -> Nothing
 
 instance ImageMut Rgb16_565Mut where
 	type PixelMut Rgb16_565Mut = PixelRgb16_565
 	imageMutSize (Rgb16_565Mut w h _ _) = (w, h)
-	newImageMut w h = newRgb16_565Mut w h
-	getPixel (Rgb16_565Mut w h s d) x y = unsafeIOToPrim do
-		with d \p -> maybe (pure Nothing) ((Just <$>) . peek)
-			$ ptrRgb16_565 w h s p x y
-	putPixel (Rgb16_565Mut w h s d) x y px = unsafeIOToPrim do
-		with d \p -> maybe (pure ()) (`poke` px)
-			$ ptrRgb16_565 w h s p x y
-
-newRgb16_565Mut :: PrimMonad m => CInt -> CInt -> m (Rgb16_565Mut (PrimState m))
-newRgb16_565Mut w h = unsafeIOToPrim do
-	s <- c_cairo_format_stride_for_width #{const CAIRO_FORMAT_RGB16_565} w
-	d <- mallocBytes . fromIntegral $ s * h
-	fd <- newForeignPtr d $ free d
-	pure $ Rgb16_565Mut w h s fd
+	getPixel (Rgb16_565Mut w h s d) x y = unsafeIOToPrim $ with d \p ->
+		maybe (pure Nothing) ((Just <$>) . peek) $ ptr w h s p x y
+	putPixel (Rgb16_565Mut w h s d) x y px = unsafeIOToPrim $ with d \p ->
+		maybe (pure ()) (`poke` px) $ ptr w h s p x y
+	newImageMut w h = stride CairoFormatRgb16_565 w >>= \s ->
+		Rgb16_565Mut w h s <$> new s h
 
 ---------------------------------------------------------------------------
 -- RGB 30
@@ -764,3 +737,7 @@ pattern CairoFormatA8 <- #{const CAIRO_FORMAT_A8} where
 pattern CairoFormatA1 :: #{type cairo_format_t}
 pattern CairoFormatA1 <- #{const CAIRO_FORMAT_A1} where
 	CairoFormatA1 = #{const CAIRO_FORMAT_A1}
+
+pattern CairoFormatRgb16_565 :: #{type cairo_format_t}
+pattern CairoFormatRgb16_565 <- #{const CAIRO_FORMAT_RGB16_565} where
+	CairoFormatRgb16_565 = #{const CAIRO_FORMAT_RGB16_565}
