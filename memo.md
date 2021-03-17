@@ -60,6 +60,9 @@ refactoring
 	+ [x] Data.CairoImage
 		- [x] structure
 		- [x] others
+	+ [ ] Data.CairoImage.Parts
+		- [ ] structore
+		- [ ] others
 * [x] refactor System.TargetEndian
 	+ [x] export list
 	+ [x] import list
@@ -102,7 +105,7 @@ refactoring
 				+ [x] IMAEG MUTABLE
 		- [x] make section COMMON
 		- [x] move function `gen` to section COMMON
-	+ [ ] body
+	+ [x] body
 		- [x] CLASS IMAGE AND IMAGE MUTABLE
 			* [x] `class Image`
 			* [x] `class ImageMut`
@@ -208,12 +211,13 @@ refactoring
 					- [x] `pattern CairoImageRgb30`
 					- [x] function `cairoImageToRgb30`
 					- [x] `instance Image Rgb30`
-				+ [ ] IMAGE MUTABLE
+				+ [x] IMAGE MUTABLE
 					- [x] `data Rgb30Mut s`
 					- [x] `pattern CairoImageMutRgb30`
 					- [x] function `cairoImageMutToRgb30`
 					- [x] `instance ImageMut Rgb30Mut`
-* [ ] separate common functions from module Data.CairoImage.Internal
+* [x] separate common functions from module Data.CairoImage.Internal
+* [ ] refactor Data.CairoImage.Parts
 * [ ] refactor Data.CairoImage
 
 test
