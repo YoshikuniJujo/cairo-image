@@ -229,9 +229,9 @@ refactoring
 		- [x] function `with`
 		- [x] `type CairoFormatT`
 		- [x] `pattern CairoFormatFoo`
-* [ ] refactor Data.CairoImage
-	+ [ ] export list
-	+ [ ] import list
+* [x] refactor Data.CairoImage
+	+ [x] export list
+	+ [x] import list
 
 test
 ----
