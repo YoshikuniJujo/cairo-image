@@ -33,15 +33,6 @@ import Data.Int (Int32)
 -- TOOL
 ---------------------------------------------------------------------------
 
-ptr :: forall a . Storable a => CInt -> CInt -> CInt -> Ptr a -> CInt -> CInt -> Maybe (Ptr a)
-ptr w h st p x y
-	| 0 <= x && x < w && 0 <= y && y < h = Just $ p `plusPtr` (fromIntegral y * fromIntegral st + fromIntegral x * u)
-	| otherwise = Nothing
-	where
-	sz = sizeOf (undefined :: a)
-	al = alignment (undefined :: a)
-	u = ((sz - 1) `div` al + 1) * al
-
 gen :: (PrimBase m, Storable a) => CInt -> CInt -> CInt -> (CInt -> CInt -> m a) -> m (ForeignPtr a)
 gen w h s f = unsafeIOToPrim do
 	d <- mallocBytes . fromIntegral $ s * h
@@ -53,14 +44,23 @@ gen w h s f = unsafeIOToPrim do
 new :: PrimMonad m => CInt -> CInt -> m (ForeignPtr a)
 new s h = unsafeIOToPrim $ mallocBytes (fromIntegral $ s * h) >>= \d -> newForeignPtr d $ free d
 
-with :: ForeignPtr a -> (Ptr a -> IO b) -> IO b
-with = withForeignPtr
+ptr :: forall a . Storable a => CInt -> CInt -> CInt -> Ptr a -> CInt -> CInt -> Maybe (Ptr a)
+ptr w h st p x y
+	| 0 <= x && x < w && 0 <= y && y < h = Just $ p `plusPtr` (fromIntegral y * fromIntegral st + fromIntegral x * u)
+	| otherwise = Nothing
+	where
+	sz = sizeOf (undefined :: a)
+	al = alignment (undefined :: a)
+	u = ((sz - 1) `div` al + 1) * al
+
+stride :: PrimMonad m => CairoFormatT -> CInt -> m CInt
+stride f w = unsafeIOToPrim $ c_cairo_format_stride_for_width f w
 
 foreign import ccall "cairo_format_stride_for_width"
 	c_cairo_format_stride_for_width :: CairoFormatT -> CInt -> IO CInt
 
-stride :: PrimMonad m => CairoFormatT -> CInt -> m CInt
-stride f w = unsafeIOToPrim $ c_cairo_format_stride_for_width f w
+with :: ForeignPtr a -> (Ptr a -> IO b) -> IO b
+with = withForeignPtr
 
 ---------------------------------------------------------------------------
 -- CAIRO FORMAT
