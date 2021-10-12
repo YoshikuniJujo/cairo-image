@@ -1,3 +1,4 @@
+{-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE BlockArguments #-}
 {-# LANGUAGE ScopedTypeVariables, TypeApplications, PatternSynonyms,
 	ViewPatterns #-}
@@ -18,6 +19,7 @@ import Foreign.Concurrent (newForeignPtr)
 import Foreign.Marshal (mallocBytes, free)
 import Foreign.Storable (Storable, sizeOf, alignment, poke)
 import Foreign.C.Types (CInt(..))
+import Foreign.C.Enum(enum)
 import Control.Monad.Primitive (
 	PrimMonad(..), PrimBase, unsafeIOToPrim, unsafePrimToIO )
 import Data.Foldable (for_)
@@ -27,8 +29,20 @@ import Data.Int (Int32)
 
 ---------------------------------------------------------------------------
 
--- * TOOL
 -- * CAIRO FORMAT
+-- * TOOL
+
+---------------------------------------------------------------------------
+-- CAIRO FORMAT
+---------------------------------------------------------------------------
+
+enum "CairoFormatT" ''#{type cairo_format_t} [''Show, ''Read, ''Eq] [
+	("CairoFormatArgb32", #{const CAIRO_FORMAT_ARGB32}),
+	("CairoFormatRgb24", #{const CAIRO_FORMAT_RGB24}),
+	("CairoFormatA8", #{const CAIRO_FORMAT_A8}),
+	("CairoFormatA1", #{const CAIRO_FORMAT_A1}),
+	("CairoFormatRgb16_565", #{const CAIRO_FORMAT_RGB16_565}),
+	("CairoFormatRgb30", #{const CAIRO_FORMAT_RGB30}) ]
 
 ---------------------------------------------------------------------------
 -- TOOL
@@ -64,33 +78,3 @@ foreign import ccall "cairo_format_stride_for_width"
 
 with :: ForeignPtr a -> (Ptr a -> IO b) -> IO b
 with = withForeignPtr
-
----------------------------------------------------------------------------
--- CAIRO FORMAT
----------------------------------------------------------------------------
-
-type CairoFormatT = #type cairo_format_t
-
-pattern CairoFormatArgb32 :: CairoFormatT
-pattern CairoFormatArgb32 <- #{const CAIRO_FORMAT_ARGB32} where
-	CairoFormatArgb32 = #{const CAIRO_FORMAT_ARGB32}
-
-pattern CairoFormatRgb24 :: CairoFormatT
-pattern CairoFormatRgb24 <- #{const CAIRO_FORMAT_RGB24} where
-	CairoFormatRgb24 = #{const CAIRO_FORMAT_RGB24}
-
-pattern CairoFormatA8 :: CairoFormatT
-pattern CairoFormatA8 <- #{const CAIRO_FORMAT_A8} where
-	CairoFormatA8 = #{const CAIRO_FORMAT_A8}
-
-pattern CairoFormatA1 :: CairoFormatT
-pattern CairoFormatA1 <- #{const CAIRO_FORMAT_A1} where
-	CairoFormatA1 = #{const CAIRO_FORMAT_A1}
-
-pattern CairoFormatRgb16_565 :: CairoFormatT
-pattern CairoFormatRgb16_565 <- #{const CAIRO_FORMAT_RGB16_565} where
-	CairoFormatRgb16_565 = #{const CAIRO_FORMAT_RGB16_565}
-
-pattern CairoFormatRgb30 :: CairoFormatT
-pattern CairoFormatRgb30 <- #{const CAIRO_FORMAT_RGB30} where
-	CairoFormatRgb30 = #{const CAIRO_FORMAT_RGB30}

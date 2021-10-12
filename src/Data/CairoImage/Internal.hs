@@ -36,7 +36,13 @@ module Data.CairoImage.Internal (
 	-- ** RGB 30
 	PixelRgb30(..), pattern PixelRgb30,
 	pattern CairoImageRgb30, Rgb30,
-	pattern CairoImageMutRgb30, Rgb30Mut ) where
+	pattern CairoImageMutRgb30, Rgb30Mut,
+
+	-- * CairoFormatT
+	CairoFormatT,
+	pattern CairoFormatArgb32, pattern CairoFormatRgb24,
+	pattern CairoFormatA8, pattern CairoFormatA1,
+	pattern CairoFormatRgb16_565, pattern CairoFormatRgb30 ) where
 
 import Foreign.Ptr (Ptr, castPtr, plusPtr)
 import Foreign.ForeignPtr (ForeignPtr, castForeignPtr)
