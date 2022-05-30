@@ -8,7 +8,7 @@ module Data.CairoImage.Parts (
 	-- * Tool
 	gen, new, ptr, stride, with,
 	-- * Cairo Format
-	CairoFormatT,
+	CairoFormatT(..),
 	pattern CairoFormatArgb32, pattern CairoFormatRgb24,
 	pattern CairoFormatA8, pattern CairoFormatA1,
 	pattern CairoFormatRgb16_565, pattern CairoFormatRgb30 ) where
