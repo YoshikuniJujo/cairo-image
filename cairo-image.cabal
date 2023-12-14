@@ -4,18 +4,18 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 019144719bfd1a9899dfe8c1822b6002ad8233bee5f37fd9c8f169534c7affe3
+-- hash: ef4b6f0abc0f9efade0ca618c5112151c55a194d6c04be43366c5ca2f489024e
 
 name:           cairo-image
-version:        0.1.0.0
+version:        0.1.0.1
 synopsis:       Image for Cairo
 description:    Please see the README on GitHub at <https://github.com/githubuser/cairo-image#readme>
 category:       Graphics
-homepage:       https://github.com/githubuser/cairo-image#readme
-bug-reports:    https://github.com/githubuser/cairo-image/issues
-author:         Author name here
-maintainer:     example@example.com
-copyright:      2021 Author name here
+homepage:       https://github.com/YoshikuniJujo/cairo-image#readme
+bug-reports:    https://github.com/YoshikuniJujo/cairo-image/issues
+author:         Yoshikuni Jujo
+maintainer:     yoshikuni.jujo@gmail.com
+copyright:      2021 Yoshikuni Jujo
 license:        BSD3
 license-file:   LICENSE
 build-type:     Simple
@@ -25,15 +25,15 @@ extra-source-files:
 
 source-repository head
   type: git
-  location: https://github.com/githubuser/cairo-image
+  location: https://github.com/YoshikuniJujo/cairo-image
 
 library
   exposed-modules:
       Data.CairoImage
       Data.CairoImage.Internal
+      System.TargetEndian
   other-modules:
       Data.CairoImage.Parts
-      System.TargetEndian
       Paths_cairo_image
   hs-source-dirs:
       src
