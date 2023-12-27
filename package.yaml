@@ -1,5 +1,5 @@
 name:                cairo-image
-version:             0.1.0.2
+version:             0.1.0.3
 github:              "YoshikuniJujo/cairo-image"
 license:             BSD3
 author:              "Yoshikuni Jujo"
@@ -21,7 +21,7 @@ description:         Please see the README on GitHub at <https://github.com/Yosh
 
 dependencies:
 - base >= 4.7 && < 5
-- template-haskell >= 2.18.0 && < 2.21
+- template-haskell >= 2.18.0 && < 2.22
 - primitive >= 0.8.0 && < 0.10
 - c-enum >= 0.1.1 && < 0.2
 
