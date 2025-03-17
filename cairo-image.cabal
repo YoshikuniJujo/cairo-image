@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 617a52d74942510bf72548221427626b27533bdb7a3de3a79ba8e9e443a092e9
+-- hash: 9a13fef87c8d5e3c3df6d672dc05388a7edef6664265d5cd9851b420637e749e
 
 name:           cairo-image
 version:        0.1.0.4
@@ -43,7 +43,7 @@ library
       base >=4.7 && <5
     , c-enum >=0.1.1 && <0.2
     , primitive >=0.8.0 && <0.10
-    , template-haskell >=2.18.0 && <2.23
+    , template-haskell >=2.18.0 && <2.24
   default-language: Haskell2010
 
 test-suite cairo-image-test
@@ -59,7 +59,7 @@ test-suite cairo-image-test
     , c-enum >=0.1.1 && <0.2
     , cairo-image
     , primitive >=0.8.0 && <0.10
-    , template-haskell >=2.18.0 && <2.23
+    , template-haskell >=2.18.0 && <2.24
   default-language: Haskell2010
 
 test-suite test-endian
@@ -75,5 +75,5 @@ test-suite test-endian
     , c-enum >=0.1.1 && <0.2
     , cairo-image
     , primitive >=0.8.0 && <0.10
-    , template-haskell >=2.18.0 && <2.23
+    , template-haskell >=2.18.0 && <2.24
   default-language: Haskell2010
