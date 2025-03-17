@@ -4,10 +4,10 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 9a13fef87c8d5e3c3df6d672dc05388a7edef6664265d5cd9851b420637e749e
+-- hash: 6ee3f4995ace5880f7980ee5452af544ef4763c9172302de067cb0789e1958b0
 
 name:           cairo-image
-version:        0.1.0.4
+version:        0.1.0.5
 synopsis:       Image for Cairo
 description:    Please see the README on GitHub at <https://github.com/YoshikuniJujo/cairo-image#readme>
 category:       Graphics
