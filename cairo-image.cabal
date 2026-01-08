@@ -1,13 +1,13 @@
 cabal-version: 1.12
 
--- This file has been generated from package.yaml by hpack version 0.37.0.
+-- This file has been generated from package.yaml by hpack version 0.38.1.
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 6ee3f4995ace5880f7980ee5452af544ef4763c9172302de067cb0789e1958b0
+-- hash: 85cbc939f1a1716989698291ce220e1dfa975b7759c840b1c8f454625f80bba1
 
 name:           cairo-image
-version:        0.1.0.5
+version:        0.1.0.6
 synopsis:       Image for Cairo
 description:    Please see the README on GitHub at <https://github.com/YoshikuniJujo/cairo-image#readme>
 category:       Graphics
@@ -43,7 +43,7 @@ library
       base >=4.7 && <5
     , c-enum >=0.1.1 && <0.2
     , primitive >=0.8.0 && <0.10
-    , template-haskell >=2.18.0 && <2.24
+    , template-haskell >=2.18.0 && <2.25
   default-language: Haskell2010
 
 test-suite cairo-image-test
@@ -59,7 +59,7 @@ test-suite cairo-image-test
     , c-enum >=0.1.1 && <0.2
     , cairo-image
     , primitive >=0.8.0 && <0.10
-    , template-haskell >=2.18.0 && <2.24
+    , template-haskell >=2.18.0 && <2.25
   default-language: Haskell2010
 
 test-suite test-endian
@@ -75,5 +75,5 @@ test-suite test-endian
     , c-enum >=0.1.1 && <0.2
     , cairo-image
     , primitive >=0.8.0 && <0.10
-    , template-haskell >=2.18.0 && <2.24
+    , template-haskell >=2.18.0 && <2.25
   default-language: Haskell2010
